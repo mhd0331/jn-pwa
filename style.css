@@ -39,6 +39,64 @@ body {
     100% { transform: rotate(360deg); }
 }
 
+/* 데스크톱 네비게이션 메뉴 - 수정된 선택자 */
+nav .hidden {
+    display: none;
+}
+
+/* 새로운 네비게이션 메뉴 클래스 */
+.nav-desktop-menu {
+    display: none; /* 기본적으로 숨김 */
+    gap: 1.5rem;
+    align-items: center;
+    visibility: visible;
+    opacity: 1;
+}
+
+/* 네비게이션 메뉴 강제 표시 클래스 */
+nav .nav-menu-visible {
+    display: flex !important;
+    gap: 1.5rem !important;
+    align-items: center !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+@media (min-width: 768px) {
+    nav .hidden {
+        display: flex !important;
+        gap: 1.5rem;
+        align-items: center;
+    }
+    
+    .nav-desktop-menu {
+        display: flex !important;
+        gap: 1.5rem;
+        align-items: center;
+    }
+}
+
+/* 모바일에서는 데스크톱 메뉴 숨김, 햄버거 버튼 표시 */
+@media (max-width: 767px) {
+    .nav-desktop-menu {
+        display: none !important;
+    }
+    
+    /* 모바일 햄버거 메뉴 버튼 강제 표시 */
+    nav > button:last-child {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+}
+
+/* 강제 네비게이션 표시 */
+.force-nav-visible {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
 /* ========== 네비게이션 바 스타일 (통합 및 최적화) ========== */
 header {
     display: block !important;

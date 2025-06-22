@@ -1,4 +1,4 @@
-// 이우규 후보 PWA 메인 스크립트 - 네비게이션 문제 해결
+// 이우규 후보 PWA 메인 스크립트 - data.json 로드 버전
 
 // 전역 변수
 let currentPromiseData = null;
@@ -6,93 +6,147 @@ let deferredPrompt = null;
 let appData = null;
 let currentSection = 'home';
 
-// JSON 데이터 직접 포함 (로딩 문제 해결)
-appData = {
-    candidate: {
-        name: "이우규",
-        position: "진안군수 후보",
-        party: "더불어민주당",
-        slogan: "진안을 새롭게, 군민을 이롭게",
-        vision: "국민주권정부 시대, 진안형 기본사회위원회 구축",
-        description: "진안군민께서 84.4%라는 높은 투표율과 83.69%의 압도적 지지로 보여주신 국민주권정부에 대한 염원을 진안군 차원에서 실현하겠습니다.",
-        experience: [
-            {
-                title: "제8대 진안군의회 의원",
-                period: "전",
-                description: "진안군 발전을 위한 의정활동과 군민의 목소리를 대변하는 의원으로 활동",
-                color: "blue"
-            },
-            {
-                title: "더불어민주당 정책위부의장",
-                period: "현",
-                description: "국정 정책 수립 과정에 참여하며 지역 현안을 중앙 정치에 반영",
-                color: "green"
-            }
-        ],
-        values: [
-            {
-                title: "국민주권",
-                description: "모든 정책에 주민 참여를 기본 원칙으로 합니다"
-            },
-            {
-                title: "주민참여",
-                description: "군민의 열린 토론과 의견 수렴 과정을 거쳐 정책을 수립합니다"
-            }
-        ]
-    },
-    corePromises: [
-        {id: 'participation', title: '주민참여행정', icon: '🤝', color: 'blue'},
-        {id: 'welfare', title: '삶의 질 향상 및 공동체 활력', icon: '💝', color: 'emerald'},
-        {id: 'economy', title: '지속가능한 경제 성장', icon: '💼', color: 'green'},
-        {id: 'administration', title: '미래 100년 행정 혁신', icon: '🏛️', color: 'indigo'},
-        {id: 'infrastructure', title: '주거 및 산업 인프라', icon: '🚌', color: 'orange'},
-        {id: 'population', title: '미래 100년 인구 유입', icon: '🏡', color: 'purple'}
-    ],
-    townshipPromises: [
-        {id: 'jinan', name: '진안읍', population: '약 9,605명', characteristics: '군청 소재지, 상업·행정 중심지'},
-        {id: 'donghyang', name: '동향면', population: '약 1,200명', characteristics: '수려한 자연환경, 생태관광 잠재력'},
-        {id: 'maryeong', name: '마령면', population: '약 1,800명', characteristics: '농업 중심지, 인삼 특산지'},
-        {id: 'baegun', name: '백운면', population: '약 1,400명', characteristics: '농기계 임대사업소 운영, 고령화 진행'},
-        {id: 'bugui', name: '부귀면', population: '약 1,100명', characteristics: '고랭지 농업, 금강·섬진강 발원지'},
-        {id: 'sangjeon', name: '상전면', population: '약 919명', characteristics: '용담댐 수몰지역, 교육시설 부족'},
-        {id: 'seongsu', name: '성수면', population: '약 1,693명', characteristics: '의료 취약지, 고산 협곡 지역'},
-        {id: 'ancheon', name: '안천면', population: '약 1,055명', characteristics: '전북 최소 인구, 용담댐 수몰 영향'},
-        {id: 'yongdam', name: '용담면', population: '약 1,800명', characteristics: '용담호 관광자원, 수변 레저 잠재력'},
-        {id: 'jeongcheon', name: '정천면', population: '약 2,100명', characteristics: '수몰민 최대 지역, 아토피 치유마을'},
-        {id: 'jucheon', name: '주천면', population: '약 902명', characteristics: '인구 소멸 위기, 운일암반일암 관광지'}
-    ],
-    // promiseDetails와 news 데이터는 기존과 동일하므로 생략...
-    promiseDetails: {},
-    news: []
-};
+// 브라우저 확장 프로그램 간섭 방지 및 에러 처리 개선
+window.addEventListener('error', function(event) {
+    if (event.filename && (
+        event.filename.includes('chrome-extension://') ||
+        event.filename.includes('moz-extension://') ||
+        event.filename.includes('content.js') ||
+        event.filename.includes('content_script')
+    )) {
+        console.log('[EXTENSION] 브라우저 확장 프로그램 에러 무시:', event.message);
+        event.preventDefault();
+        return false;
+    }
+    console.error('[WEBSITE ERROR]:', event.error);
+});
 
-// 페이지 로드 시 초기화 - 개선된 버전
-document.addEventListener('DOMContentLoaded', function() {
+// data.json 로드 함수
+async function loadAppData() {
+    try {
+        console.log('[DATA] data.json 로드 시작...');
+        const response = await fetch('./data.json');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('[DATA] data.json 로드 성공:', data);
+        
+        return data;
+    } catch (error) {
+        console.error('[DATA] data.json 로드 실패:', error);
+        
+        // 폴백 데이터 - 최소한의 기본 데이터
+        return {
+            candidate: {
+                name: "이우규",
+                position: "진안군수 후보",
+                party: "더불어민주당",
+                slogan: "진안을 새롭게, 군민을 이롭게",
+                vision: "국민주권정부 시대, 진안형 기본사회위원회 구축",
+                description: "진안군민께서 84.4%라는 높은 투표율과 83.69%의 압도적 지지로 보여주신 국민주권정부에 대한 염원을 진안군 차원에서 실현하겠습니다.",
+                experience: [],
+                values: []
+            },
+            corePromises: [
+                {id: 'participation', title: '주민참여행정', icon: '🤝', color: 'blue'},
+                {id: 'welfare', title: '삶의 질 향상 및 공동체 활력', icon: '💝', color: 'emerald'},
+                {id: 'economy', title: '지속가능한 경제 성장', icon: '💼', color: 'green'},
+                {id: 'administration', title: '미래 100년 행정 혁신', icon: '🏛️', color: 'indigo'},
+                {id: 'infrastructure', title: '주거 및 산업 인프라', icon: '🚌', color: 'orange'},
+                {id: 'population', title: '미래 100년 인구 유입', icon: '🏡', color: 'purple'}
+            ],
+            townshipPromises: [
+                {id: 'jinan', name: '진안읍', population: '약 9,605명', characteristics: '군청 소재지, 상업·행정 중심지'},
+                {id: 'donghyang', name: '동향면', population: '약 1,200명', characteristics: '수려한 자연환경, 생태관광 잠재력'},
+                {id: 'maryeong', name: '마령면', population: '약 1,800명', characteristics: '농업 중심지, 인삼 특산지'},
+                {id: 'baegun', name: '백운면', population: '약 1,400명', characteristics: '농기계 임대사업소 운영, 고령화 진행'},
+                {id: 'bugui', name: '부귀면', population: '약 1,100명', characteristics: '고랭지 농업, 금강·섬진강 발원지'},
+                {id: 'sangjeon', name: '상전면', population: '약 919명', characteristics: '용담댐 수몰지역, 교육시설 부족'},
+                {id: 'seongsu', name: '성수면', population: '약 1,693명', characteristics: '의료 취약지, 고산 협곡 지역'},
+                {id: 'ancheon', name: '안천면', population: '약 1,055명', characteristics: '전북 최소 인구, 용담댐 수몰 영향'},
+                {id: 'yongdam', name: '용담면', population: '약 1,800명', characteristics: '용담호 관광자원, 수변 레저 잠재력'},
+                {id: 'jeongcheon', name: '정천면', population: '약 2,100명', characteristics: '수몰민 최대 지역, 아토피 치유마을'},
+                {id: 'jucheon', name: '주천면', population: '약 902명', characteristics: '인구 소멸 위기, 운일암반일암 관광지'}
+            ],
+            promiseDetails: {},
+            news: []
+        };
+    }
+}
+
+// 로딩 표시/숨김 함수
+function showLoading() {
+    const loadingOverlay = document.getElementById('loading-overlay');
+    if (loadingOverlay) {
+        loadingOverlay.classList.remove('hidden');
+    }
+}
+
+function hideLoading() {
+    const loadingOverlay = document.getElementById('loading-overlay');
+    if (loadingOverlay) {
+        loadingOverlay.classList.add('hidden');
+    }
+}
+
+// 페이지 로드 시 초기화 - 수정된 버전
+document.addEventListener('DOMContentLoaded', async function() {
     console.log('[APP] 초기화 시작');
     
     try {
-        // 네비게이션 바 가시성 확인 및 수정
+        // 로딩 표시
+        showLoading();
+        
+        // 1단계: 네비게이션 바 수정 (최우선)
+        console.log('[APP] 1단계: 네비게이션 바 수정');
         fixNavigationVisibility();
         
-        // 섹션 초기화
+        // 짧은 지연 후 네비게이션 이벤트 설정
+        setTimeout(() => {
+            setupNavigationEvents();
+        }, 100);
+        
+        // 2단계: 섹션 초기화
+        console.log('[APP] 2단계: 섹션 초기화');
         initializeSections();
         
-        // 데이터 렌더링
+        // 3단계: 데이터 로드
+        console.log('[APP] 3단계: 데이터 로드');
+        appData = await loadAppData();
+        
+        if (!appData) {
+            throw new Error('앱 데이터 로드 실패');
+        }
+        
+        // 4단계: 데이터 렌더링
+        console.log('[APP] 4단계: 데이터 렌더링');
         loadCorePromises();
         loadTownshipPromises();
         loadCandidateProfile();
         loadLatestNews();
         
-        // 네비게이션 이벤트 리스너 추가
-        setupNavigationEvents();
-        
-        // 홈 섹션 표시
+        // 5단계: 홈 섹션 표시
+        console.log('[APP] 5단계: 홈 섹션 표시');
         showSection('home');
+        
+        // 6단계: 네비게이션 재확인
+        setTimeout(() => {
+            console.log('[APP] 6단계: 네비게이션 재확인');
+            fixNavigationVisibility();
+        }, 200);
         
         console.log('[APP] 초기화 완료');
     } catch (error) {
         console.error('[APP] 초기화 오류:', error);
         showErrorFallback();
+    } finally {
+        // 로딩 숨김
+        setTimeout(() => {
+            hideLoading();
+        }, 300);
     }
 });
 
@@ -100,6 +154,8 @@ document.addEventListener('DOMContentLoaded', function() {
 function fixNavigationVisibility() {
     const header = document.querySelector('header');
     const nav = document.querySelector('nav');
+    const desktopMenu = document.querySelector('nav .nav-desktop-menu');
+    const mobileMenuButton = document.querySelector('nav > button:last-child');
     
     if (!header) {
         console.error('[NAV] 헤더 엘리먼트를 찾을 수 없습니다');
@@ -111,20 +167,85 @@ function fixNavigationVisibility() {
         return;
     }
     
-    // 강제로 네비게이션 스타일 적용
+    // 헤더 강제 표시
     header.style.display = 'block';
     header.style.visibility = 'visible';
     header.style.opacity = '1';
     header.style.position = 'sticky';
     header.style.top = '0';
     header.style.zIndex = '50';
+    header.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+    header.style.backdropFilter = 'blur(4px)';
+    header.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1)';
     
+    // 네비게이션 강제 표시
     nav.style.display = 'flex';
     nav.style.visibility = 'visible';
     nav.style.opacity = '1';
+    nav.style.alignItems = 'center';
+    nav.style.justifyContent = 'space-between';
+    nav.style.padding = '0.75rem 1rem';
+    nav.style.maxWidth = '1024px';
+    nav.style.margin = '0 auto';
     
-    console.log('[NAV] 네비게이션 가시성 수정 완료');
+    // 로고 버튼 강제 표시
+    const logoButton = nav.querySelector('button:first-child');
+    if (logoButton) {
+        logoButton.style.display = 'flex';
+        logoButton.style.visibility = 'visible';
+        logoButton.style.opacity = '1';
+        logoButton.style.alignItems = 'center';
+        logoButton.style.color = '#1d4ed8';
+        logoButton.style.fontWeight = '700';
+        logoButton.style.fontSize = '1.25rem';
+    }
+    
+    // 화면 크기에 따른 처리
+    const isDesktop = window.innerWidth >= 768;
+    
+    if (isDesktop) {
+        // 데스크톱: 메뉴 표시, 햄버거 버튼 숨김
+        if (desktopMenu) {
+            desktopMenu.style.display = 'flex';
+            desktopMenu.style.visibility = 'visible';
+            desktopMenu.style.opacity = '1';
+            desktopMenu.style.gap = '1.5rem';
+            desktopMenu.style.alignItems = 'center';
+        }
+        
+        if (mobileMenuButton) {
+            mobileMenuButton.style.display = 'none';
+        }
+    } else {
+        // 모바일: 메뉴 숨김, 햄버거 버튼 표시
+        if (desktopMenu) {
+            desktopMenu.style.display = 'none';
+        }
+        
+        if (mobileMenuButton) {
+            mobileMenuButton.style.display = 'block';
+            mobileMenuButton.style.visibility = 'visible';
+            mobileMenuButton.style.opacity = '1';
+        }
+    }
+    
+    // 모든 네비게이션 버튼 스타일 적용
+    const navButtons = document.querySelectorAll('.nav-btn');
+    navButtons.forEach(btn => {
+        btn.style.visibility = 'visible';
+        btn.style.opacity = '1';
+    });
+    
+    console.log('[NAV] 네비게이션 가시성 수정 완료 - ' + (isDesktop ? '데스크톱' : '모바일') + ' 모드');
 }
+
+// 화면 크기 변경 시 네비게이션 다시 조정
+function handleResize() {
+    fixNavigationVisibility();
+}
+
+// 리사이즈 이벤트 리스너 추가
+window.addEventListener('resize', handleResize);
 
 // 네비게이션 이벤트 설정
 function setupNavigationEvents() {
@@ -145,22 +266,39 @@ function setupNavigationEvents() {
         });
     });
     
-    // 모바일 메뉴 토글 버튼
-    const mobileMenuToggle = document.querySelector('[onclick="toggleMobileMenu()"]');
+    // 모바일 메뉴 토글 버튼 - 다양한 방법으로 찾기
+    let mobileMenuToggle = document.querySelector('[onclick="toggleMobileMenu()"]');
+    if (!mobileMenuToggle) {
+        mobileMenuToggle = document.querySelector('nav > button:last-child');
+    }
+    if (!mobileMenuToggle) {
+        mobileMenuToggle = document.querySelector('button[onclick*="toggleMobileMenu"]');
+    }
+    
     if (mobileMenuToggle) {
         mobileMenuToggle.addEventListener('click', function(e) {
             e.preventDefault();
             toggleMobileMenu();
         });
+        console.log('[NAV] 모바일 메뉴 토글 버튼 이벤트 설정 완료');
+    } else {
+        console.warn('[NAV] 모바일 메뉴 토글 버튼을 찾을 수 없습니다');
     }
     
-    // 로고 클릭 이벤트
-    const logoButton = document.querySelector('[onclick="showSection(\'home\')"]');
+    // 로고 클릭 이벤트 - 다양한 방법으로 찾기
+    let logoButton = document.querySelector('[onclick="showSection(\'home\')"]');
+    if (!logoButton) {
+        logoButton = document.querySelector('nav > button:first-child');
+    }
+    
     if (logoButton) {
         logoButton.addEventListener('click', function(e) {
             e.preventDefault();
             showSection('home');
         });
+        console.log('[NAV] 로고 버튼 이벤트 설정 완료');
+    } else {
+        console.warn('[NAV] 로고 버튼을 찾을 수 없습니다');
     }
     
     console.log('[NAV] 네비게이션 이벤트 설정 완료');
@@ -195,6 +333,7 @@ function loadCorePromises() {
     
     if (!appData || !appData.corePromises) {
         console.warn('[PROMISE] 앱 데이터 또는 핵심 공약 데이터가 없습니다');
+        gridElement.innerHTML = '<p class="text-gray-500 col-span-full text-center">공약 데이터를 불러오는 중...</p>';
         return;
     }
     
@@ -225,7 +364,7 @@ function loadCorePromises() {
         console.log('[PROMISE] 6대 핵심 공약 로드 완료');
     } catch (error) {
         console.error('[PROMISE] 6대 공약 로드 오류:', error);
-        gridElement.innerHTML = '<p class="text-red-500">공약 로딩 중 오류가 발생했습니다.</p>';
+        gridElement.innerHTML = '<p class="text-red-500 col-span-full text-center">공약 로딩 중 오류가 발생했습니다.</p>';
     }
 }
 
@@ -239,6 +378,7 @@ function loadTownshipPromises() {
     
     if (!appData || !appData.townshipPromises) {
         console.warn('[TOWNSHIP] 면단위 공약 데이터가 없습니다');
+        gridElement.innerHTML = '<p class="text-gray-500 col-span-full text-center">면단위 공약 데이터를 불러오는 중...</p>';
         return;
     }
     
@@ -255,7 +395,7 @@ function loadTownshipPromises() {
         console.log('[TOWNSHIP] 면단위 공약 로드 완료');
     } catch (error) {
         console.error('[TOWNSHIP] 면단위 공약 로드 오류:', error);
-        gridElement.innerHTML = '<p class="text-red-500">면단위 공약 로딩 중 오류가 발생했습니다.</p>';
+        gridElement.innerHTML = '<p class="text-red-500 col-span-full text-center">면단위 공약 로딩 중 오류가 발생했습니다.</p>';
     }
 }
 
@@ -268,6 +408,8 @@ function loadCandidateProfile() {
     
     const candidate = appData.candidate;
     const profileElement = document.getElementById('candidate-profile');
+    const experienceElement = document.getElementById('candidate-experience');
+    const visionElement = document.getElementById('candidate-vision');
     
     if (!profileElement) {
         console.warn('[PROFILE] candidate-profile 엘리먼트를 찾을 수 없습니다');
@@ -275,6 +417,7 @@ function loadCandidateProfile() {
     }
     
     try {
+        // 기본 프로필
         profileElement.innerHTML = `
             <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
                 <div class="profile-candidate-image flex-shrink-0">
@@ -284,9 +427,52 @@ function loadCandidateProfile() {
                     <h3 class="text-3xl font-bold text-gray-800 mb-2">${candidate.name}</h3>
                     <p class="text-blue-600 font-semibold text-lg mb-3">${candidate.position}</p>
                     <p class="text-gray-700 text-lg italic mb-4">"${candidate.slogan}"</p>
+                    <p class="text-gray-600 text-base">${candidate.description}</p>
                 </div>
             </div>
         `;
+        
+        // 경력 사항
+        if (experienceElement && candidate.experience && candidate.experience.length > 0) {
+            experienceElement.innerHTML = `
+                <h3 class="text-xl font-bold mb-4 flex items-center">
+                    <span class="mr-2">📋</span>
+                    주요 경력
+                </h3>
+                <div class="space-y-3">
+                    ${candidate.experience.map(exp => `
+                        <div class="flex items-start space-x-4 p-4 rounded-lg border border-gray-200">
+                            <div class="w-3 h-3 bg-${exp.color}-500 rounded-full mt-2 flex-shrink-0"></div>
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-2">
+                                    <h4 class="font-semibold text-gray-800">${exp.title}</h4>
+                                    <span class="text-sm px-2 py-1 bg-gray-100 text-gray-600 rounded">${exp.period}</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mt-1">${exp.description}</p>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        // 가치와 비전
+        if (visionElement && candidate.values && candidate.values.length > 0) {
+            visionElement.innerHTML = `
+                <h3 class="text-xl font-bold mb-4 flex items-center">
+                    <span class="mr-2">🎯</span>
+                    핵심 가치
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${candidate.values.map(value => `
+                        <div class="p-4 rounded-lg border border-gray-200 hover:border-blue-300 transition-colors">
+                            <h4 class="font-semibold text-gray-800 mb-2">${value.title}</h4>
+                            <p class="text-gray-600 text-sm">${value.description}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
         
         console.log('[PROFILE] 후보자 프로필 로드 완료');
     } catch (error) {
@@ -335,7 +521,7 @@ function showErrorFallback() {
         mainElement.innerHTML = `
             <div class="text-center py-16">
                 <h2 class="text-2xl font-bold text-gray-800 mb-4">페이지 로딩 중 문제가 발생했습니다</h2>
-                <p class="text-gray-600 mb-8">페이지를 새로고침해 주세요.</p>
+                <p class="text-gray-600 mb-8">데이터 파일을 확인하고 페이지를 새로고침해 주세요.</p>
                 <button onclick="window.location.reload()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">
                     새로고침
                 </button>
@@ -457,7 +643,9 @@ function showPromiseDetail(promiseId) {
         if (promiseListView) promiseListView.classList.add('hidden');
         if (promiseDetailView) promiseDetailView.classList.remove('hidden');
         
-        const promiseData = appData.promiseDetails[promiseId];
+        // promiseDetails에서 데이터 찾기
+        const promiseData = appData && appData.promiseDetails ? appData.promiseDetails[promiseId] : null;
+        
         if (promiseData) {
             currentPromiseData = promiseData;
             
@@ -472,6 +660,17 @@ function showPromiseDetail(promiseId) {
             if (howElement) howElement.textContent = promiseData.how;
         } else {
             console.warn('[PROMISE] 공약 데이터를 찾을 수 없습니다:', promiseId);
+            
+            // 기본 메시지 표시
+            const titleElement = document.getElementById('promise-detail-title');
+            const whyElement = document.getElementById('promise-detail-why');
+            const whatElement = document.getElementById('promise-detail-what');
+            const howElement = document.getElementById('promise-detail-how');
+            
+            if (titleElement) titleElement.textContent = '공약 준비 중';
+            if (whyElement) whyElement.textContent = '해당 공약의 상세 내용을 준비 중입니다.';
+            if (whatElement) whatElement.textContent = '곧 자세한 공약 내용을 확인하실 수 있습니다.';
+            if (howElement) howElement.textContent = '구체적인 실행 방안을 검토 중입니다.';
         }
         
         window.scrollTo(0, 0);
@@ -601,4 +800,12 @@ window.shareWebsite = shareWebsite;
 window.sharePromise = sharePromise;
 window.openMembershipPage = openMembershipPage;
 
-console.log('[SCRIPT] 스크립트 로드 완료');
+// 윈도우 로드 완료 후 최종 네비게이션 확인
+window.addEventListener('load', function() {
+    setTimeout(() => {
+        console.log('[APP] 윈도우 로드 완료 - 네비게이션 최종 확인');
+        fixNavigationVisibility();
+    }, 500);
+});
+
+console.log('[SCRIPT] 스크립트 로드 완료 - data.json 로드 방식');

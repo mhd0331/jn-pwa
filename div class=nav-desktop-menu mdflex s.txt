@@ -1,0 +1,12 @@
+<div class="nav-desktop-menu md:flex space-x-6 text-sm font-semibold">
+                <button onclick="showSection('home')"
+                    class="nav-btn text-gray-700 hover:text-blue-600 transition-colors">홈</button>
+                <button onclick="showSection('promises')"
+                    class="nav-btn text-gray-700 hover:text-blue-600 transition-colors">면단위 공약</button>
+                <button onclick="showSection('profile')"
+                    class="nav-btn text-gray-700 hover:text-blue-600 transition-colors">후보자 소개</button>
+                <button onclick="showSection('news')"
+                    class="nav-btn text-gray-700 hover:text-blue-600 transition-colors">소식/일정</button>
+                <button onclick="showSection('membership')"
+                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">당원가입안내</button>
+            </div>
