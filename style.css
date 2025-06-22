@@ -1,4 +1,4 @@
-/* 이우규 후보 6대 공약 및 면단위 공약 PWA 스타일시트 - 성능 최적화 */
+/* 이우규 후보 6대 공약 및 면단위 공약 PWA 스타일시트 - 에러 수정 및 최적화 */
 
 /* ========== 기본 설정 ========== */
 body {
@@ -7,208 +7,120 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background-color: #f8fafc;
-}
-
-/* ========== 섹션 관리 - 홈화면 안정성 보장 ========== */
-
-/* 페이지 컨테이너 설정 */
-#page-container {
     position: relative;
-    width: 100%;
-    min-height: 50vh;
-    overflow: hidden;
+    z-index: 0;
 }
 
-/* 홈 섹션 기본 표시 보장 */
-#home-section {
-    position: relative !important;
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-    z-index: 10 !important;
-}
-
-/* 기본 섹션 스타일 - 간소화 */
-.page-section {
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    min-height: 100% !important;
-    background: transparent;
-    z-index: 1;
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
-/* 활성 섹션 스타일 - 간소화 */
-.page-section.section-active {
-    position: relative !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-    z-index: 10 !important;
-    display: block !important;
-}
-
-/* 숨겨진 섹션 스타일 - 간소화 */
-.page-section.section-hidden {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-    z-index: -1 !important;
-}
-
-/* 강제 숨김 클래스 */
-.force-hidden {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-}
-
-/* ========== 6대 통합공약 스타일 ========== */
-
-/* 6대 공약 그리드 */
-#core-promises-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-}
-
-/* 6대 공약 카드 기본 스타일 - 성능 최적화 */
-.promise-card {
-    background: white;
-    border-radius: 1rem;
-    padding: 1.5rem 1rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease; /* 애니메이션 간소화 */
-    cursor: pointer;
-    min-height: 120px;
+/* ========== 로딩 오버레이 ========== */
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    position: relative;
-    overflow: hidden;
-    will-change: transform; /* GPU 가속화 */
+    z-index: 9999;
 }
 
-/* 6대 공약 카드 호버 효과 - 간소화 */
-.promise-card:hover {
-    transform: translateY(-2px) scale(1.01); /* 효과 간소화 */
-    box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1);
+.loading {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #2563eb;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
 }
 
-/* 6대 공약 카드 색상별 스타일 - 간소화 */
-.promise-card.bg-blue-50:hover {
-    background: #dbeafe;
-    border: 1px solid #3b82f6;
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
-.promise-card.bg-emerald-50:hover {
-    background: #d1fae5;
-    border: 1px solid #10b981;
+/* ========== 네비게이션 바 스타일 (통합 및 최적화) ========== */
+header {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 50 !important;
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(4px) !important;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
 }
 
-.promise-card.bg-green-50:hover {
-    background: #dcfce7;
-    border: 1px solid #22c55e;
+nav {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0.75rem 1rem !important;
+    max-width: 1024px;
+    margin: 0 auto;
 }
 
-.promise-card.bg-indigo-50:hover {
-    background: #e0e7ff;
-    border: 1px solid #6366f1;
+/* 네비게이션 로고 버튼 */
+nav > button:first-child {
+    display: flex !important;
+    align-items: center !important;
+    color: #1d4ed8 !important;
+    font-weight: 700 !important;
+    font-size: 1.25rem !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    border: none !important;
+    background: transparent !important;
 }
 
-.promise-card.bg-orange-50:hover {
-    background: #fff7ed;
-    border: 1px solid #f97316;
+/* 데스크톱 네비게이션 메뉴 - 수정된 선택자 */
+nav .hidden {
+    display: none;
 }
 
-.promise-card.bg-purple-50:hover {
-    background: #faf5ff;
-    border: 1px solid #a855f7;
+@media (min-width: 768px) {
+    nav .hidden {
+        display: flex !important;
+        gap: 1.5rem;
+        align-items: center;
+    }
 }
 
-/* 6대 공약 아이콘 스타일 */
-.promise-card .text-3xl {
-    font-size: 2.5rem;
-    margin-bottom: 0.75rem;
-    transition: transform 0.2s ease; /* 애니메이션 간소화 */
+/* 모바일 햄버거 메뉴 버튼 */
+nav > button:last-child {
+    display: block;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: #374151;
 }
 
-.promise-card:hover .text-3xl {
-    transform: scale(1.05); /* 효과 간소화 */
+@media (min-width: 768px) {
+    nav > button:last-child {
+        display: none !important;
+    }
 }
 
-/* 6대 공약 텍스트 스타일 */
-.promise-card p {
-    text-align: center;
-    line-height: 1.4;
-    font-weight: 700;
-}
-
-/* ========== 면단위 공약 스타일 ========== */
-
-/* 면단위 공약 카드 스타일 */
-#township-grid-content .promise-card {
-    background: white;
-    border-radius: 0.75rem;
-    padding: 1rem;
-    min-height: 100px;
-    text-align: center;
-    border: 2px solid #e5e7eb;
-    transition: all 0.2s ease; /* 애니메이션 간소화 */
-}
-
-#township-grid-content .promise-card:hover {
-    background: #3b82f6;
-    color: white;
-    border-color: #1e40af;
-    transform: translateY(-1px); /* 효과 간소화 */
-    box-shadow: 0 4px 10px -2px rgba(59, 130, 246, 0.3);
-}
-
-/* 면단위 공약 텍스트 스타일 */
-#township-grid-content .promise-card .font-bold {
-    font-size: 1.1rem;
-    margin-bottom: 0.5rem;
-}
-
-#township-grid-content .promise-card .text-xs {
-    opacity: 0.8;
-}
-
-#township-grid-content .promise-card:hover .text-xs {
-    opacity: 1;
-}
-
-/* ========== 애니메이션 - 간소화 ========== */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-/* 애니메이션 클래스 */
-.fade-in {
-    animation: fadeIn 0.3s ease-out;
-}
-
-/* ========== 네비게이션 ========== */
+/* 네비게이션 버튼 스타일 (통합) */
 .nav-btn {
-    transition: all 0.2s ease; /* 애니메이션 간소화 */
+    transition: all 0.2s ease;
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
+    color: #374151;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    min-height: 44px; /* 터치 친화적 크기 */
 }
 
 .nav-btn:hover {
     background-color: rgba(59, 130, 246, 0.1);
+    color: #2563eb;
 }
 
 .nav-btn.active {
@@ -217,17 +129,181 @@ body {
     background-color: rgba(59, 130, 246, 0.1);
 }
 
-/* ========== 카드 호버 효과 - 간소화 ========== */
-.card-hover {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+/* 모바일 메뉴 스타일 */
+#mobile-menu {
+    background-color: white;
+    border-top: 1px solid #e5e7eb;
+    display: none;
 }
 
-.card-hover:hover {
-    transform: translateY(-2px);
+#mobile-menu:not(.hidden) {
+    display: block;
+}
+
+#mobile-menu button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.75rem 1rem;
+    color: #374151;
+    font-weight: 500;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    min-height: 44px;
+}
+
+#mobile-menu button:hover {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #2563eb;
+}
+
+/* ========== 페이지 섹션 관리 (통합 및 최적화) ========== */
+#page-container {
+    position: relative;
+    width: 100%;
+    min-height: 50vh;
+    overflow: hidden;
+}
+
+.page-section {
+    width: 100%;
+    min-height: 50vh;
+    transition: none; /* 성능 최적화를 위해 애니메이션 제거 */
+}
+
+.page-section.section-active {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.page-section.section-hidden {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    position: absolute !important;
+    z-index: -1 !important;
+}
+
+/* ========== 6대 핵심공약 스타일 ========== */
+#core-promises-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.promise-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    will-change: transform;
+}
+
+.promise-card:hover {
+    transform: translateY(-2px) scale(1.01);
     box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
-/* ========== SNS 버튼 스타일 - 간소화 ========== */
+.promise-card .text-3xl {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+    transition: transform 0.2s ease;
+}
+
+.promise-card:hover .text-3xl {
+    transform: scale(1.05);
+}
+
+.promise-card p {
+    text-align: center;
+    line-height: 1.4;
+    font-weight: 700;
+}
+
+/* ========== 면단위 공약 스타일 ========== */
+#township-grid-content {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+#township-grid-content .promise-card {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    min-height: 100px;
+    text-align: center;
+    border: 2px solid #e5e7eb;
+    transition: all 0.2s ease;
+}
+
+#township-grid-content .promise-card:hover {
+    background: #3b82f6;
+    color: white;
+    border-color: #1e40af;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px -2px rgba(59, 130, 246, 0.3);
+}
+
+#township-grid-content .promise-card .font-bold {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+#township-grid-content .promise-card .text-xs {
+    opacity: 0.8;
+    font-size: 0.75rem;
+}
+
+#township-grid-content .promise-card:hover .text-xs {
+    opacity: 1;
+}
+
+/* ========== Tailwind 색상 클래스 정의 ========== */
+.bg-blue-50 { background-color: #eff6ff; }
+.bg-blue-100 { background-color: #dbeafe; }
+.text-blue-800 { color: #1e40af; }
+.hover\:bg-blue-100:hover { background-color: #dbeafe; }
+
+.bg-emerald-50 { background-color: #ecfdf5; }
+.bg-emerald-100 { background-color: #d1fae5; }
+.text-emerald-800 { color: #065f46; }
+.hover\:bg-emerald-100:hover { background-color: #d1fae5; }
+
+.bg-green-50 { background-color: #f0fdf4; }
+.bg-green-100 { background-color: #dcfce7; }
+.text-green-800 { color: #166534; }
+.hover\:bg-green-100:hover { background-color: #dcfce7; }
+
+.bg-indigo-50 { background-color: #eef2ff; }
+.bg-indigo-100 { background-color: #e0e7ff; }
+.text-indigo-800 { color: #3730a3; }
+.hover\:bg-indigo-100:hover { background-color: #e0e7ff; }
+
+.bg-orange-50 { background-color: #fff7ed; }
+.bg-orange-100 { background-color: #ffedd5; }
+.text-orange-800 { color: #9a3412; }
+.hover\:bg-orange-100:hover { background-color: #ffedd5; }
+
+.bg-purple-50 { background-color: #faf5ff; }
+.bg-purple-100 { background-color: #f3e8ff; }
+.text-purple-800 { color: #6b21a8; }
+.hover\:bg-purple-100:hover { background-color: #f3e8ff; }
+
+/* ========== SNS 버튼 스타일 ========== */
 .sns-container {
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     border: 1px solid #e2e8f0;
@@ -246,11 +322,11 @@ body {
 .sns-container button {
     position: relative;
     z-index: 1;
-    transition: transform 0.2s ease, box-shadow 0.2s ease; /* 애니메이션 간소화 */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .sns-container button:hover {
-    transform: translateY(-1px) scale(1.02); /* 효과 간소화 */
+    transform: translateY(-1px) scale(1.02);
     box-shadow: 0 4px 10px -2px rgba(0, 0, 0, 0.15);
 }
 
@@ -280,14 +356,14 @@ body {
     background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
 }
 
-/* ========== 뉴스 카드 스타일 - 간소화 ========== */
+/* ========== 뉴스 카드 스타일 ========== */
 .news-card {
     background: white;
     border-radius: 12px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease; /* 애니메이션 간소화 */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     border-left: 4px solid #2563eb;
     position: relative;
 }
@@ -322,7 +398,7 @@ body {
     font-size: 0.75rem;
     font-weight: 600;
     border: 1px solid #bfdbfe;
-    transition: all 0.2s ease; /* 애니메이션 간소화 */
+    transition: all 0.2s ease;
 }
 
 .news-card .news-tag:hover {
@@ -335,11 +411,11 @@ body {
 .candidate-photo {
     object-fit: cover;
     border-radius: 50%;
-    transition: transform 0.2s ease; /* 애니메이션 간소화 */
+    transition: transform 0.2s ease;
 }
 
 .candidate-photo:hover {
-    transform: scale(1.03); /* 효과 간소화 */
+    transform: scale(1.03);
 }
 
 .hero-candidate-image {
@@ -399,7 +475,7 @@ body {
     padding: 1.5rem;
     border-radius: 0.75rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease; /* 애니메이션 간소화 */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     border: 1px solid #e5e7eb;
 }
 
@@ -407,6 +483,83 @@ body {
     transform: translateY(-2px);
     box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1);
     border-color: #2563eb;
+}
+
+/* ========== 알림 시스템 ========== */
+#notification-container {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 1000;
+    max-width: 400px;
+}
+
+.notification {
+    animation: fadeIn 0.3s ease-out;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 10px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========== 일반적인 호버 효과 ========== */
+.card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* ========== 에러 발생 시 안전장치 ========== */
+main {
+    min-height: 50vh;
+    position: relative;
+}
+
+.loading-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    color: #6b7280;
+}
+
+/* ========== 포커스 표시 개선 ========== */
+button:focus-visible,
+a:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* ========== 스크롤바 스타일링 ========== */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+}
+
+/* Firefox 스크롤바 */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
 }
 
 /* ========== 반응형 디자인 ========== */
@@ -425,6 +578,12 @@ body {
     .promise-card .text-3xl {
         font-size: 3rem;
         margin-bottom: 1rem;
+    }
+    
+    /* 태블릿에서 면단위 공약 그리드 조정 */
+    #township-grid-content {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
     }
 }
 
@@ -465,12 +624,6 @@ body {
         grid-column: span 2;
         max-width: 60%;
         margin: 0 auto;
-    }
-    
-    /* 모바일에서 면단위 공약 그리드 조정 */
-    #township-grid-content {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.75rem;
     }
     
     /* 모바일에서 뉴스 카드 패딩 조정 */
@@ -546,13 +699,6 @@ body {
         transform: scale(0.98);
         opacity: 0.9;
     }
-    
-    /* 터치 영역 확대 */
-    .nav-btn,
-    button {
-        min-height: 44px;
-        padding: 0.75rem 1rem;
-    }
 }
 
 /* ========== 접근성 - 애니메이션 줄이기 ========== */
@@ -615,72 +761,25 @@ body {
     }
 }
 
-/* ========== 스크롤바 스타일링 ========== */
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: #f1f5f9;
-}
-
-::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
-}
-
-/* Firefox 스크롤바 */
-* {
-    scrollbar-width: thin;
-    scrollbar-color: #cbd5e1 #f1f5f9;
-}
-
-/* ========== 포커스 표시 개선 ========== */
-button:focus-visible,
-a:focus-visible {
-    outline: 2px solid #2563eb;
-    outline-offset: 2px;
-    border-radius: 4px;
-}
-
-/* ========== 알림 시스템 ========== */
-.notification {
-    animation: fadeIn 0.3s ease-out;
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
 /* ========== 프린트 스타일 ========== */
 @media print {
     .no-print,
     header,
+    footer,
     #notification-container,
     #install-banner,
-    .sns-button,
-    .sns-container {
-        display: none !important;
-    }
-    
-    .page-section.section-active {
-        position: relative !important;
-        transform: none !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-    }
-    
-    .page-section.section-hidden {
+    .sns-container,
+    button {
         display: none !important;
     }
     
     body {
         background: white !important;
         color: black !important;
-        font-size: 12pt;
-        line-height: 1.5;
+    }
+    
+    .page-section {
+        page-break-inside: avoid;
     }
     
     .promise-card,
@@ -705,3 +804,109 @@ a:focus-visible {
         page-break-before: avoid;
     }
 }
+
+/* ========== 유틸리티 클래스 ========== */
+.hidden {
+    display: none !important;
+}
+
+.visible {
+    display: block !important;
+}
+
+.opacity-0 {
+    opacity: 0 !important;
+}
+
+.opacity-100 {
+    opacity: 1 !important;
+}
+
+.no-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.pointer-events-none {
+    pointer-events: none !important;
+}
+
+.pointer-events-auto {
+    pointer-events: auto !important;
+}
+
+.overflow-hidden {
+    overflow: hidden !important;
+}
+
+.overflow-auto {
+    overflow: auto !important;
+}
+
+.transition-none {
+    transition: none !important;
+}
+
+/* ========== 버튼 기본 스타일 ========== */
+button {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+/* ========== 인풋 필드 스타일 ========== */
+input, textarea, select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* ========== 안전 영역 패딩 (iOS) ========== */
+.safe-padding {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+}
+
+/* ========== 레이아웃 안정성 ========== */
+img, video {
+    max-width: 100%;
+    height: auto;
+}
+
+/* ========== 그라디언트 배경 ========== */
+.gradient-bg-primary {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+}
+
+.gradient-bg-secondary {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+.gradient-bg-mixed {
+    background: linear-gradient(135deg, #2563eb 0%, #059669 100%);
+}
+
+/* ========== 애니메이션 클래스 ========== */
+.fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.slide-up {
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* ========== 태블릿 호버 효과 ========== */
+@media (hover: hover) and (pointer: fine) {
+    .hover-scale:hover {
+        transform: scale(1.05);
+        transition: transform 0.2s ease;
+    }
+}
+
+/* ========== End of style.css ========== */

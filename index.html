@@ -555,7 +555,218 @@
     </footer>
 
     <!-- 자바스크립트 -->
-    <script src="script.js"></script>
+    <script src="script.js">
+        // 브라우저 확장 프로그램 간섭 방지 및 에러 처리 개선
+
+// 전역 에러 핸들러 설정
+window.addEventListener('error', function(event) {
+    // 브라우저 확장 프로그램 관련 에러는 무시
+    if (event.filename && (
+        event.filename.includes('chrome-extension://') ||
+        event.filename.includes('moz-extension://') ||
+        event.filename.includes('content.js') ||
+        event.filename.includes('content_script')
+    )) {
+        console.log('[EXTENSION] 브라우저 확장 프로그램 에러 무시:', event.message);
+        event.preventDefault();
+        return false;
+    }
+    
+    // 웹사이트 관련 에러만 처리
+    console.error('[WEBSITE ERROR]:', event.error);
+});
+
+// Promise rejection 에러 핸들러
+window.addEventListener('unhandledrejection', function(event) {
+    // JSON 파싱 에러가 확장 프로그램에서 온 경우 무시
+    if (event.reason && event.reason.message && 
+        (event.reason.message.includes('JSON.parse') || 
+         event.reason.message.includes('storageChangeDispatcher'))) {
+        console.log('[EXTENSION] 확장 프로그램 JSON 파싱 에러 무시:', event.reason.message);
+        event.preventDefault();
+        return false;
+    }
+    
+    console.error('[PROMISE REJECTION]:', event.reason);
+});
+
+// JSON.parse 안전 래퍼 함수
+function safeJSONParse(jsonString, fallback = null) {
+    try {
+        if (typeof jsonString !== 'string') {
+            console.warn('[SAFE PARSE] JSON 파싱 대상이 문자열이 아닙니다:', typeof jsonString);
+            return fallback;
+        }
+        
+        if (jsonString.trim() === '') {
+            console.warn('[SAFE PARSE] 빈 문자열입니다');
+            return fallback;
+        }
+        
+        // "[object Object]" 같은 문제가 있는 문자열 체크
+        if (jsonString.includes('[object Object]')) {
+            console.warn('[SAFE PARSE] 잘못된 객체 문자열:', jsonString);
+            return fallback;
+        }
+        
+        return JSON.parse(jsonString);
+    } catch (error) {
+        console.warn('[SAFE PARSE] JSON 파싱 실패:', error.message, 'Input:', jsonString);
+        return fallback;
+    }
+}
+
+// 로컬스토리지 안전 래퍼 함수들
+const SafeStorage = {
+    setItem: function(key, value) {
+        try {
+            if (typeof value === 'object') {
+                localStorage.setItem(key, JSON.stringify(value));
+            } else {
+                localStorage.setItem(key, value);
+            }
+            return true;
+        } catch (error) {
+            console.warn('[SAFE STORAGE] setItem 실패:', error.message);
+            return false;
+        }
+    },
+    
+    getItem: function(key, fallback = null) {
+        try {
+            const item = localStorage.getItem(key);
+            if (item === null) {
+                return fallback;
+            }
+            
+            // JSON 형태인지 확인
+            if (item.startsWith('{') || item.startsWith('[')) {
+                return safeJSONParse(item, fallback);
+            }
+            
+            return item;
+        } catch (error) {
+            console.warn('[SAFE STORAGE] getItem 실패:', error.message);
+            return fallback;
+        }
+    },
+    
+    removeItem: function(key) {
+        try {
+            localStorage.removeItem(key);
+            return true;
+        } catch (error) {
+            console.warn('[SAFE STORAGE] removeItem 실패:', error.message);
+            return false;
+        }
+    }
+};
+
+// 브라우저 확장 프로그램 감지 및 경고
+function detectExtensionInterference() {
+    // Chrome 확장 프로그램 감지
+    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
+        console.log('[EXTENSION] Chrome 확장 프로그램 환경 감지됨');
+    }
+    
+    // Firefox 확장 프로그램 감지
+    if (typeof browser !== 'undefined' && browser.runtime) {
+        console.log('[EXTENSION] Firefox 확장 프로그램 환경 감지됨');
+    }
+    
+    // Content Script 감지
+    if (document.documentElement.getAttribute('data-extension-injected')) {
+        console.log('[EXTENSION] Content Script 주입 감지됨');
+    }
+    
+    // DOM 변경 감시로 확장 프로그램 간섭 체크
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList') {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        // 확장 프로그램이 주입한 요소 체크
+                        if (node.className && typeof node.className === 'string' && 
+                            (node.className.includes('extension') || 
+                             node.className.includes('chrome-') ||
+                             node.className.includes('moz-'))) {
+                            console.log('[EXTENSION] 확장 프로그램이 DOM에 요소 추가:', node);
+                        }
+                    }
+                });
+            }
+        });
+    });
+    
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+}
+
+// 네트워크 요청 인터셉터 (확장 프로그램 간섭 방지)
+const originalFetch = window.fetch;
+window.fetch = function(...args) {
+    const url = args[0];
+    
+    // 확장 프로그램 관련 요청은 차단
+    if (typeof url === 'string' && (
+        url.includes('chrome-extension://') ||
+        url.includes('moz-extension://') ||
+        url.includes('extension://')
+    )) {
+        console.log('[EXTENSION] 확장 프로그램 네트워크 요청 차단:', url);
+        return Promise.reject(new Error('Extension request blocked'));
+    }
+    
+    return originalFetch.apply(this, args)
+        .catch(error => {
+            console.warn('[FETCH] 네트워크 요청 실패:', error.message);
+            throw error;
+        });
+};
+
+// 초기화 시 확장 프로그램 간섭 체크
+document.addEventListener('DOMContentLoaded', function() {
+    detectExtensionInterference();
+    
+    // 확장 프로그램 관련 콘솔 에러 필터링
+    const originalConsoleError = console.error;
+    console.error = function(...args) {
+        const message = args.join(' ');
+        
+        // 확장 프로그램 관련 에러는 warn으로 변경
+        if (message.includes('content.js') || 
+            message.includes('storageChangeDispatcher') ||
+            message.includes('chrome-extension') ||
+            message.includes('moz-extension')) {
+            console.warn('[EXTENSION ERROR]:', ...args);
+            return;
+        }
+        
+        // 일반 에러는 그대로 표시
+        originalConsoleError.apply(console, args);
+    };
+});
+
+// CSP (Content Security Policy) 관련 에러 방지
+function preventCSPErrors() {
+    // inline script 실행 전 CSP 체크
+    const metaCSP = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
+    if (metaCSP) {
+        const cspContent = metaCSP.getAttribute('content');
+        if (cspContent && !cspContent.includes("'unsafe-inline'")) {
+            console.warn('[CSP] Inline script 실행이 제한될 수 있습니다');
+        }
+    }
+}
+
+// 익스포트
+window.SafeStorage = SafeStorage;
+window.safeJSONParse = safeJSONParse;
+
+console.log('[PROTECTION] 브라우저 확장 프로그램 간섭 방지 시스템 활성화됨');
+    </script>
 </body>
 
 </html>
