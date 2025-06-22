@@ -7,6 +7,20 @@
     <meta name="theme-color" content="#2563eb">
     <meta name="description" content="이우규 후보의 6대 핵심 공약과 면단위 공약을 확인하세요. 국민주권정부 시대, 진안형 기본사회위원회 구축">
 
+    <!-- 1. <head> 섹션에 캐시 방지 메타태그 추가 (8번째 줄 근처) -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="description" content="이우규 후보의 6대 핵심 공약과 면단위 공약을 확인하세요. 국민주권정부 시대, 진안형 기본사회위원회 구축">
+
+    <!-- 캐시 방지 메타태그 추가 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
 
@@ -31,7 +45,8 @@
         rel="stylesheet">
 
     <!-- 스타일시트 -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=1.2">
+    
 </head>
 
 <body class="bg-gray-100">
@@ -129,11 +144,11 @@
                         </div>
                     </div>
                     <!-- 후보자 이미지 -->
-                    <div class="hero-candidate-image">
-                        <img src="candidate-photo.jpg" alt="이우규 후보" class="candidate-photo"
-                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                        <div class="image-fallback" style="display: none;">이우규</div>
-                    </div>
+<div class="hero-candidate-image">
+    <img src="candidate-photo.jpg" alt="이우규 후보" class="candidate-photo"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <div class="image-fallback" style="display: none;">이우규</div>
+</div>
                 </div>
 
                 <!-- 6대 핵심 공약 그리드 -->
@@ -556,7 +571,7 @@
     </footer>
 
     <!-- 자바스크립트 -->
-    <script src="script.js">
+    <script src="script.js?v=1.2">
         // 브라우저 확장 프로그램 간섭 방지 및 에러 처리 개선
 
 // 전역 에러 핸들러 설정

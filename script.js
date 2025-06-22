@@ -23,9 +23,9 @@ window.addEventListener('error', function(event) {
 
 // data.json 로드 함수
 async function loadAppData() {
-    try {
+     try {
         console.log('[DATA] data.json 로드 시작...');
-        const response = await fetch('./data.json');
+        const response = await fetch('./data.json?v=' + Date.now()); // 타임스탬프 추가
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -94,8 +94,36 @@ function hideLoading() {
 
 // 페이지 로드 시 초기화 - 수정된 버전
 document.addEventListener('DOMContentLoaded', async function() {
-    console.log('[APP] 초기화 시작');
+    console.log('[APP] 초기화 시작 - 캐시 방지 모드');
     
+// 캐시 강제 새로고침 체크
+    const lastVersion = localStorage.getItem('app-version');
+    const currentVersion = '1.2';
+    
+    if (lastVersion !== currentVersion) {
+        console.log('[CACHE] 새 버전 감지 - 캐시 정리');
+        localStorage.setItem('app-version', currentVersion);
+        
+        // Service Worker 캐시 정리
+        if ('caches' in window) {
+            caches.keys().then(cacheNames => {
+                cacheNames.forEach(cacheName => {
+                    if (cacheName.startsWith('jinan-pwa-v')) {
+                        console.log('[CACHE] 이전 캐시 삭제:', cacheName);
+                        caches.delete(cacheName);
+                    }
+                });
+            });
+        }
+
+        // 페이지 새로고침 (한 번만)
+        if (!sessionStorage.getItem('refreshed')) {
+            sessionStorage.setItem('refreshed', 'true');
+            window.location.reload(true);
+            return;
+        }
+    }
+
     try {
         // 로딩 표시
         showLoading();
@@ -419,18 +447,20 @@ function loadCandidateProfile() {
     try {
         // 기본 프로필
         profileElement.innerHTML = `
-            <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
-                <div class="profile-candidate-image flex-shrink-0">
-                    <div class="image-fallback">${candidate.name}</div>
-                </div>
-                <div class="text-center md:text-left flex-1">
-                    <h3 class="text-3xl font-bold text-gray-800 mb-2">${candidate.name}</h3>
-                    <p class="text-blue-600 font-semibold text-lg mb-3">${candidate.position}</p>
-                    <p class="text-gray-700 text-lg italic mb-4">"${candidate.slogan}"</p>
-                    <p class="text-gray-600 text-base">${candidate.description}</p>
-                </div>
-            </div>
-        `;
+    <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
+        <div class="profile-candidate-image flex-shrink-0">
+            <img src="candidate-photo.jpg" alt="이우규 후보" class="candidate-photo"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="image-fallback" style="display: none;">${candidate.name}</div>
+        </div>
+        <div class="text-center md:text-left flex-1">
+            <h3 class="text-3xl font-bold text-gray-800 mb-2">${candidate.name}</h3>
+            <p class="text-blue-600 font-semibold text-lg mb-3">${candidate.position}</p>
+            <p class="text-gray-700 text-lg italic mb-4">"${candidate.slogan}"</p>
+            <p class="text-gray-600 text-base">${candidate.description}</p>
+        </div>
+    </div>
+`;
         
         // 경력 사항
         if (experienceElement && candidate.experience && candidate.experience.length > 0) {
@@ -606,13 +636,22 @@ function loadAllNews() {
                 <div class="flex items-start space-x-4">
                     <div class="w-2 h-16 bg-blue-500 rounded-full flex-shrink-0"></div>
                     <div class="flex-1">
-                        <h3 class="font-semibold text-lg mb-2">${news.title}</h3>
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-semibold text-lg">${news.title}</h3>
+                            ${news.type ? `<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">${news.type}</span>` : ''}
+                        </div>
                         <div class="news-meta">
                             <span>📅 ${news.date}</span>
                             ${news.time ? `<span>⏰ ${news.time}</span>` : ''}
                             ${news.location ? `<span>📍 ${news.location}</span>` : ''}
                         </div>
-                        <p class="text-gray-700 leading-relaxed mt-2">${news.content}</p>
+                        <p class="text-gray-700 leading-relaxed mt-3">${news.content}</p>
+                        ${news.fullContent ? `
+                            <button onclick="showNewsDetail('${news.id}')" 
+                                    class="mt-3 text-blue-600 text-sm font-semibold hover:underline">
+                                전문 보기 →
+                            </button>
+                        ` : ''}
                         ${news.tags ? `
                             <div class="news-tags mt-3">
                                 ${news.tags.map(tag => `<span class="news-tag">${tag}</span>`).join('')}
@@ -630,11 +669,22 @@ function loadAllNews() {
     }
 }
 
-// 공약 상세 보기
+// 3. showPromiseDetail 함수 완전 교체
 function showPromiseDetail(promiseId) {
     console.log('[PROMISE] 공약 상세:', promiseId);
     
     try {
+        // 6대 공약인지 면단위 공약인지 구분
+        const corePromiseIds = ['participation', 'welfare', 'economy', 'administration', 'infrastructure', 'population'];
+        const isCorePromise = corePromiseIds.includes(promiseId);
+        
+        if (isCorePromise) {
+            // 6대 공약은 홈 섹션에서 모달 형태로 표시
+            showCorePromiseModal(promiseId);
+            return;
+        }
+        
+        // 면단위 공약은 기존 방식 유지
         showSection('promises');
         
         const promiseListView = document.getElementById('promise-list-view');
@@ -679,6 +729,104 @@ function showPromiseDetail(promiseId) {
     }
 }
 
+// 6대 공약 모달 표시 함수 (새로 추가)
+function showCorePromiseModal(promiseId) {
+    // 기존 모달이 있으면 제거
+    const existingModal = document.getElementById('core-promise-modal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // promiseDetails에서 데이터 찾기
+    const promiseData = appData && appData.promiseDetails ? appData.promiseDetails[promiseId] : null;
+    
+    let title = '공약 준비 중';
+    let why = '해당 공약의 상세 내용을 준비 중입니다.';
+    let what = '곧 자세한 공약 내용을 확인하실 수 있습니다.';
+    let how = '구체적인 실행 방안을 검토 중입니다.';
+    
+    if (promiseData) {
+        title = promiseData.title;
+        why = promiseData.why;
+        what = promiseData.what;
+        how = promiseData.how;
+    }
+    
+    // 모달 HTML 생성
+    const modalHTML = `
+        <div id="core-promise-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-90vh overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl md:text-3xl font-bold text-gray-800">${title}</h2>
+                        <button onclick="closeCorePromiseModal()" class="text-gray-500 hover:text-gray-700 text-2xl">✕</button>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-red-50 p-6 rounded-lg border-l-4 border-red-500">
+                            <h3 class="text-xl font-bold text-red-600 mb-3 flex items-center">
+                                <span class="mr-2">🤔</span> Why? (현황 및 문제점)
+                            </h3>
+                            <p class="text-gray-700 leading-relaxed">${why}</p>
+                        </div>
+
+                        <div class="bg-blue-50 p-6 rounded-lg border-l-4 border-blue-500">
+                            <h3 class="text-xl font-bold text-blue-600 mb-3 flex items-center">
+                                <span class="mr-2">💡</span> What? (약속 내용)
+                            </h3>
+                            <p class="text-gray-700 leading-relaxed">${what}</p>
+                        </div>
+
+                        <div class="bg-green-50 p-6 rounded-lg border-l-4 border-green-500">
+                            <h3 class="text-xl font-bold text-green-600 mb-3 flex items-center">
+                                <span class="mr-2">🎯</span> How? (실천 방안)
+                            </h3>
+                            <p class="text-gray-700 leading-relaxed">${how}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 pt-6 border-t bg-gray-50 rounded-lg p-6">
+                        <h4 class="text-center font-semibold mb-4 text-lg">이 공약을 공유해서 알려주세요! 📢</h4>
+                        <div class="flex justify-center space-x-4">
+                            <button onclick="sharePromise('copy')"
+                                class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">
+                                링크 복사
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // 모달을 body에 추가
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // 모달 배경 클릭 시 닫기
+    const modal = document.getElementById('core-promise-modal');
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeCorePromiseModal();
+        }
+    });
+    
+    // ESC 키로 닫기
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeCorePromiseModal();
+        }
+    });
+}
+
+// 6대 공약 모달 닫기 함수 (새로 추가)
+function closeCorePromiseModal() {
+    const modal = document.getElementById('core-promise-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+
 // 공약 목록으로 돌아가기
 function showPromiseList() {
     const promiseListView = document.getElementById('promise-list-view');
@@ -686,6 +834,450 @@ function showPromiseList() {
     
     if (promiseListView) promiseListView.classList.remove('hidden');
     if (promiseDetailView) promiseDetailView.classList.add('hidden');
+}
+
+// 6대 공약 모달 표시
+function showCorePromiseModal(promiseId) {
+    // 기존 모달이 있으면 제거
+    const existingModal = document.getElementById('core-promise-modal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // promiseDetails에서 데이터 찾기
+    const promiseData = appData && appData.promiseDetails ? appData.promiseDetails[promiseId] : null;
+    
+    let title = '공약 준비 중';
+    let why = '해당 공약의 상세 내용을 준비 중입니다.';
+    let what = '곧 자세한 공약 내용을 확인하실 수 있습니다.';
+    let how = '구체적인 실행 방안을 검토 중입니다.';
+    
+    if (promiseData) {
+        title = promiseData.title;
+        why = promiseData.why;
+        what = promiseData.what;
+        how = promiseData.how;
+    }
+    
+    // 모달 HTML 생성
+    const modalHTML = `
+        <div id="core-promise-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-90vh overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl md:text-3xl font-bold text-gray-800">${title}</h2>
+                        <button onclick="closeCorePromiseModal()" class="text-gray-500 hover:text-gray-700 text-2xl">✕</button>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-red-50 p-6 rounded-lg border-l-4 border-red-500">
+                            <h3 class="text-xl font-bold text-red-600 mb-3 flex items-center">
+                                <span class="mr-2">🤔</span> Why? (현황 및 문제점)
+                            </h3>
+                            <p class="text-gray-700 leading-relaxed">${why}</p>
+                        </div>
+
+                        <div class="bg-blue-50 p-6 rounded-lg border-l-4 border-blue-500">
+                            <h3 class="text-xl font-bold text-blue-600 mb-3 flex items-center">
+                                <span class="mr-2">💡</span> What? (약속 내용)
+                            </h3>
+                            <p class="text-gray-700 leading-relaxed">${what}</p>
+                        </div>
+
+                        <div class="bg-green-50 p-6 rounded-lg border-l-4 border-green-500">
+                            <h3 class="text-xl font-bold text-green-600 mb-3 flex items-center">
+                                <span class="mr-2">🎯</span> How? (실천 방안)
+                            </h3>
+                            <p class="text-gray-700 leading-relaxed">${how}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 공유 버튼 -->
+                    <div class="mt-8 pt-6 border-t bg-gray-50 rounded-lg p-6">
+                        <h4 class="text-center font-semibold mb-4 text-lg">이 공약을 공유해서 알려주세요! 📢</h4>
+                        <div class="flex justify-center space-x-4">
+                            <button onclick="sharePromise('copy')"
+                                class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">
+                                링크 복사
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // 모달을 body에 추가
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // 모달 배경 클릭 시 닫기
+    const modal = document.getElementById('core-promise-modal');
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeCorePromiseModal();
+        }
+    });
+    
+    // ESC 키로 닫기
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeCorePromiseModal();
+        }
+    });
+}
+
+// 6대 공약 모달 닫기
+function closeCorePromiseModal() {
+    const modal = document.getElementById('core-promise-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// 기존 loadLatestNews 함수를 다음과 같이 수정
+function loadLatestNews() {
+    const newsContentElement = document.getElementById('latest-news-content');
+    if (!newsContentElement) {
+        console.warn('[NEWS] latest-news-content 엘리먼트를 찾을 수 없습니다');
+        return;
+    }
+    
+    if (!appData || !appData.news || appData.news.length === 0) {
+        newsContentElement.innerHTML = '<p class="text-gray-500">소식이 없습니다.</p>';
+        return;
+    }
+    
+    try {
+        const latestNews = appData.news[0];
+        newsContentElement.innerHTML = `
+            <div class="border-l-4 border-blue-500 pl-4">
+                <div class="flex items-center justify-between mb-2">
+                    <h4 class="font-semibold">${latestNews.title}</h4>
+                    ${latestNews.type ? `<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">${latestNews.type}</span>` : ''}
+                </div>
+                <p class="text-gray-600 text-sm mt-1">${latestNews.date} ${latestNews.location || ''}</p>
+                <p class="text-gray-700 mt-2">${latestNews.content}</p>
+                <div class="mt-3 flex space-x-4">
+                    <button onclick="showSection('news')" class="text-blue-600 text-sm font-semibold hover:underline">
+                        모든 소식 보기 →
+                    </button>
+                    ${latestNews.fullContent ? `
+                        <button onclick="showNewsDetail('${latestNews.id}')" class="text-green-600 text-sm font-semibold hover:underline">
+                            전문 보기 →
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+        
+        console.log('[NEWS] 최신 소식 로드 완료');
+    } catch (error) {
+        console.error('[NEWS] 최신 소식 로드 오류:', error);
+        newsContentElement.innerHTML = '<p class="text-red-500">소식 로딩 중 오류가 발생했습니다.</p>';
+    }
+}
+
+// 뉴스 상세 보기 모달
+function showNewsDetail(newsId) {
+    const news = appData.news.find(n => n.id === newsId);
+    if (!news || !news.fullContent) return;
+    
+    // 기존 모달이 있으면 제거
+    const existingModal = document.getElementById('news-detail-modal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    const modalHTML = `
+        <div id="news-detail-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-90vh overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">${news.title}</h2>
+                            <div class="flex items-center space-x-4 text-sm text-gray-600">
+                                <span>📅 ${news.date}</span>
+                                ${news.location ? `<span>📍 ${news.location}</span>` : ''}
+                                ${news.type ? `<span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">${news.type}</span>` : ''}
+                            </div>
+                        </div>
+                        <button onclick="closeNewsDetail()" class="text-gray-500 hover:text-gray-700 text-2xl">✕</button>
+                    </div>
+                    
+                    <div class="prose max-w-none">
+                        <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                            <p class="text-gray-700 leading-relaxed">${news.fullContent.introduction}</p>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            ${news.fullContent.mainPoints.map((point, index) => `
+                                <div class="border-l-4 border-blue-500 pl-6">
+                                    <h3 class="text-xl font-bold text-gray-800 mb-3">${index + 1}. ${point.title}</h3>
+                                    <p class="text-gray-700 leading-relaxed">${point.content}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <div class="bg-green-50 p-4 rounded-lg mt-6">
+                            <h3 class="font-bold text-lg mb-2">맺음말</h3>
+                            <p class="text-gray-700 leading-relaxed">${news.fullContent.conclusion}</p>
+                        </div>
+                    </div>
+                    
+                    ${news.tags ? `
+                        <div class="news-tags mt-6 pt-4 border-t">
+                            ${news.tags.map(tag => `<span class="news-tag">${tag}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                    
+                    <div class="mt-6 pt-4 border-t text-center">
+                        <button onclick="shareNews('${newsId}')" 
+                                class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">
+                            이 글 공유하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // 모달 배경 클릭 시 닫기
+    const modal = document.getElementById('news-detail-modal');
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeNewsDetail();
+        }
+    });
+    
+    // ESC 키로 닫기
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeNewsDetail();
+        }
+    });
+}
+
+// 뉴스 상세 모달 닫기
+function closeNewsDetail() {
+    const modal = document.getElementById('news-detail-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// 뉴스 공유하기
+function shareNews(newsId) {
+    const news = appData.news.find(n => n.id === newsId);
+    if (!news) return;
+    
+    const shareText = `${news.title} - 이우규 후보 ${news.type}`;
+    try {
+        navigator.clipboard.writeText(shareText + '\n\n' + window.location.href);
+        showNotification('기고문이 복사되었습니다!', 'success');
+    } catch (error) {
+        console.error('[SHARE] 뉴스 공유 오류:', error);
+        showNotification('공유에 실패했습니다.', 'error');
+    }
+}
+
+// script.js에 추가할 뉴스 관련 함수들
+// 7. loadLatestNews 함수 수정 (전문보기 버튼 추가)
+function loadLatestNews() {
+    const newsContentElement = document.getElementById('latest-news-content');
+    if (!newsContentElement) {
+        console.warn('[NEWS] latest-news-content 엘리먼트를 찾을 수 없습니다');
+        return;
+    }
+    
+    if (!appData || !appData.news || appData.news.length === 0) {
+        newsContentElement.innerHTML = '<p class="text-gray-500">소식이 없습니다.</p>';
+        return;
+    }
+    
+    try {
+        const latestNews = appData.news[0];
+        newsContentElement.innerHTML = `
+            <div class="border-l-4 border-blue-500 pl-4">
+                <div class="flex items-center justify-between mb-2">
+                    <h4 class="font-semibold">${latestNews.title}</h4>
+                    ${latestNews.type ? `<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">${latestNews.type}</span>` : ''}
+                </div>
+                <p class="text-gray-600 text-sm mt-1">${latestNews.date} ${latestNews.location || ''}</p>
+                <p class="text-gray-700 mt-2">${latestNews.content}</p>
+                <div class="mt-3 flex space-x-4">
+                    <button onclick="showSection('news')" class="text-blue-600 text-sm font-semibold hover:underline">
+                        모든 소식 보기 →
+                    </button>
+                    ${latestNews.fullContent ? `
+                        <button onclick="showNewsDetail('${latestNews.id}')" class="text-green-600 text-sm font-semibold hover:underline">
+                            전문 보기 →
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+        
+        console.log('[NEWS] 최신 소식 로드 완료');
+    } catch (error) {
+        console.error('[NEWS] 최신 소식 로드 오류:', error);
+        newsContentElement.innerHTML = '<p class="text-red-500">소식 로딩 중 오류가 발생했습니다.</p>';
+    }
+}
+
+// 8. loadAllNews 함수 수정 (전문보기 버튼 추가)
+function loadAllNews() {
+    const newsContentElement = document.getElementById('news-content');
+    if (!newsContentElement) return;
+    
+    if (!appData || !appData.news || appData.news.length === 0) {
+        newsContentElement.innerHTML = '<p class="text-gray-500 text-center py-8">등록된 소식이 없습니다.</p>';
+        return;
+    }
+    
+    try {
+        newsContentElement.innerHTML = appData.news.map(news => `
+            <div class="news-card">
+                <div class="flex items-start space-x-4">
+                    <div class="w-2 h-16 bg-blue-500 rounded-full flex-shrink-0"></div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-semibold text-lg">${news.title}</h3>
+                            ${news.type ? `<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">${news.type}</span>` : ''}
+                        </div>
+                        <div class="news-meta">
+                            <span>📅 ${news.date}</span>
+                            ${news.time ? `<span>⏰ ${news.time}</span>` : ''}
+                            ${news.location ? `<span>📍 ${news.location}</span>` : ''}
+                        </div>
+                        <p class="text-gray-700 leading-relaxed mt-3">${news.content}</p>
+                        ${news.fullContent ? `
+                            <button onclick="showNewsDetail('${news.id}')" 
+                                    class="mt-3 text-blue-600 text-sm font-semibold hover:underline">
+                                전문 보기 →
+                            </button>
+                        ` : ''}
+                        ${news.tags ? `
+                            <div class="news-tags mt-3">
+                                ${news.tags.map(tag => `<span class="news-tag">${tag}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        
+        console.log('[NEWS] 모든 뉴스 로드 완료');
+    } catch (error) {
+        console.error('[NEWS] 뉴스 로드 오류:', error);
+        newsContentElement.innerHTML = '<p class="text-red-500 text-center py-8">뉴스 로딩 중 오류가 발생했습니다.</p>';
+    }
+}
+
+// 9. 뉴스 상세 보기 모달 함수 (새로 추가)
+function showNewsDetail(newsId) {
+    const news = appData.news.find(n => n.id === newsId);
+    if (!news || !news.fullContent) return;
+    
+    // 기존 모달이 있으면 제거
+    const existingModal = document.getElementById('news-detail-modal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    const modalHTML = `
+        <div id="news-detail-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-90vh overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">${news.title}</h2>
+                            <div class="flex items-center space-x-4 text-sm text-gray-600">
+                                <span>📅 ${news.date}</span>
+                                ${news.location ? `<span>📍 ${news.location}</span>` : ''}
+                                ${news.type ? `<span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">${news.type}</span>` : ''}
+                            </div>
+                        </div>
+                        <button onclick="closeNewsDetail()" class="text-gray-500 hover:text-gray-700 text-2xl">✕</button>
+                    </div>
+                    
+                    <div class="prose max-w-none">
+                        <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                            <p class="text-gray-700 leading-relaxed">${news.fullContent.introduction}</p>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            ${news.fullContent.mainPoints.map((point, index) => `
+                                <div class="border-l-4 border-blue-500 pl-6">
+                                    <h3 class="text-xl font-bold text-gray-800 mb-3">${index + 1}. ${point.title}</h3>
+                                    <p class="text-gray-700 leading-relaxed">${point.content}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <div class="bg-green-50 p-4 rounded-lg mt-6">
+                            <h3 class="font-bold text-lg mb-2">맺음말</h3>
+                            <p class="text-gray-700 leading-relaxed">${news.fullContent.conclusion}</p>
+                        </div>
+                    </div>
+                    
+                    ${news.tags ? `
+                        <div class="news-tags mt-6 pt-4 border-t">
+                            ${news.tags.map(tag => `<span class="news-tag">${tag}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                    
+                    <div class="mt-6 pt-4 border-t text-center">
+                        <button onclick="shareNews('${newsId}')" 
+                                class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">
+                            이 글 공유하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // 모달 배경 클릭 시 닫기
+    const modal = document.getElementById('news-detail-modal');
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeNewsDetail();
+        }
+    });
+    
+    // ESC 키로 닫기
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeNewsDetail();
+        }
+    });
+}
+
+// 10. 뉴스 상세 모달 닫기 함수 (새로 추가)
+function closeNewsDetail() {
+    const modal = document.getElementById('news-detail-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// 11. 뉴스 공유하기 함수 (새로 추가)
+function shareNews(newsId) {
+    const news = appData.news.find(n => n.id === newsId);
+    if (!news) return;
+    
+    const shareText = `${news.title} - 이우규 후보 ${news.type}`;
+    try {
+        navigator.clipboard.writeText(shareText + '\n\n' + window.location.href);
+        showNotification('기고문이 복사되었습니다!', 'success');
+    } catch (error) {
+        console.error('[SHARE] 뉴스 공유 오류:', error);
+        showNotification('공유에 실패했습니다.', 'error');
+    }
 }
 
 // 모바일 메뉴 토글 - 에러 처리 추가
@@ -799,6 +1391,15 @@ window.shareToKakao = shareToKakao;
 window.shareWebsite = shareWebsite;
 window.sharePromise = sharePromise;
 window.openMembershipPage = openMembershipPage;
+window.closeCorePromiseModal = closeCorePromiseModal;
+window.showNewsDetail = showNewsDetail;
+window.closeNewsDetail = closeNewsDetail;
+window.shareNews = shareNews;
+window.closeCorePromiseModal = closeCorePromiseModal;
+window.showNewsDetail = showNewsDetail;
+window.closeNewsDetail = closeNewsDetail;
+window.shareNews = shareNews;
+
 
 // 윈도우 로드 완료 후 최종 네비게이션 확인
 window.addEventListener('load', function() {
