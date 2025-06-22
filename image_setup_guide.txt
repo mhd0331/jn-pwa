@@ -1,0 +1,336 @@
+# 후보자 사진 설정 가이드 (v2.0)
+
+## 📸 이미지 파일 준비
+
+첨부해주신 이우규 후보의 사진을 웹사이트에 적용하는 방법을 안내드립니다.
+
+### 🎯 v2.0 업데이트 사항
+
+- **자동 이미지 감지**: JavaScript가 자동으로 이미지 로딩 상태를 확인
+- **폴백 시스템**: 이미지 로딩 실패 시 자동으로 텍스트 표시
+- **반응형 최적화**: 모든 화면 크기에서 완벽한 표시
+- **성능 향상**: 이미지 지연 로딩 및 최적화 지원
+
+## 1. 이미지 파일 생성
+
+### 📋 요구사항
+
+| 항목 | 요구사항 | 권장사항 |
+|------|----------|----------|
+| **파일명** | `candidate-photo.jpg` | 정확히 이 이름으로 |
+| **크기** | 최소 400x400px | 800x800px |
+| **형식** | JPG 또는 PNG | JPG (용량 효율적) |
+| **용량** | 최대 500KB | 200KB 이하 |
+| **비율** | 1:1 (정사각형) | 얼굴 중심 |
+
+### 🔧 이미지 편집 방법
+
+1. **첨부된 사진을 다운로드**하여 컴퓨터에 저장합니다.
+
+2. **이미지 편집 도구**를 사용하여 다음과 같이 편집합니다:
+
+#### 온라인 편집 도구 (무료)
+
+| 도구 | 장점 | 용도 |
+|------|------|------|
+| **[Canva](https://canva.com)** | 쉬운 사용법 | 크기 조정, 필터 |
+| **[Photopea](https://photopea.com)** | 포토샵 유사 | 전문적 편집 |
+| **[Remove.bg](https://remove.bg)** | AI 배경 제거 | 배경 투명화 |
+| **[Squoosh](https://squoosh.app)** | 구글 제작 | 압축 최적화 |
+| **[TinyPNG](https://tinypng.com)** | 무손실 압축 | 용량 줄이기 |
+
+#### 편집 순서
+
+```bash
+1. 원본 이미지 열기
+2. 정사각형으로 자르기 (1:1 비율)
+   - 얼굴이 중앙에 위치하도록 조정
+3. 크기 조정 (800x800px 권장)
+4. 밝기/대비 조정 (필요시)
+5. JPG 형식으로 저장 (품질: 85-90%)
+6. 파일명을 'candidate-photo.jpg'로 변경
+7. 용량 확인 (500KB 이하)
+```
+
+## 2. 고급 이미지 최적화
+
+### 🖥️ 데스크톱 도구 활용
+
+#### Adobe Photoshop
+```
+1. 이미지 → 이미지 크기 → 800x800px
+2. 필터 → 선명하게 → 언샵 마스크
+3. 파일 → 웹용으로 저장 → JPG, 품질 85
+```
+
+#### GIMP (무료)
+```
+1. 이미지 → 크기 조정 → 800x800px
+2. 색상 → 레벨 조정
+3. 파일 → 내보내기 → JPG, 품질 85
+```
+
+#### ImageMagick (명령줄)
+```bash
+# 자동 크기 조정 및 최적화
+magick input.jpg -resize 800x800^ -gravity center -extent 800x800 -quality 85 candidate-photo.jpg
+
+# WebP 버전도 생성 (최신 브라우저용)
+magick candidate-photo.jpg -quality 80 candidate-photo.webp
+```
+
+### 📱 모바일 앱 활용
+
+| 앱 | 플랫폼 | 특징 |
+|-----|--------|------|
+| **VSCO** | iOS/Android | 전문적 필터 |
+| **Snapseed** | iOS/Android | 구글 제작, 무료 |
+| **Adobe Lightroom** | iOS/Android | 클라우드 동기화 |
+| **Canva** | iOS/Android | 템플릿 제공 |
+
+## 3. 파일 업로드 및 설정
+
+### 📁 서버 파일 구조
+
+```
+웹사이트 루트 폴더/
+├── index.html
+├── style.css
+├── script.js
+├── data.json
+├── manifest.json
+├── sw.js
+├── candidate-photo.jpg  ← 여기에 업로드
+├── candidate-photo.webp ← 선택사항 (성능 향상)
+└── README.md
+```
+
+### 🔍 업로드 확인 방법
+
+1. **직접 접속 테스트**
+   ```
+   https://your-domain.com/candidate-photo.jpg
+   ```
+   브라우저에서 이미지가 표시되면 성공!
+
+2. **개발자 도구 확인** (F12)
+   - Network 탭에서 이미지 로딩 상태 확인
+   - 404 에러가 없는지 확인
+
+3. **웹사이트에서 확인**
+   - 홈 화면 우측 하단에 원형 이미지 표시
+   - 후보자 소개 페이지에서 프로필 이미지 표시
+
+## 4. 다중 해상도 지원 (선택사항)
+
+### 🔄 반응형 이미지 세트
+
+성능 향상을 위해 여러 크기의 이미지를 준비할 수 있습니다:
+
+```
+candidate-photo-200.jpg    # 200x200 (모바일)
+candidate-photo-400.jpg    # 400x400 (기본)
+candidate-photo-800.jpg    # 800x800 (고해상도)
+candidate-photo.webp       # WebP 형식 (최신 브라우저)
+```
+
+### 📝 HTML 코드 수정 (고급 사용자용)
+
+```html
+<!-- 기본 설정 (자동 적용됨) -->
+<img src="candidate-photo.jpg" alt="이우규 후보" class="candidate-photo">
+
+<!-- 고급 설정 (선택사항) -->
+<picture>
+  <source srcset="candidate-photo.webp" type="image/webp">
+  <source srcset="candidate-photo-800.jpg" media="(min-width: 1200px)">
+  <source srcset="candidate-photo-400.jpg" media="(min-width: 768px)">
+  <img src="candidate-photo-200.jpg" alt="이우규 후보" class="candidate-photo">
+</picture>
+```
+
+## 5. 문제해결 가이드
+
+### ❌ 이미지가 보이지 않을 때
+
+#### 1. 파일명 확인
+```bash
+# 올바른 파일명
+candidate-photo.jpg  ✅
+
+# 잘못된 파일명들
+Candidate-Photo.JPG  ❌
+candidate_photo.jpg  ❌
+후보자사진.jpg       ❌
+이우규.jpg          ❌
+```
+
+#### 2. 브라우저 개발자도구 확인
+```
+F12 → Console 탭
+- 이미지 로딩 에러 메시지 확인
+
+F12 → Network 탭  
+- candidate-photo.jpg 요청 상태 확인
+- 404 에러인지 확인
+```
+
+#### 3. 서버 권한 확인
+```bash
+# Linux/Mac 서버에서
+chmod 644 candidate-photo.jpg
+chown www-data:www-data candidate-photo.jpg
+```
+
+#### 4. 캐시 문제 해결
+```
+- 브라우저 새로고침 (Ctrl+F5)
+- 브라우저 캐시 삭제
+- 시크릿 모드에서 테스트
+```
+
+### ⚠️ 이미지 품질 문제
+
+#### 1. 흐릿하게 보일 때
+```css
+/* CSS에서 이미지 품질 개선 */
+.candidate-photo {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    image-rendering: high-quality;
+}
+```
+
+#### 2. 모바일에서 깨질 때
+- 고해상도 이미지 사용 (800x800px 이상)
+- 2x 버전 이미지 제공
+
+#### 3. 로딩이 느릴 때
+- 이미지 용량 줄이기 (TinyPNG 사용)
+- WebP 형식 병행 사용
+- 지연 로딩 활용
+
+## 6. 성능 최적화
+
+### 🚀 로딩 속도 개선
+
+#### 1. 용량 최적화
+```bash
+# ImageMagick으로 자동 최적화
+magick candidate-photo.jpg -strip -interlace Plane -gaussian-blur 0.05 -quality 85 candidate-photo-optimized.jpg
+```
+
+#### 2. 프로그레시브 JPEG
+```bash
+# 점진적 로딩을 위한 프로그레시브 JPEG
+magick candidate-photo.jpg -interlace JPEG candidate-photo.jpg
+```
+
+#### 3. WebP 변환
+```bash
+# 최신 브라우저를 위한 WebP
+magick candidate-photo.jpg -quality 80 candidate-photo.webp
+```
+
+### 📊 성능 측정
+
+#### Google PageSpeed Insights
+```
+https://pagespeed.web.dev/
+```
+
+#### Lighthouse (Chrome DevTools)
+```
+F12 → Lighthouse 탭 → Generate report
+```
+
+## 7. 접근성 고려사항
+
+### ♿ 웹 접근성
+
+#### 1. Alt 텍스트
+```html
+<img src="candidate-photo.jpg" alt="이우규 진안군수 후보 프로필 사진" class="candidate-photo">
+```
+
+#### 2. 고대비 모드 지원
+```css
+@media (prefers-contrast: high) {
+    .candidate-photo {
+        border: 2px solid #000000;
+        filter: contrast(1.5);
+    }
+}
+```
+
+#### 3. 애니메이션 제한
+```css
+@media (prefers-reduced-motion: reduce) {
+    .candidate-photo {
+        transition: none;
+    }
+}
+```
+
+## 8. 백업 및 관리
+
+### 💾 이미지 백업
+
+#### 1. 원본 파일 보관
+```
+원본 파일을 별도로 보관하여 향후 재편집 가능하도록 함
+- 고해상도 원본 (예: 2000x2000px)
+- 편집 전 파일
+- 다양한 사이즈 버전들
+```
+
+#### 2. 버전 관리
+```
+candidate-photo-v1.jpg  (초기 버전)
+candidate-photo-v2.jpg  (수정 버전)
+candidate-photo.jpg     (현재 사용 중)
+```
+
+### 🔄 업데이트 절차
+
+1. **새 이미지 준비**
+2. **기존 파일 백업**
+3. **새 파일 업로드**
+4. **웹사이트에서 확인**
+5. **캐시 갱신 (필요시)**
+
+## ✅ 최종 체크리스트
+
+### 업로드 전 확인사항
+
+- [ ] 파일명이 정확히 `candidate-photo.jpg`인가?
+- [ ] 이미지 크기가 400x400px 이상인가?
+- [ ] 파일 용량이 500KB 이하인가?
+- [ ] 이미지 품질이 만족스러운가?
+- [ ] 얼굴이 중앙에 위치하는가?
+
+### 업로드 후 확인사항
+
+- [ ] 직접 URL로 이미지에 접근 가능한가?
+- [ ] 홈 화면에서 이미지가 표시되는가?
+- [ ] 후보자 소개 페이지에서 이미지가 표시되는가?
+- [ ] 모바일에서도 정상 표시되는가?
+- [ ] 이미지가 원형으로 잘려서 표시되는가?
+
+### 성능 확인사항
+
+- [ ] 이미지 로딩 속도가 빠른가?
+- [ ] 다양한 브라우저에서 정상 표시되는가?
+- [ ] 고해상도 화면에서도 선명한가?
+- [ ] PWA 설치 후에도 정상 작동하는가?
+
+## 🎯 마무리
+
+이 가이드를 따라하시면 첨부해주신 이우규 후보의 사진이 웹사이트에 완벽하게 적용됩니다! 
+
+**v2.0 시스템의 장점:**
+- 자동 이미지 감지 및 폴백 처리
+- 모든 화면 크기에서 최적화된 표시
+- 향상된 성능과 접근성
+
+궁금한 점이 있으시면 언제든 문의해주세요! 🚀

@@ -1,0 +1,123 @@
+{
+  "name": "이우규 후보 6대 공약 및 면단위 공약 PWA",
+  "short_name": "이우규 후보",
+  "description": "진안을 새롭게, 군민을 이롭게 - 이우규 후보의 6대 핵심 공약과 11개 면단위 맞춤형 공약을 확인하세요",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "ko",
+  "categories": ["government", "politics", "news", "productivity"],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='540' height='720' viewBox='0 0 540 720'%3E%3Crect width='540' height='720' fill='%23f8fafc'/%3E%3Crect x='20' y='60' width='500' height='80' rx='12' fill='%232563eb'/%3E%3Ctext x='270' y='110' font-family='Arial' font-size='24' fill='white' text-anchor='middle'%3E이우규 후보 6대 공약%3C/text%3E%3Crect x='20' y='160' width='160' height='120' rx='8' fill='%23dbeafe'/%3E%3Ctext x='100' y='220' font-family='Arial' font-size='14' fill='%232563eb' text-anchor='middle'%3E주민참여행정%3C/text%3E%3Crect x='190' y='160' width='160' height='120' rx='8' fill='%23dcfce7'/%3E%3Ctext x='270' y='220' font-family='Arial' font-size='14' fill='%23059669' text-anchor='middle'%3E삶의 질 향상%3C/text%3E%3Crect x='360' y='160' width='160' height='120' rx='8' fill='%23fef3c7'/%3E%3Ctext x='440' y='220' font-family='Arial' font-size='14' fill='%23d97706' text-anchor='middle'%3E경제 성장%3C/text%3E%3C/svg%3E",
+      "sizes": "540x720",
+      "type": "image/svg+xml",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='720' height='540' viewBox='0 0 720 540'%3E%3Crect width='720' height='540' fill='%23f8fafc'/%3E%3Crect x='20' y='40' width='680' height='60' rx='12' fill='%232563eb'/%3E%3Ctext x='360' y='80' font-family='Arial' font-size='24' fill='white' text-anchor='middle'%3E이우규 후보 면단위 공약%3C/text%3E%3Crect x='20' y='120' width='110' height='80' rx='8' fill='%23dbeafe'/%3E%3Ctext x='75' y='165' font-family='Arial' font-size='12' fill='%232563eb' text-anchor='middle'%3E진안읍%3C/text%3E%3Crect x='140' y='120' width='110' height='80' rx='8' fill='%23fef3c7'/%3E%3Ctext x='195' y='165' font-family='Arial' font-size='12' fill='%23d97706' text-anchor='middle'%3E동향면%3C/text%3E%3Crect x='260' y='120' width='110' height='80' rx='8' fill='%23fce7f3'/%3E%3Ctext x='315' y='165' font-family='Arial' font-size='12' fill='%23be185d' text-anchor='middle'%3E마령면%3C/text%3E%3C/svg%3E",
+      "sizes": "720x540",
+      "type": "image/svg+xml",
+      "form_factor": "wide"
+    }
+  ],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'%3E%3Crect width='72' height='72' fill='%232563eb'/%3E%3Ctext x='36' y='48' font-family='Arial' font-size='32' fill='white' text-anchor='middle'%3E이%3C/text%3E%3C/svg%3E",
+      "sizes": "72x72",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Crect width='96' height='96' fill='%232563eb'/%3E%3Ctext x='48' y='64' font-family='Arial' font-size='42' fill='white' text-anchor='middle'%3E이%3C/text%3E%3C/svg%3E",
+      "sizes": "96x96",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' fill='%232563eb'/%3E%3Ctext x='64' y='86' font-family='Arial' font-size='56' fill='white' text-anchor='middle'%3E이%3C/text%3E%3C/svg%3E",
+      "sizes": "128x128",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='144' height='144' viewBox='0 0 144 144'%3E%3Crect width='144' height='144' fill='%232563eb'/%3E%3Ctext x='72' y='96' font-family='Arial' font-size='64' fill='white' text-anchor='middle'%3E이%3C/text%3E%3C/svg%3E",
+      "sizes": "144x144",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='192' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%232563eb'/%3E%3Ctext x='96' y='128' font-family='Arial' font-size='84' fill='white' text-anchor='middle'%3E이%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2024/svg' width='512' height='512' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%232563eb'/%3E%3Ctext x='256' y='340' font-family='Arial' font-size='224' fill='white' text-anchor='middle'%3E이%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "6대 핵심 공약",
+      "short_name": "6대공약",
+      "description": "주민참여행정, 삶의질향상, 경제성장 등 6대 핵심 공약 바로가기",
+      "url": "/?section=home#core-promises",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Crect width='96' height='96' fill='%232563eb'/%3E%3Ctext x='48' y='64' font-family='Arial' font-size='42' fill='white' text-anchor='middle'%3E6%3C/text%3E%3C/svg%3E",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "면단위 공약",
+      "short_name": "면공약",
+      "description": "진안읍, 동향면 등 11개 면별 맞춤형 공약 바로가기",
+      "url": "/?section=promises",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Crect width='96' height='96' fill='%23059669'/%3E%3Ctext x='48' y='64' font-family='Arial' font-size='32' fill='white' text-anchor='middle'%3E면%3C/text%3E%3C/svg%3E",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "후보자 소개",
+      "short_name": "소개",
+      "description": "이우규 후보 프로필 및 경력 바로가기",
+      "url": "/?section=profile",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Crect width='96' height='96' fill='%236366f1'/%3E%3Ctext x='48' y='64' font-family='Arial' font-size='42' fill='white' text-anchor='middle'%3E이%3C/text%3E%3C/svg%3E",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "당원가입",
+      "short_name": "가입",
+      "description": "더불어민주당 당원가입안내 바로가기",
+      "url": "/?section=membership",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Crect width='96' height='96' fill='%23dc2626'/%3E%3Ctext x='48' y='64' font-family='Arial' font-size='32' fill='white' text-anchor='middle'%3E가입%3C/text%3E%3C/svg%3E",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  }
+}
