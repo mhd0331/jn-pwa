@@ -1,4 +1,4 @@
-// 이우규 후보 PWA 메인 스크립트 - data.json 로드 버전
+// 이우규 후보 PWA 메인 스크립트 - 네비게이션 문제 해결 버전
 
 // 전역 변수
 let currentPromiseData = null;
@@ -92,13 +92,13 @@ function hideLoading() {
     }
 }
 
-// 페이지 로드 시 초기화 - 수정된 버전
+// 페이지 로드 시 초기화 - 개선된 버전
 document.addEventListener('DOMContentLoaded', async function() {
-    console.log('[APP] 초기화 시작 - 캐시 방지 모드');
+    console.log('[APP] 초기화 시작 - 네비게이션 문제 해결 버전');
     
-// 캐시 강제 새로고침 체크
+    // 캐시 강제 새로고침 체크
     const lastVersion = localStorage.getItem('app-version');
-    const currentVersion = '1.2';
+    const currentVersion = '1.4'; // 버전 업데이트
     
     if (lastVersion !== currentVersion) {
         console.log('[CACHE] 새 버전 감지 - 캐시 정리');
@@ -128,45 +128,70 @@ document.addEventListener('DOMContentLoaded', async function() {
         // 로딩 표시
         showLoading();
         
-        // 1단계: 네비게이션 바 수정 (최우선)
-        console.log('[APP] 1단계: 네비게이션 바 수정');
-        fixNavigationVisibility();
-        
-        // 짧은 지연 후 네비게이션 이벤트 설정
-        setTimeout(() => {
-            setupNavigationEvents();
-        }, 100);
-        
-        // 2단계: 섹션 초기화
-        console.log('[APP] 2단계: 섹션 초기화');
+        // 1단계: 섹션 초기화 (가장 먼저)
+        console.log('[APP] 1단계: 섹션 초기화');
         initializeSections();
         
-        // 3단계: 데이터 로드
-        console.log('[APP] 3단계: 데이터 로드');
+        // 2단계: 네비게이션 바 수정 (DOM 요소 접근)
+        console.log('[APP] 2단계: 네비게이션 바 수정');
+        // DOM이 완전히 로드될 때까지 대기
+        await new Promise(resolve => {
+            if (document.readyState === 'complete') {
+                resolve();
+            } else {
+                window.addEventListener('load', resolve);
+            }
+        });
+        
+        fixNavigationVisibility();
+        
+        // 3단계: 네비게이션 이벤트 설정 (약간의 지연 후)
+        setTimeout(() => {
+            console.log('[APP] 3단계: 네비게이션 이벤트 설정');
+            setupNavigationEvents();
+        }, 200);
+        
+        // 4단계: 데이터 로드
+        console.log('[APP] 4단계: 데이터 로드');
         appData = await loadAppData();
         
         if (!appData) {
             throw new Error('앱 데이터 로드 실패');
         }
         
-        // 4단계: 데이터 렌더링
-        console.log('[APP] 4단계: 데이터 렌더링');
+        // 5단계: 데이터 렌더링
+        console.log('[APP] 5단계: 데이터 렌더링');
         loadCorePromises();
         loadTownshipPromises();
         loadCandidateProfile();
         loadLatestNews();
         
-        // 5단계: 홈 섹션 표시
-        console.log('[APP] 5단계: 홈 섹션 표시');
+        // 6단계: 홈 섹션 표시
+        console.log('[APP] 6단계: 홈 섹션 표시');
         showSection('home');
         
-        // 6단계: 네비게이션 재확인
+        // 7단계: 네비게이션 최종 확인 (더 긴 지연 후)
         setTimeout(() => {
-            console.log('[APP] 6단계: 네비게이션 재확인');
+            console.log('[APP] 7단계: 네비게이션 최종 확인');
             fixNavigationVisibility();
-        }, 200);
+            
+            // 네비게이션 초기화 완료 후 추가 확인
+            const allNavButtons = document.querySelectorAll('.nav-btn');
+            console.log('[NAV] 최종 확인 - 총 네비게이션 버튼 수:', allNavButtons.length);
+            
+            // 각 버튼 상태 확인
+            allNavButtons.forEach((btn, index) => {
+                const style = window.getComputedStyle(btn);
+                console.log(`[NAV] 버튼 ${index + 1} 상태:`, {
+                    display: style.display,
+                    visibility: style.visibility,
+                    opacity: style.opacity,
+                    text: btn.textContent.trim()
+                });
+            });
+        }, 500);
         
-        console.log('[APP] 초기화 완료');
+        console.log('[APP] 초기화 완료 - 네비게이션 문제 해결 버전');
     } catch (error) {
         console.error('[APP] 초기화 오류:', error);
         showErrorFallback();
@@ -178,20 +203,14 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 });
 
-// 네비게이션 바 가시성 문제 해결
+// 네비게이션 바 가시성 문제 해결 - 개선된 버전
 function fixNavigationVisibility() {
     const header = document.querySelector('header');
     const nav = document.querySelector('nav');
-    const desktopMenu = document.querySelector('nav .nav-desktop-menu');
-    const mobileMenuButton = document.querySelector('nav > button:last-child');
+    const mainNavMenu = document.getElementById('main-nav-menu');
     
-    if (!header) {
-        console.error('[NAV] 헤더 엘리먼트를 찾을 수 없습니다');
-        return;
-    }
-    
-    if (!nav) {
-        console.error('[NAV] 네비게이션 엘리먼트를 찾을 수 없습니다');
+    if (!header || !nav) {
+        console.error('[NAV] 헤더 또는 네비게이션 엘리먼트를 찾을 수 없습니다');
         return;
     }
     
@@ -202,9 +221,6 @@ function fixNavigationVisibility() {
     header.style.position = 'sticky';
     header.style.top = '0';
     header.style.zIndex = '50';
-    header.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-    header.style.backdropFilter = 'blur(4px)';
-    header.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1)';
     
     // 네비게이션 강제 표시
     nav.style.display = 'flex';
@@ -212,59 +228,34 @@ function fixNavigationVisibility() {
     nav.style.opacity = '1';
     nav.style.alignItems = 'center';
     nav.style.justifyContent = 'space-between';
-    nav.style.padding = '0.75rem 1rem';
-    nav.style.maxWidth = '1024px';
-    nav.style.margin = '0 auto';
     
-    // 로고 버튼 강제 표시
-    const logoButton = nav.querySelector('button:first-child');
-    if (logoButton) {
-        logoButton.style.display = 'flex';
-        logoButton.style.visibility = 'visible';
-        logoButton.style.opacity = '1';
-        logoButton.style.alignItems = 'center';
-        logoButton.style.color = '#1d4ed8';
-        logoButton.style.fontWeight = '700';
-        logoButton.style.fontSize = '1.25rem';
+    // 메인 네비게이션 메뉴 강제 표시
+    if (mainNavMenu) {
+        mainNavMenu.style.display = 'flex';
+        mainNavMenu.style.visibility = 'visible';
+        mainNavMenu.style.opacity = '1';
+        mainNavMenu.style.gap = '1.5rem';
+        mainNavMenu.style.alignItems = 'center';
     }
     
-    // 화면 크기에 따른 처리
-    const isDesktop = window.innerWidth >= 768;
+    // 개별 네비게이션 버튼들 확인 및 강제 표시
+    const navButtons = ['nav-home', 'nav-promises', 'nav-profile', 'nav-news', 'nav-membership'];
+    let foundButtons = 0;
     
-    if (isDesktop) {
-        // 데스크톱: 메뉴 표시, 햄버거 버튼 숨김
-        if (desktopMenu) {
-            desktopMenu.style.display = 'flex';
-            desktopMenu.style.visibility = 'visible';
-            desktopMenu.style.opacity = '1';
-            desktopMenu.style.gap = '1.5rem';
-            desktopMenu.style.alignItems = 'center';
+    navButtons.forEach(buttonId => {
+        const button = document.getElementById(buttonId);
+        if (button) {
+            button.style.display = 'block';
+            button.style.visibility = 'visible';
+            button.style.opacity = '1';
+            foundButtons++;
+            console.log('[NAV] 버튼 확인:', buttonId);
+        } else {
+            console.warn('[NAV] 버튼을 찾을 수 없음:', buttonId);
         }
-        
-        if (mobileMenuButton) {
-            mobileMenuButton.style.display = 'none';
-        }
-    } else {
-        // 모바일: 메뉴 숨김, 햄버거 버튼 표시
-        if (desktopMenu) {
-            desktopMenu.style.display = 'none';
-        }
-        
-        if (mobileMenuButton) {
-            mobileMenuButton.style.display = 'block';
-            mobileMenuButton.style.visibility = 'visible';
-            mobileMenuButton.style.opacity = '1';
-        }
-    }
-    
-    // 모든 네비게이션 버튼 스타일 적용
-    const navButtons = document.querySelectorAll('.nav-btn');
-    navButtons.forEach(btn => {
-        btn.style.visibility = 'visible';
-        btn.style.opacity = '1';
     });
     
-    console.log('[NAV] 네비게이션 가시성 수정 완료 - ' + (isDesktop ? '데스크톱' : '모바일') + ' 모드');
+    console.log(`[NAV] 네비게이션 가시성 수정 완료 - 버튼 ${foundButtons}개 확인`);
 }
 
 // 화면 크기 변경 시 네비게이션 다시 조정
@@ -275,61 +266,57 @@ function handleResize() {
 // 리사이즈 이벤트 리스너 추가
 window.addEventListener('resize', handleResize);
 
-// 네비게이션 이벤트 설정
+// 네비게이션 이벤트 설정 - 개선된 버전
 function setupNavigationEvents() {
-    // 데스크톱 네비게이션 버튼들
-    const navButtons = document.querySelectorAll('.nav-btn');
-    navButtons.forEach(btn => {
+    // 개별 네비게이션 버튼 이벤트 설정
+    const navButtons = [
+        { id: 'nav-home', section: 'home' },
+        { id: 'nav-promises', section: 'promises' },
+        { id: 'nav-profile', section: 'profile' },
+        { id: 'nav-news', section: 'news' },
+        { id: 'nav-membership', section: 'membership' },
+        { id: 'logo-btn', section: 'home' }
+    ];
+    
+    let setupCount = 0;
+    
+    navButtons.forEach(nav => {
+        const button = document.getElementById(nav.id);
+        if (button) {
+            // 기존 이벤트 리스너 제거 후 새로 추가
+            button.replaceWith(button.cloneNode(true));
+            const newButton = document.getElementById(nav.id);
+            
+            newButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('[NAV] 버튼 클릭:', nav.section);
+                showSection(nav.section);
+            });
+            
+            setupCount++;
+            console.log('[NAV] 이벤트 설정 완료:', nav.id);
+        } else {
+            console.warn('[NAV] 버튼을 찾을 수 없음:', nav.id);
+        }
+    });
+    
+    // onclick 속성 기반 버튼들도 보조적으로 설정
+    const onclickButtons = document.querySelectorAll('[onclick*="showSection"]');
+    onclickButtons.forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
             const onclick = this.getAttribute('onclick');
-            if (onclick) {
-                try {
-                    // onclick 내용 실행
-                    eval(onclick);
-                } catch (error) {
-                    console.error('[NAV] 버튼 클릭 오류:', error);
+            if (onclick && onclick.includes('showSection')) {
+                const match = onclick.match(/showSection\(['"]([^'"]+)['"]\)/);
+                if (match) {
+                    showSection(match[1]);
                 }
             }
         });
     });
     
-    // 모바일 메뉴 토글 버튼 - 다양한 방법으로 찾기
-    let mobileMenuToggle = document.querySelector('[onclick="toggleMobileMenu()"]');
-    if (!mobileMenuToggle) {
-        mobileMenuToggle = document.querySelector('nav > button:last-child');
-    }
-    if (!mobileMenuToggle) {
-        mobileMenuToggle = document.querySelector('button[onclick*="toggleMobileMenu"]');
-    }
-    
-    if (mobileMenuToggle) {
-        mobileMenuToggle.addEventListener('click', function(e) {
-            e.preventDefault();
-            toggleMobileMenu();
-        });
-        console.log('[NAV] 모바일 메뉴 토글 버튼 이벤트 설정 완료');
-    } else {
-        console.warn('[NAV] 모바일 메뉴 토글 버튼을 찾을 수 없습니다');
-    }
-    
-    // 로고 클릭 이벤트 - 다양한 방법으로 찾기
-    let logoButton = document.querySelector('[onclick="showSection(\'home\')"]');
-    if (!logoButton) {
-        logoButton = document.querySelector('nav > button:first-child');
-    }
-    
-    if (logoButton) {
-        logoButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            showSection('home');
-        });
-        console.log('[NAV] 로고 버튼 이벤트 설정 완료');
-    } else {
-        console.warn('[NAV] 로고 버튼을 찾을 수 없습니다');
-    }
-    
-    console.log('[NAV] 네비게이션 이벤트 설정 완료');
+    console.log(`[NAV] 네비게이션 이벤트 설정 완료 - ${setupCount}개 버튼 처리`);
 }
 
 // 섹션 초기화 - 개선된 버전
@@ -528,12 +515,22 @@ function loadLatestNews() {
         const latestNews = appData.news[0];
         newsContentElement.innerHTML = `
             <div class="border-l-4 border-blue-500 pl-4">
-                <h4 class="font-semibold">${latestNews.title}</h4>
+                <div class="flex items-center justify-between mb-2">
+                    <h4 class="font-semibold">${latestNews.title}</h4>
+                    ${latestNews.type ? `<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">${latestNews.type}</span>` : ''}
+                </div>
                 <p class="text-gray-600 text-sm mt-1">${latestNews.date} ${latestNews.location || ''}</p>
                 <p class="text-gray-700 mt-2">${latestNews.content}</p>
-                <button onclick="showSection('news')" class="mt-2 text-blue-600 text-sm font-semibold hover:underline">
-                    자세히 보기 →
-                </button>
+                <div class="mt-3 flex space-x-4">
+                    <button onclick="showSection('news')" class="text-blue-600 text-sm font-semibold hover:underline">
+                        모든 소식 보기 →
+                    </button>
+                    ${latestNews.fullContent ? `
+                        <button onclick="showNewsDetail('${latestNews.id}')" class="text-green-600 text-sm font-semibold hover:underline">
+                            전문 보기 →
+                        </button>
+                    ` : ''}
+                </div>
             </div>
         `;
         
@@ -614,7 +611,7 @@ function updateActiveNavButton(activeSection) {
     });
     
     // 현재 섹션에 해당하는 버튼에 active 클래스 추가
-    const activeButton = document.querySelector(`[onclick="showSection('${activeSection}')"]`);
+    const activeButton = document.getElementById(`nav-${activeSection}`);
     if (activeButton && activeButton.classList.contains('nav-btn')) {
         activeButton.classList.add('active');
     }
@@ -669,7 +666,7 @@ function loadAllNews() {
     }
 }
 
-// 3. showPromiseDetail 함수 완전 교체
+// 공약 상세 표시 함수
 function showPromiseDetail(promiseId) {
     console.log('[PROMISE] 공약 상세:', promiseId);
     
@@ -729,7 +726,7 @@ function showPromiseDetail(promiseId) {
     }
 }
 
-// 6대 공약 모달 표시 함수 (새로 추가)
+// 6대 공약 모달 표시 함수
 function showCorePromiseModal(promiseId) {
     // 기존 모달이 있으면 제거
     const existingModal = document.getElementById('core-promise-modal');
@@ -818,14 +815,13 @@ function showCorePromiseModal(promiseId) {
     });
 }
 
-// 6대 공약 모달 닫기 함수 (새로 추가)
+// 6대 공약 모달 닫기 함수
 function closeCorePromiseModal() {
     const modal = document.getElementById('core-promise-modal');
     if (modal) {
         modal.remove();
     }
 }
-
 
 // 공약 목록으로 돌아가기
 function showPromiseList() {
@@ -834,147 +830,6 @@ function showPromiseList() {
     
     if (promiseListView) promiseListView.classList.remove('hidden');
     if (promiseDetailView) promiseDetailView.classList.add('hidden');
-}
-
-// 6대 공약 모달 표시
-function showCorePromiseModal(promiseId) {
-    // 기존 모달이 있으면 제거
-    const existingModal = document.getElementById('core-promise-modal');
-    if (existingModal) {
-        existingModal.remove();
-    }
-    
-    // promiseDetails에서 데이터 찾기
-    const promiseData = appData && appData.promiseDetails ? appData.promiseDetails[promiseId] : null;
-    
-    let title = '공약 준비 중';
-    let why = '해당 공약의 상세 내용을 준비 중입니다.';
-    let what = '곧 자세한 공약 내용을 확인하실 수 있습니다.';
-    let how = '구체적인 실행 방안을 검토 중입니다.';
-    
-    if (promiseData) {
-        title = promiseData.title;
-        why = promiseData.why;
-        what = promiseData.what;
-        how = promiseData.how;
-    }
-    
-    // 모달 HTML 생성
-    const modalHTML = `
-        <div id="core-promise-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-90vh overflow-y-auto">
-                <div class="p-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl md:text-3xl font-bold text-gray-800">${title}</h2>
-                        <button onclick="closeCorePromiseModal()" class="text-gray-500 hover:text-gray-700 text-2xl">✕</button>
-                    </div>
-                    
-                    <div class="space-y-6">
-                        <div class="bg-red-50 p-6 rounded-lg border-l-4 border-red-500">
-                            <h3 class="text-xl font-bold text-red-600 mb-3 flex items-center">
-                                <span class="mr-2">🤔</span> Why? (현황 및 문제점)
-                            </h3>
-                            <p class="text-gray-700 leading-relaxed">${why}</p>
-                        </div>
-
-                        <div class="bg-blue-50 p-6 rounded-lg border-l-4 border-blue-500">
-                            <h3 class="text-xl font-bold text-blue-600 mb-3 flex items-center">
-                                <span class="mr-2">💡</span> What? (약속 내용)
-                            </h3>
-                            <p class="text-gray-700 leading-relaxed">${what}</p>
-                        </div>
-
-                        <div class="bg-green-50 p-6 rounded-lg border-l-4 border-green-500">
-                            <h3 class="text-xl font-bold text-green-600 mb-3 flex items-center">
-                                <span class="mr-2">🎯</span> How? (실천 방안)
-                            </h3>
-                            <p class="text-gray-700 leading-relaxed">${how}</p>
-                        </div>
-                    </div>
-                    
-                    <!-- 공유 버튼 -->
-                    <div class="mt-8 pt-6 border-t bg-gray-50 rounded-lg p-6">
-                        <h4 class="text-center font-semibold mb-4 text-lg">이 공약을 공유해서 알려주세요! 📢</h4>
-                        <div class="flex justify-center space-x-4">
-                            <button onclick="sharePromise('copy')"
-                                class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">
-                                링크 복사
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    // 모달을 body에 추가
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
-    
-    // 모달 배경 클릭 시 닫기
-    const modal = document.getElementById('core-promise-modal');
-    modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
-            closeCorePromiseModal();
-        }
-    });
-    
-    // ESC 키로 닫기
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeCorePromiseModal();
-        }
-    });
-}
-
-// 6대 공약 모달 닫기
-function closeCorePromiseModal() {
-    const modal = document.getElementById('core-promise-modal');
-    if (modal) {
-        modal.remove();
-    }
-}
-
-// 기존 loadLatestNews 함수를 다음과 같이 수정
-function loadLatestNews() {
-    const newsContentElement = document.getElementById('latest-news-content');
-    if (!newsContentElement) {
-        console.warn('[NEWS] latest-news-content 엘리먼트를 찾을 수 없습니다');
-        return;
-    }
-    
-    if (!appData || !appData.news || appData.news.length === 0) {
-        newsContentElement.innerHTML = '<p class="text-gray-500">소식이 없습니다.</p>';
-        return;
-    }
-    
-    try {
-        const latestNews = appData.news[0];
-        newsContentElement.innerHTML = `
-            <div class="border-l-4 border-blue-500 pl-4">
-                <div class="flex items-center justify-between mb-2">
-                    <h4 class="font-semibold">${latestNews.title}</h4>
-                    ${latestNews.type ? `<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">${latestNews.type}</span>` : ''}
-                </div>
-                <p class="text-gray-600 text-sm mt-1">${latestNews.date} ${latestNews.location || ''}</p>
-                <p class="text-gray-700 mt-2">${latestNews.content}</p>
-                <div class="mt-3 flex space-x-4">
-                    <button onclick="showSection('news')" class="text-blue-600 text-sm font-semibold hover:underline">
-                        모든 소식 보기 →
-                    </button>
-                    ${latestNews.fullContent ? `
-                        <button onclick="showNewsDetail('${latestNews.id}')" class="text-green-600 text-sm font-semibold hover:underline">
-                            전문 보기 →
-                        </button>
-                    ` : ''}
-                </div>
-            </div>
-        `;
-        
-        console.log('[NEWS] 최신 소식 로드 완료');
-    } catch (error) {
-        console.error('[NEWS] 최신 소식 로드 오류:', error);
-        newsContentElement.innerHTML = '<p class="text-red-500">소식 로딩 중 오류가 발생했습니다.</p>';
-    }
 }
 
 // 뉴스 상세 보기 모달
@@ -1082,213 +937,11 @@ function shareNews(newsId) {
     }
 }
 
-// script.js에 추가할 뉴스 관련 함수들
-// 7. loadLatestNews 함수 수정 (전문보기 버튼 추가)
-function loadLatestNews() {
-    const newsContentElement = document.getElementById('latest-news-content');
-    if (!newsContentElement) {
-        console.warn('[NEWS] latest-news-content 엘리먼트를 찾을 수 없습니다');
-        return;
-    }
-    
-    if (!appData || !appData.news || appData.news.length === 0) {
-        newsContentElement.innerHTML = '<p class="text-gray-500">소식이 없습니다.</p>';
-        return;
-    }
-    
-    try {
-        const latestNews = appData.news[0];
-        newsContentElement.innerHTML = `
-            <div class="border-l-4 border-blue-500 pl-4">
-                <div class="flex items-center justify-between mb-2">
-                    <h4 class="font-semibold">${latestNews.title}</h4>
-                    ${latestNews.type ? `<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">${latestNews.type}</span>` : ''}
-                </div>
-                <p class="text-gray-600 text-sm mt-1">${latestNews.date} ${latestNews.location || ''}</p>
-                <p class="text-gray-700 mt-2">${latestNews.content}</p>
-                <div class="mt-3 flex space-x-4">
-                    <button onclick="showSection('news')" class="text-blue-600 text-sm font-semibold hover:underline">
-                        모든 소식 보기 →
-                    </button>
-                    ${latestNews.fullContent ? `
-                        <button onclick="showNewsDetail('${latestNews.id}')" class="text-green-600 text-sm font-semibold hover:underline">
-                            전문 보기 →
-                        </button>
-                    ` : ''}
-                </div>
-            </div>
-        `;
-        
-        console.log('[NEWS] 최신 소식 로드 완료');
-    } catch (error) {
-        console.error('[NEWS] 최신 소식 로드 오류:', error);
-        newsContentElement.innerHTML = '<p class="text-red-500">소식 로딩 중 오류가 발생했습니다.</p>';
-    }
-}
-
-// 8. loadAllNews 함수 수정 (전문보기 버튼 추가)
-function loadAllNews() {
-    const newsContentElement = document.getElementById('news-content');
-    if (!newsContentElement) return;
-    
-    if (!appData || !appData.news || appData.news.length === 0) {
-        newsContentElement.innerHTML = '<p class="text-gray-500 text-center py-8">등록된 소식이 없습니다.</p>';
-        return;
-    }
-    
-    try {
-        newsContentElement.innerHTML = appData.news.map(news => `
-            <div class="news-card">
-                <div class="flex items-start space-x-4">
-                    <div class="w-2 h-16 bg-blue-500 rounded-full flex-shrink-0"></div>
-                    <div class="flex-1">
-                        <div class="flex items-center justify-between mb-2">
-                            <h3 class="font-semibold text-lg">${news.title}</h3>
-                            ${news.type ? `<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">${news.type}</span>` : ''}
-                        </div>
-                        <div class="news-meta">
-                            <span>📅 ${news.date}</span>
-                            ${news.time ? `<span>⏰ ${news.time}</span>` : ''}
-                            ${news.location ? `<span>📍 ${news.location}</span>` : ''}
-                        </div>
-                        <p class="text-gray-700 leading-relaxed mt-3">${news.content}</p>
-                        ${news.fullContent ? `
-                            <button onclick="showNewsDetail('${news.id}')" 
-                                    class="mt-3 text-blue-600 text-sm font-semibold hover:underline">
-                                전문 보기 →
-                            </button>
-                        ` : ''}
-                        ${news.tags ? `
-                            <div class="news-tags mt-3">
-                                ${news.tags.map(tag => `<span class="news-tag">${tag}</span>`).join('')}
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-            </div>
-        `).join('');
-        
-        console.log('[NEWS] 모든 뉴스 로드 완료');
-    } catch (error) {
-        console.error('[NEWS] 뉴스 로드 오류:', error);
-        newsContentElement.innerHTML = '<p class="text-red-500 text-center py-8">뉴스 로딩 중 오류가 발생했습니다.</p>';
-    }
-}
-
-// 9. 뉴스 상세 보기 모달 함수 (새로 추가)
-function showNewsDetail(newsId) {
-    const news = appData.news.find(n => n.id === newsId);
-    if (!news || !news.fullContent) return;
-    
-    // 기존 모달이 있으면 제거
-    const existingModal = document.getElementById('news-detail-modal');
-    if (existingModal) {
-        existingModal.remove();
-    }
-    
-    const modalHTML = `
-        <div id="news-detail-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-90vh overflow-y-auto">
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-6">
-                        <div>
-                            <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">${news.title}</h2>
-                            <div class="flex items-center space-x-4 text-sm text-gray-600">
-                                <span>📅 ${news.date}</span>
-                                ${news.location ? `<span>📍 ${news.location}</span>` : ''}
-                                ${news.type ? `<span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">${news.type}</span>` : ''}
-                            </div>
-                        </div>
-                        <button onclick="closeNewsDetail()" class="text-gray-500 hover:text-gray-700 text-2xl">✕</button>
-                    </div>
-                    
-                    <div class="prose max-w-none">
-                        <div class="bg-blue-50 p-4 rounded-lg mb-6">
-                            <p class="text-gray-700 leading-relaxed">${news.fullContent.introduction}</p>
-                        </div>
-                        
-                        <div class="space-y-6">
-                            ${news.fullContent.mainPoints.map((point, index) => `
-                                <div class="border-l-4 border-blue-500 pl-6">
-                                    <h3 class="text-xl font-bold text-gray-800 mb-3">${index + 1}. ${point.title}</h3>
-                                    <p class="text-gray-700 leading-relaxed">${point.content}</p>
-                                </div>
-                            `).join('')}
-                        </div>
-                        
-                        <div class="bg-green-50 p-4 rounded-lg mt-6">
-                            <h3 class="font-bold text-lg mb-2">맺음말</h3>
-                            <p class="text-gray-700 leading-relaxed">${news.fullContent.conclusion}</p>
-                        </div>
-                    </div>
-                    
-                    ${news.tags ? `
-                        <div class="news-tags mt-6 pt-4 border-t">
-                            ${news.tags.map(tag => `<span class="news-tag">${tag}</span>`).join('')}
-                        </div>
-                    ` : ''}
-                    
-                    <div class="mt-6 pt-4 border-t text-center">
-                        <button onclick="shareNews('${newsId}')" 
-                                class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">
-                            이 글 공유하기
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
-    
-    // 모달 배경 클릭 시 닫기
-    const modal = document.getElementById('news-detail-modal');
-    modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
-            closeNewsDetail();
-        }
-    });
-    
-    // ESC 키로 닫기
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeNewsDetail();
-        }
-    });
-}
-
-// 10. 뉴스 상세 모달 닫기 함수 (새로 추가)
-function closeNewsDetail() {
-    const modal = document.getElementById('news-detail-modal');
-    if (modal) {
-        modal.remove();
-    }
-}
-
-// 11. 뉴스 공유하기 함수 (새로 추가)
-function shareNews(newsId) {
-    const news = appData.news.find(n => n.id === newsId);
-    if (!news) return;
-    
-    const shareText = `${news.title} - 이우규 후보 ${news.type}`;
-    try {
-        navigator.clipboard.writeText(shareText + '\n\n' + window.location.href);
-        showNotification('기고문이 복사되었습니다!', 'success');
-    } catch (error) {
-        console.error('[SHARE] 뉴스 공유 오류:', error);
-        showNotification('공유에 실패했습니다.', 'error');
-    }
-}
-
-// 모바일 메뉴 토글 - 에러 처리 추가
+// 모바일 메뉴 토글 - 비활성화 (햄버거 버튼 제거됨)
 function toggleMobileMenu() {
-    const mobileMenu = document.getElementById('mobile-menu');
-    if (mobileMenu) {
-        mobileMenu.classList.toggle('hidden');
-        console.log('[NAV] 모바일 메뉴 토글');
-    } else {
-        console.warn('[NAV] 모바일 메뉴 엘리먼트를 찾을 수 없습니다');
-    }
+    // 더 이상 사용하지 않음
+    console.log('[NAV] 모바일 메뉴는 비활성화되었습니다 - 햄버거 버튼 제거됨');
+    return;
 }
 
 // SNS 공유 함수들
@@ -1383,7 +1036,7 @@ function showNotification(message, type = 'info') {
 window.showSection = showSection;
 window.showPromiseDetail = showPromiseDetail;
 window.showPromiseList = showPromiseList;
-window.toggleMobileMenu = toggleMobileMenu;
+window.toggleMobileMenu = toggleMobileMenu; // 비활성화되었지만 호환성을 위해 유지
 window.shareToFacebook = shareToFacebook;
 window.shareToInstagram = shareToInstagram;
 window.shareToYoutube = shareToYoutube;
@@ -1395,18 +1048,13 @@ window.closeCorePromiseModal = closeCorePromiseModal;
 window.showNewsDetail = showNewsDetail;
 window.closeNewsDetail = closeNewsDetail;
 window.shareNews = shareNews;
-window.closeCorePromiseModal = closeCorePromiseModal;
-window.showNewsDetail = showNewsDetail;
-window.closeNewsDetail = closeNewsDetail;
-window.shareNews = shareNews;
-
 
 // 윈도우 로드 완료 후 최종 네비게이션 확인
 window.addEventListener('load', function() {
     setTimeout(() => {
-        console.log('[APP] 윈도우 로드 완료 - 네비게이션 최종 확인');
+        console.log('[APP] 윈도우 로드 완료 - 네비게이션 최종 확인 (네비게이션 문제 해결 버전)');
         fixNavigationVisibility();
     }, 500);
 });
 
-console.log('[SCRIPT] 스크립트 로드 완료 - data.json 로드 방식');
+console.log('[SCRIPT] 스크립트 로드 완료 - 네비게이션 문제 해결 버전');

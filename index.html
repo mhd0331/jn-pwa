@@ -25,7 +25,7 @@
     <link rel="manifest" href="manifest.json">
 
     <!-- Apple PWA -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="이우규 후보">
 
@@ -46,7 +46,7 @@
 
     <!-- 스타일시트 -->
     <link rel="stylesheet" href="style.css?v=1.2">
-    
+
 </head>
 
 <body class="bg-gray-100">
@@ -78,48 +78,27 @@
     <!-- 상단 네비게이션 바 -->
     <header class="bg-white/90 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
         <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <button onclick="showSection('home')" class="text-xl font-bold text-blue-700 flex items-center space-x-2">
+            <button onclick="showSection('home')" class="text-xl font-bold text-blue-700 flex items-center space-x-2" id="logo-btn">
                 <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">이
                 </div>
                 <span></span>
             </button>
 
-            <div class="nav-desktop-menu md:flex space-x-6 text-sm font-semibold">
-                <button onclick="showSection('home')"
+            <div class="nav-desktop-menu flex space-x-6 text-sm font-semibold" id="main-nav-menu">
+                <button onclick="showSection('home')" id="nav-home"
                     class="nav-btn text-gray-700 hover:text-blue-600 transition-colors">홈</button>
-                <button onclick="showSection('promises')"
-                    class="nav-btn text-gray-700 hover:text-blue-600 transition-colors">면단위 공약</button>
-                <button onclick="showSection('profile')"
-                    class="nav-btn text-gray-700 hover:text-blue-600 transition-colors">후보자 소개</button>
-                <button onclick="showSection('news')"
-                    class="nav-btn text-gray-700 hover:text-blue-600 transition-colors">소식/일정</button>
-                <button onclick="showSection('membership')"
-                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">당원가입안내</button>
+                <button onclick="showSection('promises')" id="nav-promises"
+                    class="nav-btn text-gray-700 hover:text-blue-600 transition-colors">공약</button>
+                <button onclick="showSection('profile')" id="nav-profile"
+                    class="nav-btn text-gray-700 hover:text-blue-600 transition-colors">후보자</button>
+                <button onclick="showSection('news')" id="nav-news"
+                    class="nav-btn text-gray-700 hover:text-blue-600 transition-colors">소식</button>
+                <button onclick="showSection('membership')" id="nav-membership"
+                    class="nav-btn bg-blue-600 text-white hover:bg-blue-700 px-3 py-1 rounded transition-colors">당원가입</button>
             </div>
 
-            <button onclick="toggleMobileMenu()" class="md:hidden text-gray-700">
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
-                </svg>
-            </button>
         </nav>
 
-                    
-        <!-- 모바일 메뉴 -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
-            <div class="px-4 py-2 space-y-2">
-                <button onclick="showSection('home'); toggleMobileMenu()"
-                    class="block w-full text-left py-2 text-gray-700">홈</button>
-                <button onclick="showSection('promises'); toggleMobileMenu()"
-                    class="block w-full text-left py-2 text-gray-700">면단위 공약</button>
-                <button onclick="showSection('profile'); toggleMobileMenu()"
-                    class="block w-full text-left py-2 text-gray-700">후보자 소개</button>
-                <button onclick="showSection('news'); toggleMobileMenu()"
-                    class="block w-full text-left py-2 text-gray-700">소식/일정</button>
-                <button onclick="showSection('membership'); toggleMobileMenu()"
-                    class="block w-full text-left py-2 text-blue-600 font-semibold">당원가입안내</button>
-            </div>
-        </div>
     </header>
 
     <!-- 메인 컨텐츠 -->
@@ -141,14 +120,18 @@
                             <div class="mt-4 text-lg font-semibold">
                                 <p>국민주권정부 시대, 진안형 기본사회위원회 구축</p>
                             </div>
+                            <button onclick="showSection('membership')" class="hero-membership-btn">
+                                <span class="mr-2">🎯</span>
+                                <span>더불어민주당 당원가입안내</span>
+                            </button>
                         </div>
                     </div>
                     <!-- 후보자 이미지 -->
-<div class="hero-candidate-image">
-    <img src="candidate-photo.jpg" alt="이우규 후보" class="candidate-photo"
-         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-    <div class="image-fallback" style="display: none;">이우규</div>
-</div>
+                    <div class="hero-candidate-image">
+                        <img src="candidate-photo.jpg" alt="이우규 후보" class="candidate-photo"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="image-fallback" style="display: none;">이우규</div>
+                    </div>
                 </div>
 
                 <!-- 6대 핵심 공약 그리드 -->
@@ -188,7 +171,8 @@
                         <div class="border-l-4 border-blue-500 pl-4 bg-blue-50 p-4 rounded-r-lg">
                             <h4 class="font-semibold text-lg mb-2">농촌형 기본소득 모델</h4>
                             <p class="text-gray-700 mb-2">이재명 대통령께서 진안군을 직접 방문하시어 구체적인 비전을 제시해주셨습니다.</p>
-                            <p class="text-gray-800 font-medium">"6,500억 원이면 1인당 250여만 원 수준, 중앙정부가 힘을 합쳐 1인당 월 15만~20만원 정도의 지역화폐를 지급하는 기본소득 모델이 가능하다"</p>
+                            <p class="text-gray-800 font-medium">"6,500억 원이면 1인당 250여만 원 수준, 중앙정부가 힘을 합쳐 1인당 월 15만~20만원
+                                정도의 지역화폐를 지급하는 기본소득 모델이 가능하다"</p>
                         </div>
                         <div class="border-l-4 border-green-500 pl-4 bg-green-50 p-4 rounded-r-lg">
                             <h4 class="font-semibold text-lg mb-2">참여형 에너지 모델</h4>
@@ -264,7 +248,8 @@
                     <p class="text-center text-gray-600 mb-8">진안군 11개 면의 특성에 맞는 맞춤형 발전 계획을 확인하세요</p>
 
                     <!-- 면단위 공약 그리드 -->
-                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4" id="township-grid-content">
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4"
+                        id="township-grid-content">
                         <!-- 면단위 공약이 로드됩니다 -->
                     </div>
 
@@ -537,8 +522,8 @@
                             국민주권정부 시대의 주인공이 되어주세요.
                         </p>
                         <button onclick="openMembershipPage()"
-                            class="bg-gradient-to-r from-blue-600 to-green-600 text-white px-12 py-4 rounded-full text-xl font-bold hover:from-blue-700 hover:to-green-700 transition-all transform hover:scale-105 shadow-lg">
-                            🎯 입당신청 하기
+                            class="direct-membership-btn bg-gradient-to-r from-blue-600 to-green-600 text-white px-12 py-4 rounded-full text-xl font-bold hover:from-blue-700 hover:to-green-700 transition-all transform hover:scale-105 shadow-lg">
+                            🚀 더불어민주당 당원가입 바로가기
                         </button>
                         <p class="text-gray-500 text-sm mt-4">
                             * 가입 시 개인정보는 당헌·당규에 따라 안전하게 보호됩니다.
@@ -574,214 +559,214 @@
     <script src="script.js?v=1.2">
         // 브라우저 확장 프로그램 간섭 방지 및 에러 처리 개선
 
-// 전역 에러 핸들러 설정
-window.addEventListener('error', function(event) {
-    // 브라우저 확장 프로그램 관련 에러는 무시
-    if (event.filename && (
-        event.filename.includes('chrome-extension://') ||
-        event.filename.includes('moz-extension://') ||
-        event.filename.includes('content.js') ||
-        event.filename.includes('content_script')
-    )) {
-        console.log('[EXTENSION] 브라우저 확장 프로그램 에러 무시:', event.message);
-        event.preventDefault();
-        return false;
-    }
-    
-    // 웹사이트 관련 에러만 처리
-    console.error('[WEBSITE ERROR]:', event.error);
-});
-
-// Promise rejection 에러 핸들러
-window.addEventListener('unhandledrejection', function(event) {
-    // JSON 파싱 에러가 확장 프로그램에서 온 경우 무시
-    if (event.reason && event.reason.message && 
-        (event.reason.message.includes('JSON.parse') || 
-         event.reason.message.includes('storageChangeDispatcher'))) {
-        console.log('[EXTENSION] 확장 프로그램 JSON 파싱 에러 무시:', event.reason.message);
-        event.preventDefault();
-        return false;
-    }
-    
-    console.error('[PROMISE REJECTION]:', event.reason);
-});
-
-// JSON.parse 안전 래퍼 함수
-function safeJSONParse(jsonString, fallback = null) {
-    try {
-        if (typeof jsonString !== 'string') {
-            console.warn('[SAFE PARSE] JSON 파싱 대상이 문자열이 아닙니다:', typeof jsonString);
-            return fallback;
-        }
-        
-        if (jsonString.trim() === '') {
-            console.warn('[SAFE PARSE] 빈 문자열입니다');
-            return fallback;
-        }
-        
-        // "[object Object]" 같은 문제가 있는 문자열 체크
-        if (jsonString.includes('[object Object]')) {
-            console.warn('[SAFE PARSE] 잘못된 객체 문자열:', jsonString);
-            return fallback;
-        }
-        
-        return JSON.parse(jsonString);
-    } catch (error) {
-        console.warn('[SAFE PARSE] JSON 파싱 실패:', error.message, 'Input:', jsonString);
-        return fallback;
-    }
-}
-
-// 로컬스토리지 안전 래퍼 함수들
-const SafeStorage = {
-    setItem: function(key, value) {
-        try {
-            if (typeof value === 'object') {
-                localStorage.setItem(key, JSON.stringify(value));
-            } else {
-                localStorage.setItem(key, value);
+        // 전역 에러 핸들러 설정
+        window.addEventListener('error', function (event) {
+            // 브라우저 확장 프로그램 관련 에러는 무시
+            if (event.filename && (
+                event.filename.includes('chrome-extension://') ||
+                event.filename.includes('moz-extension://') ||
+                event.filename.includes('content.js') ||
+                event.filename.includes('content_script')
+            )) {
+                console.log('[EXTENSION] 브라우저 확장 프로그램 에러 무시:', event.message);
+                event.preventDefault();
+                return false;
             }
-            return true;
-        } catch (error) {
-            console.warn('[SAFE STORAGE] setItem 실패:', error.message);
-            return false;
-        }
-    },
-    
-    getItem: function(key, fallback = null) {
-        try {
-            const item = localStorage.getItem(key);
-            if (item === null) {
+
+            // 웹사이트 관련 에러만 처리
+            console.error('[WEBSITE ERROR]:', event.error);
+        });
+
+        // Promise rejection 에러 핸들러
+        window.addEventListener('unhandledrejection', function (event) {
+            // JSON 파싱 에러가 확장 프로그램에서 온 경우 무시
+            if (event.reason && event.reason.message &&
+                (event.reason.message.includes('JSON.parse') ||
+                    event.reason.message.includes('storageChangeDispatcher'))) {
+                console.log('[EXTENSION] 확장 프로그램 JSON 파싱 에러 무시:', event.reason.message);
+                event.preventDefault();
+                return false;
+            }
+
+            console.error('[PROMISE REJECTION]:', event.reason);
+        });
+
+        // JSON.parse 안전 래퍼 함수
+        function safeJSONParse(jsonString, fallback = null) {
+            try {
+                if (typeof jsonString !== 'string') {
+                    console.warn('[SAFE PARSE] JSON 파싱 대상이 문자열이 아닙니다:', typeof jsonString);
+                    return fallback;
+                }
+
+                if (jsonString.trim() === '') {
+                    console.warn('[SAFE PARSE] 빈 문자열입니다');
+                    return fallback;
+                }
+
+                // "[object Object]" 같은 문제가 있는 문자열 체크
+                if (jsonString.includes('[object Object]')) {
+                    console.warn('[SAFE PARSE] 잘못된 객체 문자열:', jsonString);
+                    return fallback;
+                }
+
+                return JSON.parse(jsonString);
+            } catch (error) {
+                console.warn('[SAFE PARSE] JSON 파싱 실패:', error.message, 'Input:', jsonString);
                 return fallback;
             }
-            
-            // JSON 형태인지 확인
-            if (item.startsWith('{') || item.startsWith('[')) {
-                return safeJSONParse(item, fallback);
-            }
-            
-            return item;
-        } catch (error) {
-            console.warn('[SAFE STORAGE] getItem 실패:', error.message);
-            return fallback;
         }
-    },
-    
-    removeItem: function(key) {
-        try {
-            localStorage.removeItem(key);
-            return true;
-        } catch (error) {
-            console.warn('[SAFE STORAGE] removeItem 실패:', error.message);
-            return false;
-        }
-    }
-};
 
-// 브라우저 확장 프로그램 감지 및 경고
-function detectExtensionInterference() {
-    // Chrome 확장 프로그램 감지
-    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
-        console.log('[EXTENSION] Chrome 확장 프로그램 환경 감지됨');
-    }
-    
-    // Firefox 확장 프로그램 감지
-    if (typeof browser !== 'undefined' && browser.runtime) {
-        console.log('[EXTENSION] Firefox 확장 프로그램 환경 감지됨');
-    }
-    
-    // Content Script 감지
-    if (document.documentElement.getAttribute('data-extension-injected')) {
-        console.log('[EXTENSION] Content Script 주입 감지됨');
-    }
-    
-    // DOM 변경 감시로 확장 프로그램 간섭 체크
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.type === 'childList') {
-                mutation.addedNodes.forEach(function(node) {
-                    if (node.nodeType === Node.ELEMENT_NODE) {
-                        // 확장 프로그램이 주입한 요소 체크
-                        if (node.className && typeof node.className === 'string' && 
-                            (node.className.includes('extension') || 
-                             node.className.includes('chrome-') ||
-                             node.className.includes('moz-'))) {
-                            console.log('[EXTENSION] 확장 프로그램이 DOM에 요소 추가:', node);
-                        }
+        // 로컬스토리지 안전 래퍼 함수들
+        const SafeStorage = {
+            setItem: function (key, value) {
+                try {
+                    if (typeof value === 'object') {
+                        localStorage.setItem(key, JSON.stringify(value));
+                    } else {
+                        localStorage.setItem(key, value);
+                    }
+                    return true;
+                } catch (error) {
+                    console.warn('[SAFE STORAGE] setItem 실패:', error.message);
+                    return false;
+                }
+            },
+
+            getItem: function (key, fallback = null) {
+                try {
+                    const item = localStorage.getItem(key);
+                    if (item === null) {
+                        return fallback;
+                    }
+
+                    // JSON 형태인지 확인
+                    if (item.startsWith('{') || item.startsWith('[')) {
+                        return safeJSONParse(item, fallback);
+                    }
+
+                    return item;
+                } catch (error) {
+                    console.warn('[SAFE STORAGE] getItem 실패:', error.message);
+                    return fallback;
+                }
+            },
+
+            removeItem: function (key) {
+                try {
+                    localStorage.removeItem(key);
+                    return true;
+                } catch (error) {
+                    console.warn('[SAFE STORAGE] removeItem 실패:', error.message);
+                    return false;
+                }
+            }
+        };
+
+        // 브라우저 확장 프로그램 감지 및 경고
+        function detectExtensionInterference() {
+            // Chrome 확장 프로그램 감지
+            if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
+                console.log('[EXTENSION] Chrome 확장 프로그램 환경 감지됨');
+            }
+
+            // Firefox 확장 프로그램 감지
+            if (typeof browser !== 'undefined' && browser.runtime) {
+                console.log('[EXTENSION] Firefox 확장 프로그램 환경 감지됨');
+            }
+
+            // Content Script 감지
+            if (document.documentElement.getAttribute('data-extension-injected')) {
+                console.log('[EXTENSION] Content Script 주입 감지됨');
+            }
+
+            // DOM 변경 감시로 확장 프로그램 간섭 체크
+            const observer = new MutationObserver(function (mutations) {
+                mutations.forEach(function (mutation) {
+                    if (mutation.type === 'childList') {
+                        mutation.addedNodes.forEach(function (node) {
+                            if (node.nodeType === Node.ELEMENT_NODE) {
+                                // 확장 프로그램이 주입한 요소 체크
+                                if (node.className && typeof node.className === 'string' &&
+                                    (node.className.includes('extension') ||
+                                        node.className.includes('chrome-') ||
+                                        node.className.includes('moz-'))) {
+                                    console.log('[EXTENSION] 확장 프로그램이 DOM에 요소 추가:', node);
+                                }
+                            }
+                        });
                     }
                 });
+            });
+
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        }
+
+        // 네트워크 요청 인터셉터 (확장 프로그램 간섭 방지)
+        const originalFetch = window.fetch;
+        window.fetch = function (...args) {
+            const url = args[0];
+
+            // 확장 프로그램 관련 요청은 차단
+            if (typeof url === 'string' && (
+                url.includes('chrome-extension://') ||
+                url.includes('moz-extension://') ||
+                url.includes('extension://')
+            )) {
+                console.log('[EXTENSION] 확장 프로그램 네트워크 요청 차단:', url);
+                return Promise.reject(new Error('Extension request blocked'));
             }
+
+            return originalFetch.apply(this, args)
+                .catch(error => {
+                    console.warn('[FETCH] 네트워크 요청 실패:', error.message);
+                    throw error;
+                });
+        };
+
+        // 초기화 시 확장 프로그램 간섭 체크
+        document.addEventListener('DOMContentLoaded', function () {
+            detectExtensionInterference();
+
+            // 확장 프로그램 관련 콘솔 에러 필터링
+            const originalConsoleError = console.error;
+            console.error = function (...args) {
+                const message = args.join(' ');
+
+                // 확장 프로그램 관련 에러는 warn으로 변경
+                if (message.includes('content.js') ||
+                    message.includes('storageChangeDispatcher') ||
+                    message.includes('chrome-extension') ||
+                    message.includes('moz-extension')) {
+                    console.warn('[EXTENSION ERROR]:', ...args);
+                    return;
+                }
+
+                // 일반 에러는 그대로 표시
+                originalConsoleError.apply(console, args);
+            };
         });
-    });
-    
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
-}
 
-// 네트워크 요청 인터셉터 (확장 프로그램 간섭 방지)
-const originalFetch = window.fetch;
-window.fetch = function(...args) {
-    const url = args[0];
-    
-    // 확장 프로그램 관련 요청은 차단
-    if (typeof url === 'string' && (
-        url.includes('chrome-extension://') ||
-        url.includes('moz-extension://') ||
-        url.includes('extension://')
-    )) {
-        console.log('[EXTENSION] 확장 프로그램 네트워크 요청 차단:', url);
-        return Promise.reject(new Error('Extension request blocked'));
-    }
-    
-    return originalFetch.apply(this, args)
-        .catch(error => {
-            console.warn('[FETCH] 네트워크 요청 실패:', error.message);
-            throw error;
-        });
-};
-
-// 초기화 시 확장 프로그램 간섭 체크
-document.addEventListener('DOMContentLoaded', function() {
-    detectExtensionInterference();
-    
-    // 확장 프로그램 관련 콘솔 에러 필터링
-    const originalConsoleError = console.error;
-    console.error = function(...args) {
-        const message = args.join(' ');
-        
-        // 확장 프로그램 관련 에러는 warn으로 변경
-        if (message.includes('content.js') || 
-            message.includes('storageChangeDispatcher') ||
-            message.includes('chrome-extension') ||
-            message.includes('moz-extension')) {
-            console.warn('[EXTENSION ERROR]:', ...args);
-            return;
+        // CSP (Content Security Policy) 관련 에러 방지
+        function preventCSPErrors() {
+            // inline script 실행 전 CSP 체크
+            const metaCSP = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
+            if (metaCSP) {
+                const cspContent = metaCSP.getAttribute('content');
+                if (cspContent && !cspContent.includes("'unsafe-inline'")) {
+                    console.warn('[CSP] Inline script 실행이 제한될 수 있습니다');
+                }
+            }
         }
-        
-        // 일반 에러는 그대로 표시
-        originalConsoleError.apply(console, args);
-    };
-});
 
-// CSP (Content Security Policy) 관련 에러 방지
-function preventCSPErrors() {
-    // inline script 실행 전 CSP 체크
-    const metaCSP = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
-    if (metaCSP) {
-        const cspContent = metaCSP.getAttribute('content');
-        if (cspContent && !cspContent.includes("'unsafe-inline'")) {
-            console.warn('[CSP] Inline script 실행이 제한될 수 있습니다');
-        }
-    }
-}
+        // 익스포트
+        window.SafeStorage = SafeStorage;
+        window.safeJSONParse = safeJSONParse;
 
-// 익스포트
-window.SafeStorage = SafeStorage;
-window.safeJSONParse = safeJSONParse;
-
-console.log('[PROTECTION] 브라우저 확장 프로그램 간섭 방지 시스템 활성화됨');
+        console.log('[PROTECTION] 브라우저 확장 프로그램 간섭 방지 시스템 활성화됨');
     </script>
 </body>
 

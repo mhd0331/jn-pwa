@@ -1,4 +1,4 @@
-/* 이우규 후보 6대 공약 및 면단위 공약 PWA 스타일시트 - 에러 수정 및 최적화 */
+/* 이우규 후보 6대 공약 및 면단위 공약 PWA 스타일시트 - 네비게이션 문제 해결 버전 */
 
 /* ========== 기본 설정 ========== */
 body {
@@ -39,69 +39,8 @@ body {
     100% { transform: rotate(360deg); }
 }
 
-/* 데스크톱 네비게이션 메뉴 - 수정된 선택자 */
-nav .hidden {
-    display: none;
-}
-
-/* 새로운 네비게이션 메뉴 클래스 */
-.nav-desktop-menu {
-    display: none; /* 기본적으로 숨김 */
-    gap: 1.5rem;
-    align-items: center;
-    visibility: visible;
-    opacity: 1;
-}
-
-/* 네비게이션 메뉴 강제 표시 클래스 */
-nav .nav-menu-visible {
-    display: flex !important;
-    gap: 1.5rem !important;
-    align-items: center !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-}
-
-@media (min-width: 768px) {
-    nav .hidden {
-        display: flex !important;
-        gap: 1.5rem;
-        align-items: center;
-    }
-    
-    .nav-desktop-menu {
-        display: flex !important;
-        gap: 1.5rem;
-        align-items: center;
-    }
-}
-
-/* 모바일에서는 데스크톱 메뉴 숨김, 햄버거 버튼 표시 */
-@media (max-width: 767px) {
-    .nav-desktop-menu {
-        display: none !important;
-    }
-    
-    /* 모바일 햄버거 메뉴 버튼 강제 표시 */
-    nav > button:last-child {
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-    }
-}
-
-/* 강제 네비게이션 표시 */
-.force-nav-visible {
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-}
-
-/* ========== 네비게이션 바 스타일 (통합 및 최적화) ========== */
+/* ========== 네비게이션 바 스타일 (단순화 버전) ========== */
 header {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
     position: sticky !important;
     top: 0 !important;
     z-index: 50 !important;
@@ -112,8 +51,6 @@ header {
 
 nav {
     display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
     align-items: center !important;
     justify-content: space-between !important;
     padding: 0.75rem 1rem !important;
@@ -121,8 +58,8 @@ nav {
     margin: 0 auto;
 }
 
-/* 네비게이션 로고 버튼 */
-nav > button:first-child {
+/* 로고 버튼 */
+#logo-btn {
     display: flex !important;
     align-items: center !important;
     color: #1d4ed8 !important;
@@ -134,36 +71,20 @@ nav > button:first-child {
     background: transparent !important;
 }
 
-/* 데스크톱 네비게이션 메뉴 - 수정된 선택자 */
-nav .hidden {
-    display: none;
+/* 메인 네비게이션 메뉴 */
+#main-nav-menu {
+    display: flex !important;
+    gap: 1.5rem !important;
+    align-items: center !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
-@media (min-width: 768px) {
-    nav .hidden {
-        display: flex !important;
-        gap: 1.5rem;
-        align-items: center;
-    }
-}
-
-/* 모바일 햄버거 메뉴 버튼 */
-nav > button:last-child {
-    display: block;
-    cursor: pointer;
-    border: none;
-    background: transparent;
-    color: #374151;
-}
-
-@media (min-width: 768px) {
-    nav > button:last-child {
-        display: none !important;
-    }
-}
-
-/* 네비게이션 버튼 스타일 (통합) */
+/* 네비게이션 버튼 기본 스타일 */
 .nav-btn {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
     transition: all 0.2s ease;
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
@@ -173,7 +94,9 @@ nav > button:last-child {
     cursor: pointer;
     border: none;
     background: transparent;
-    min-height: 44px; /* 터치 친화적 크기 */
+    min-height: 44px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .nav-btn:hover {
@@ -187,33 +110,103 @@ nav > button:last-child {
     background-color: rgba(59, 130, 246, 0.1);
 }
 
-/* 모바일 메뉴 스타일 */
-#mobile-menu {
-    background-color: white;
-    border-top: 1px solid #e5e7eb;
-    display: none;
+/* 당원가입 버튼 특별 스타일 */
+#nav-membership {
+    background: #2563eb !important;
+    color: white !important;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
 }
 
-#mobile-menu:not(.hidden) {
-    display: block;
+#nav-membership:hover {
+    background: #1d4ed8 !important;
+    color: white !important;
 }
 
-#mobile-menu button {
-    display: block;
+/* 네비게이션 기본 클래스 정리 */
+.nav-desktop-menu {
+    display: flex !important;
+    gap: 1.5rem;
+    align-items: center;
+    visibility: visible !important;
+    opacity: 1 !important;
+    flex-wrap: nowrap;
+}
+
+/* 스크롤바 방지 */
+nav {
+    overflow-x: hidden;
     width: 100%;
-    text-align: left;
-    padding: 0.75rem 1rem;
-    color: #374151;
-    font-weight: 500;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    min-height: 44px;
 }
 
-#mobile-menu button:hover {
-    background-color: rgba(59, 130, 246, 0.1);
-    color: #2563eb;
+#main-nav-menu {
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+}
+
+#main-nav-menu::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+}
+
+/* 반응형 네비게이션 */
+@media (max-width: 768px) {
+    #main-nav-menu {
+        gap: 1rem !important;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .nav-btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        min-width: auto;
+        white-space: nowrap;
+    }
+    
+    nav {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem !important;
+    }
+    
+    #logo-btn {
+        font-size: 1.125rem !important;
+        margin-bottom: 0.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    #main-nav-menu {
+        gap: 0.5rem !important;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        width: 100%;
+    }
+    
+    .nav-btn {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.75rem;
+        flex: 1;
+        text-align: center;
+        min-width: 60px;
+        max-width: 80px;
+    }
+    
+    #nav-membership {
+        flex: 1.2;
+        max-width: 100px;
+    }
+    
+    nav {
+        padding: 0.5rem 0.75rem !important;
+    }
+    
+    #logo-btn {
+        font-size: 1rem !important;
+    }
 }
 
 /* ========== 페이지 섹션 관리 (통합 및 최적화) ========== */
@@ -517,8 +510,6 @@ nav > button:last-child {
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
-/* style.css에 추가할 CSS 코드 */
-
 /* ========== 모달 스타일 ========== */
 .max-h-90vh {
     max-height: 90vh;
@@ -611,6 +602,8 @@ nav > button:last-child {
 .profile-candidate-image .candidate-photo {
     border: 3px solid rgba(37, 99, 235, 0.2);
     transition: all 0.3s ease;
+    object-fit: cover;
+    border-radius: 50%;
 }
 
 .profile-candidate-image .candidate-photo:hover {
@@ -646,6 +639,7 @@ nav > button:last-child {
     transition: all 0.2s ease;
     background: rgba(59, 130, 246, 0.1);
     border: 1px solid rgba(59, 130, 246, 0.2);
+    text-decoration: none;
 }
 
 .news-card .text-green-600.hover\:underline {
@@ -732,8 +726,78 @@ nav > button:last-child {
     }
 }
 
-
 /* ========== 당원가입안내 페이지 스타일 ========== */
+
+/* 새로 추가된 스타일 */
+.hero-membership-btn {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
+    backdrop-filter: blur(12px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50px;
+    padding: 12px 24px;
+    margin-top: 20px;
+    font-weight: 700;
+    font-size: 1rem;
+    color: #1e40af;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 빛나는 애니메이션 효과 */
+.hero-membership-btn:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.5s;
+}
+
+.hero-membership-btn:hover:before {
+    left: 100%;
+}
+
+/* 호버 효과 */
+.hero-membership-btn:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: #1d4ed8;
+}
+
+/* 반응형 스타일 */
+@media (max-width: 768px) {
+    .hero-membership-btn {
+        padding: 10px 20px;
+        font-size: 0.875rem;
+        margin-top: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-membership-btn {
+        padding: 8px 16px;
+        font-size: 0.8rem;
+        margin-top: 12px;
+        border-radius: 25px;
+    }
+}
+
+/* 바로가기 버튼 스타일 */
+.direct-membership-btn {
+    background: rgba(255, 255, 255, 0.95);
+    /* ... 글로우 효과 및 애니메이션 */
+}
+
 .membership-hero {
     background: linear-gradient(135deg, #2563eb 0%, #059669 100%);
     color: white;
@@ -1180,224 +1244,6 @@ img, video {
     .hover-scale:hover {
         transform: scale(1.05);
         transition: transform 0.2s ease;
-    }
-}
-
-/* style.css에 추가할 CSS 코드 */
-
-/* ========== 모달 스타일 (파일 끝부분에 추가) ========== */
-.max-h-90vh {
-    max-height: 90vh;
-}
-
-#core-promise-modal,
-#news-detail-modal {
-    backdrop-filter: blur(4px);
-}
-
-#core-promise-modal .bg-white,
-#news-detail-modal .bg-white {
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-}
-
-/* 뉴스 상세 모달 전용 스타일 */
-#news-detail-modal .prose {
-    max-width: none;
-    color: #374151;
-}
-
-#news-detail-modal .prose h3 {
-    color: #1f2937;
-    margin-bottom: 0.75rem;
-}
-
-#news-detail-modal .prose p {
-    margin-bottom: 1rem;
-    line-height: 1.7;
-}
-
-/* 모달 스크롤바 스타일링 */
-#core-promise-modal .overflow-y-auto::-webkit-scrollbar,
-#news-detail-modal .overflow-y-auto::-webkit-scrollbar {
-    width: 6px;
-}
-
-#core-promise-modal .overflow-y-auto::-webkit-scrollbar-track,
-#news-detail-modal .overflow-y-auto::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 3px;
-}
-
-#core-promise-modal .overflow-y-auto::-webkit-scrollbar-thumb,
-#news-detail-modal .overflow-y-auto::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 3px;
-}
-
-#core-promise-modal .overflow-y-auto::-webkit-scrollbar-thumb:hover,
-#news-detail-modal .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
-}
-
-/* 모바일 모달 최적화 */
-@media (max-width: 768px) {
-    #core-promise-modal .p-6,
-    #news-detail-modal .p-6 {
-        padding: 1rem;
-    }
-    
-    #core-promise-modal h2,
-    #news-detail-modal h2 {
-        font-size: 1.5rem;
-    }
-    
-    #core-promise-modal .space-y-6 > div,
-    #news-detail-modal .space-y-6 > div {
-        padding: 1rem;
-    }
-}
-
-/* 뉴스 타입 배지 스타일 개선 */
-.news-card .type-badge {
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-    color: #1e40af;
-    font-weight: 600;
-    border: 1px solid #93c5fd;
-    transition: all 0.2s ease;
-}
-
-.news-card .type-badge:hover {
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    color: white;
-    transform: scale(1.05);
-}
-
-/* 후보자 사진 스타일 개선 */
-.profile-candidate-image .candidate-photo {
-    border: 3px solid rgba(37, 99, 235, 0.2);
-    transition: all 0.3s ease;
-    object-fit: cover;
-    border-radius: 50%;
-}
-
-.profile-candidate-image .candidate-photo:hover {
-    border-color: rgba(37, 99, 235, 0.5);
-    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.2);
-    transform: scale(1.02);
-}
-
-.profile-candidate-image .image-fallback {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.5rem;
-    font-weight: bold;
-    border-radius: 50%;
-    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
-    border: 3px solid rgba(255, 255, 255, 0.9);
-    transition: all 0.3s ease;
-}
-
-.profile-candidate-image .image-fallback:hover {
-    transform: scale(1.02);
-    box-shadow: 0 12px 30px rgba(37, 99, 235, 0.4);
-}
-
-/* 뉴스 전문보기 버튼 스타일 */
-.news-card .text-blue-600.hover\:underline,
-.news-card .text-green-600.hover\:underline {
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    transition: all 0.2s ease;
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.2);
-    text-decoration: none;
-}
-
-.news-card .text-green-600.hover\:underline {
-    background: rgba(16, 185, 129, 0.1);
-    border-color: rgba(16, 185, 129, 0.2);
-}
-
-.news-card .text-blue-600.hover\:underline:hover {
-    background: rgba(59, 130, 246, 0.2);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
-}
-
-.news-card .text-green-600.hover\:underline:hover {
-    background: rgba(16, 185, 129, 0.2);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
-}
-
-/* 뉴스 상세 모달 애니메이션 */
-@keyframes modalFadeIn {
-    from {
-        opacity: 0;
-        transform: scale(0.9) translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-}
-
-#core-promise-modal > div,
-#news-detail-modal > div {
-    animation: modalFadeIn 0.3s ease-out;
-}
-
-/* 뉴스 카드 타입별 색상 구분 */
-.news-card[data-type="기고문"] {
-    border-left-color: #059669;
-}
-
-.news-card[data-type="행사"] {
-    border-left-color: #7c3aed;
-}
-
-.news-card[data-type="방문"] {
-    border-left-color: #dc2626;
-}
-
-.news-card[data-type="발표"] {
-    border-left-color: #ea580c;
-}
-
-/* 뉴스 상세 내용 스타일링 */
-#news-detail-modal .border-l-4.border-blue-500 {
-    background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
-    border-radius: 0.5rem;
-    padding: 1.5rem;
-    margin: 1rem 0;
-}
-
-#news-detail-modal .bg-blue-50 {
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-    border: 1px solid #93c5fd;
-}
-
-#news-detail-modal .bg-green-50 {
-    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-    border: 1px solid #86efac;
-}
-
-/* 반응형 뉴스 상세 모달 */
-@media (max-width: 640px) {
-    #news-detail-modal .text-2xl {
-        font-size: 1.25rem;
-    }
-    
-    #news-detail-modal .text-xl {
-        font-size: 1.125rem;
-    }
-    
-    #news-detail-modal .space-y-6 {
-        gap: 1rem;
     }
 }
 

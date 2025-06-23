@@ -1,8 +1,6 @@
-// sw.js 전체 내용을 다음으로 교체
-
 // 이우규 후보 PWA 서비스 워커 - 캐시 개선 버전
 
-const CACHE_NAME = 'jinan-pwa-v2'; // 버전 업
+const CACHE_NAME = 'jinan-pwa-v4'; // 버전 업
 const urlsToCache = [
   '/',
   '/index.html',
