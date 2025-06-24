@@ -7,15 +7,6 @@
     <meta name="theme-color" content="#2563eb">
     <meta name="description" content="이우규 후보의 6대 핵심 공약과 면단위 공약을 확인하세요. 국민주권정부 시대, 진안형 기본사회위원회 구축">
 
-    <!-- 1. <head> 섹션에 캐시 방지 메타태그 추가 (8번째 줄 근처) -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#2563eb">
-    <meta name="description" content="이우규 후보의 6대 핵심 공약과 면단위 공약을 확인하세요. 국민주권정부 시대, 진안형 기본사회위원회 구축">
-
     <!-- 캐시 방지 메타태그 추가 -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
@@ -28,6 +19,26 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="이우규 후보">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YV7NXZQPN4"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        // Google Analytics 설정
+        gtag('config', 'G-YV7NXZQPN4', {
+            page_title: '이우규 후보 - 진안을 새롭게, 군민을 이롭게',
+            custom_map: { 'custom_parameter_1': 'section_name' }
+        });
+
+        // 사용자 정의 이벤트 설정
+        gtag('event', 'page_view', {
+            'event_category': 'engagement',
+            'event_label': 'site_load'
+        });
+    </script>
 
     <!-- Favicon -->
     <link rel="icon"
@@ -46,6 +57,11 @@
 
     <!-- 스타일시트 -->
     <link rel="stylesheet" href="style.css?v=1.2">
+
+    <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+    <script>
+        Kakao.init('2d2314bffebe68ccc1d592e504ddb4d5'); // 여기에 발급받은 JavaScript 키를 넣으세요.
+    </script>
 
 </head>
 
@@ -78,12 +94,11 @@
     <!-- 상단 네비게이션 바 -->
     <header class="bg-white/90 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
         <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <button onclick="showSection('home')" class="text-xl font-bold text-blue-700 flex items-center space-x-2" id="logo-btn">
+            <!--           <button onclick="showSection('home')" class="text-xl font-bold text-blue-700 flex items-center space-x-2" id="logo-btn">
                 <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">이
-                </div>
-                <span></span>
+                </div>               
             </button>
-
+-->
             <div class="nav-desktop-menu flex space-x-6 text-sm font-semibold" id="main-nav-menu">
                 <button onclick="showSection('home')" id="nav-home"
                     class="nav-btn text-gray-700 hover:text-blue-600 transition-colors">홈</button>
@@ -93,7 +108,7 @@
                     class="nav-btn text-gray-700 hover:text-blue-600 transition-colors">후보자</button>
                 <button onclick="showSection('news')" id="nav-news"
                     class="nav-btn text-gray-700 hover:text-blue-600 transition-colors">소식</button>
-                
+
             </div>
 
         </nav>
@@ -119,7 +134,8 @@
                             <div class="mt-4 text-lg font-semibold">
                                 <p>국민주권정부 시대, 진안형 기본사회위원회 구축</p>
                             </div>
-                            <button onclick="showSection('membership')" class="hero-membership-btn">
+                            <button onclick="trackMembershipClick('hero_section'); showSection('membership')"
+                                class="hero-membership-btn">
                                 <span class="mr-2">🎯</span>
                                 <span>더불어민주당 당원가입안내</span>
                             </button>
@@ -518,7 +534,10 @@
                         <h3 class="text-2xl font-bold mb-4 text-gray-800">지금 바로 당원가입하세요!</h3>
                         <p class="text-gray-600 mb-6">
                             이우규 후보와 함께 진안의 새로운 미래를 만들어가고,<br>
-                            국민주권정부 시대의 주인공이 되어주세요.
+                            국민주권정부 시대의 주인공이 되어주세요.<br>
+                            인터넷 가입 후 심사완료까지는 수일이 소요됩니다.<br>
+                            당원가입 확인이 되신 후에는 그 화면을 캡처해서 전화번호와 함께 <br>
+                            카톡(010-4992-5534, 문형대) 또는 mhd0331@gmail.com으로 보내주시면 감사하겠습니다.<br>                    
                         </p>
                         <button onclick="openMembershipPage()"
                             class="direct-membership-btn bg-gradient-to-r from-blue-600 to-green-600 text-white px-12 py-4 rounded-full text-xl font-bold hover:from-blue-700 hover:to-green-700 transition-all transform hover:scale-105 shadow-lg">
@@ -538,17 +557,17 @@
             <div class="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-8">
                 <div>
                     <p class="font-semibold text-lg">이우규 후보 선거사무소</p>
-                    <p class="text-gray-400">전라북도 진안군 진안읍 중앙로 123</p>
+                    <p class="text-gray-400">전라북도 진안군 진안읍 진무로 1083-1, 2층 진안 더혁신 민주회의</p>
                 </div>
                 <div>
                     <p class="font-semibold">연락처</p>
-                    <p class="text-gray-400">📞 063-000-0000</p>
-                    <p class="text-gray-400">📧 campaign@jinan2024.kr</p>
+                    <p class="text-gray-400">📞 사무국장 최락기 010-2610-9900</p>
+                    <p class="text-gray-400">📧 nlp@daum.net</p>
                 </div>
             </div>
             <div class="mt-6 pt-6 border-t border-gray-700">
                 <p class="text-gray-400">
-                    Copyright © 2024 이우규 후보 선거사무소. 모든 권리 보유.
+                    Copyright © 2024 이우규 후보 선거사무소.
                 </p>
             </div>
         </div>
@@ -725,29 +744,80 @@
                     throw error;
                 });
         };
+      
+      // 초기화 시 확장 프로그램 간섭 체크
+document.addEventListener('DOMContentLoaded', function () {
+    detectExtensionInterference();
+    
+    // 확장 프로그램 관련 콘솔 에러 필터링
+    const originalConsoleError = console.error;
+    console.error = function (...args) {
+        const message = args.join(' ');
+        
+        // 확장 프로그램 관련 에러는 warn으로 변경
+        if (message.includes('content.js') ||
+            message.includes('storageChangeDispatcher') ||
+            message.includes('chrome-extension') ||
+            message.includes('moz-extension')) {
+            console.warn('[EXTENSION ERROR]:', ...args);
+            return;
+        }
+        
+        // 일반 에러는 그대로 표시
+        originalConsoleError.apply(console, args);
+    };
 
-        // 초기화 시 확장 프로그램 간섭 체크
-        document.addEventListener('DOMContentLoaded', function () {
-            detectExtensionInterference();
-
-            // 확장 프로그램 관련 콘솔 에러 필터링
-            const originalConsoleError = console.error;
-            console.error = function (...args) {
-                const message = args.join(' ');
-
-                // 확장 프로그램 관련 에러는 warn으로 변경
-                if (message.includes('content.js') ||
-                    message.includes('storageChangeDispatcher') ||
-                    message.includes('chrome-extension') ||
-                    message.includes('moz-extension')) {
-                    console.warn('[EXTENSION ERROR]:', ...args);
-                    return;
-                }
-
-                // 일반 에러는 그대로 표시
-                originalConsoleError.apply(console, args);
-            };
+    // ✅ 여기에 추가: 히어로 섹션 당원가입 버튼 이벤트 리스너
+    const heroBtn = document.getElementById('hero-membership-btn');
+    if (heroBtn) {
+        heroBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('[HTML] 히어로 당원가입 버튼 클릭');
+            if (typeof trackMembershipClick === 'function') {
+                trackMembershipClick('hero_section');
+            }
+            if (typeof showSection === 'function') {
+                showSection('membership');
+            }
         });
+    }
+
+    // ✅ 추가: 다른 주요 버튼들도 여기에 함께 설정
+    const directMembershipBtn = document.getElementById('direct-membership-btn');
+    if (directMembershipBtn) {
+        directMembershipBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('[HTML] 직접 당원가입 버튼 클릭');
+            if (typeof openMembershipPage === 'function') {
+                openMembershipPage();
+            }
+        });
+    }
+
+    // ✅ 추가: SNS 공유 버튼들
+    const shareFacebookBtn = document.getElementById('share-facebook');
+    if (shareFacebookBtn) {
+        shareFacebookBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (typeof shareToFacebook === 'function') {
+                shareToFacebook();
+            }
+        });
+    }
+
+    const shareInstagramBtn = document.getElementById('share-instagram');
+    if (shareInstagramBtn) {
+        shareInstagramBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (typeof shareToInstagram === 'function') {
+                shareToInstagram();
+            }
+        });
+    }
+
+    // 추가 버튼들도 같은 방식으로...
+    console.log('[HTML] 추가 이벤트 리스너 설정 완료');
+});
 
         // CSP (Content Security Policy) 관련 에러 방지
         function preventCSPErrors() {
@@ -760,6 +830,7 @@
                 }
             }
         }
+
 
         // 익스포트
         window.SafeStorage = SafeStorage;
