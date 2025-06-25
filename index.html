@@ -19,6 +19,12 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="이우규 후보">
+    
+    <!-- Apple PWA 설정 강화 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <!-- PWA 설치 상태 감지용 메타 태그 추가 -->
+    <meta name="pwa-installed" content="false" id="pwa-meta">
 
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-YV7NXZQPN4"></script>
@@ -77,103 +83,103 @@
     </div>
 
     <!-- 개선된 앱 설치 배너 (index.html의 기존 설치 배너를 이것으로 교체) -->
-<div id="install-banner" class="hidden install-banner">
-    <div class="install-banner-content">
-        <div class="install-banner-icon">📱</div>
-        <div class="install-banner-text">
-            <div class="install-banner-title">앱으로 더 편리하게!</div>
-            <div class="install-banner-subtitle">이우규 후보를 홈 화면에 설치하세요</div>
+    <div id="install-banner" class="hidden install-banner">
+        <div class="install-banner-content">
+            <div class="install-banner-icon">📱</div>
+            <div class="install-banner-text">
+                <div class="install-banner-title">앱으로 더 편리하게!</div>
+                <div class="install-banner-subtitle">이우규 후보를 홈 화면에 설치하세요</div>
+            </div>
+            <div class="install-banner-actions">
+                <button id="install-btn" class="install-btn">
+                    <span class="install-btn-icon">⬇️</span>
+                    <span class="install-btn-text">설치</span>
+                </button>
+                <button id="dismiss-banner" class="dismiss-btn" title="24시간 동안 보지 않기">
+                    <span>✕</span>
+                </button>
+            </div>
         </div>
-        <div class="install-banner-actions">
-            <button id="install-btn" class="install-btn">
-                <span class="install-btn-icon">⬇️</span>
-                <span class="install-btn-text">설치</span>
-            </button>
-            <button id="dismiss-banner" class="dismiss-btn" title="24시간 동안 보지 않기">
-                <span>✕</span>
-            </button>
-        </div>
-    </div>
-    
-    <!-- 설치 진행 표시 (선택사항) -->
-    <div id="install-progress" class="install-progress hidden">
-        <div class="install-progress-bar"></div>
-        <div class="install-progress-text">설치 중...</div>
-    </div>
-    
-    <!-- 다양한 디바이스용 설치 안내 -->
-    <div id="install-hint" class="install-hint hidden">
-        <div class="install-hint-text" id="install-hint-text">
-            <!-- JavaScript에서 디바이스별 텍스트가 설정됩니다 -->
-        </div>
-    </div>
-</div>
 
-<!-- 설치 성공 알림 (페이지 로딩 시 숨김) -->
-<div id="install-success-notification" class="hidden install-success-notification">
-    <div class="install-success-content">
-        <div class="install-success-icon">🎉</div>
-        <div class="install-success-text">
-            <div class="install-success-title">설치 완료!</div>
-            <div class="install-success-subtitle">이제 홈 화면에서 바로 접근하세요</div>
+        <!-- 설치 진행 표시 (선택사항) -->
+        <div id="install-progress" class="install-progress hidden">
+            <div class="install-progress-bar"></div>
+            <div class="install-progress-text">설치 중...</div>
         </div>
-        <button id="close-success-notification" class="close-success-btn">✕</button>
-    </div>
-</div>
 
-<!-- iOS 전용 설치 안내 팝업 -->
-<div id="ios-install-popup" class="hidden ios-install-popup">
-    <div class="ios-install-content">
-        <div class="ios-install-header">
-            <h3>📱 iPhone/iPad 설치 방법</h3>
-            <button onclick="closeIOSInstallPopup()" class="close-ios-popup">✕</button>
-        </div>
-        <div class="ios-install-steps">
-            <div class="ios-step">
-                <div class="ios-step-number">1</div>
-                <div class="ios-step-text">Safari에서 하단 <strong>공유 버튼</strong> (⬆️) 터치</div>
+        <!-- 다양한 디바이스용 설치 안내 -->
+        <div id="install-hint" class="install-hint hidden">
+            <div class="install-hint-text" id="install-hint-text">
+                <!-- JavaScript에서 디바이스별 텍스트가 설정됩니다 -->
             </div>
-            <div class="ios-step">
-                <div class="ios-step-number">2</div>
-                <div class="ios-step-text"><strong>"홈 화면에 추가"</strong> 선택</div>
-            </div>
-            <div class="ios-step">
-                <div class="ios-step-number">3</div>
-                <div class="ios-step-text">우상단 <strong>"추가"</strong> 버튼 터치</div>
-            </div>
-        </div>
-        <div class="ios-install-note">
-            ⚠️ Chrome이나 다른 브라우저에서는 Safari를 사용해주세요
         </div>
     </div>
-</div>
 
-<!-- Android 전용 설치 안내 팝업 -->
-<div id="android-install-popup" class="hidden android-install-popup">
-    <div class="android-install-content">
-        <div class="android-install-header">
-            <h3>📱 Android 설치 방법</h3>
-            <button onclick="closeAndroidInstallPopup()" class="close-android-popup">✕</button>
-        </div>
-        <div class="android-install-steps">
-            <div class="android-step">
-                <div class="android-step-number">1</div>
-                <div class="android-step-text">Chrome에서 우상단 <strong>메뉴 버튼</strong> (⋮) 터치</div>
+    <!-- 설치 성공 알림 (페이지 로딩 시 숨김) -->
+    <div id="install-success-notification" class="hidden install-success-notification">
+        <div class="install-success-content">
+            <div class="install-success-icon">🎉</div>
+            <div class="install-success-text">
+                <div class="install-success-title">설치 완료!</div>
+                <div class="install-success-subtitle">이제 홈 화면에서 바로 접근하세요</div>
             </div>
-            <div class="android-step">
-                <div class="android-step-number">2</div>
-                <div class="android-step-text"><strong>"앱 설치"</strong> 또는 <strong>"홈 화면에 추가"</strong> 선택</div>
-            </div>
-            <div class="android-step">
-                <div class="android-step-number">3</div>
-                <div class="android-step-text"><strong>"설치"</strong> 버튼 터치</div>
-            </div>
-        </div>
-        <div class="android-install-note">
-            💡 삼성 인터넷, Edge 등 다른 브라우저에서도 비슷한 방법으로 설치 가능합니다
+            <button id="close-success-notification" class="close-success-btn">✕</button>
         </div>
     </div>
-</div>
+
+    <!-- iOS 전용 설치 안내 팝업 -->
+    <div id="ios-install-popup" class="hidden ios-install-popup">
+        <div class="ios-install-content">
+            <div class="ios-install-header">
+                <h3>📱 iPhone/iPad 설치 방법</h3>
+                <button onclick="closeIOSInstallPopup()" class="close-ios-popup">✕</button>
+            </div>
+            <div class="ios-install-steps">
+                <div class="ios-step">
+                    <div class="ios-step-number">1</div>
+                    <div class="ios-step-text">Safari에서 하단 <strong>공유 버튼</strong> (⬆️) 터치</div>
+                </div>
+                <div class="ios-step">
+                    <div class="ios-step-number">2</div>
+                    <div class="ios-step-text"><strong>"홈 화면에 추가"</strong> 선택</div>
+                </div>
+                <div class="ios-step">
+                    <div class="ios-step-number">3</div>
+                    <div class="ios-step-text">우상단 <strong>"추가"</strong> 버튼 터치</div>
+                </div>
+            </div>
+            <div class="ios-install-note">
+                ⚠️ Chrome이나 다른 브라우저에서는 Safari를 사용해주세요
+            </div>
+        </div>
+    </div>
+
+    <!-- Android 전용 설치 안내 팝업 -->
+    <div id="android-install-popup" class="hidden android-install-popup">
+        <div class="android-install-content">
+            <div class="android-install-header">
+                <h3>📱 Android 설치 방법</h3>
+                <button onclick="closeAndroidInstallPopup()" class="close-android-popup">✕</button>
+            </div>
+            <div class="android-install-steps">
+                <div class="android-step">
+                    <div class="android-step-number">1</div>
+                    <div class="android-step-text">Chrome에서 우상단 <strong>메뉴 버튼</strong> (⋮) 터치</div>
+                </div>
+                <div class="android-step">
+                    <div class="android-step-number">2</div>
+                    <div class="android-step-text"><strong>"앱 설치"</strong> 또는 <strong>"홈 화면에 추가"</strong> 선택</div>
+                </div>
+                <div class="android-step">
+                    <div class="android-step-number">3</div>
+                    <div class="android-step-text"><strong>"설치"</strong> 버튼 터치</div>
+                </div>
+            </div>
+            <div class="android-install-note">
+                💡 삼성 인터넷, Edge 등 다른 브라우저에서도 비슷한 방법으로 설치 가능합니다
+            </div>
+        </div>
+    </div>
 
     <!-- 알림 컨테이너 -->
     <div id="notification-container" class="fixed top-20 right-4 z-50"></div>
@@ -624,7 +630,7 @@
                             국민주권정부 시대의 주인공이 되어주세요.<br>
                             인터넷 가입 후 심사완료까지는 수일이 소요됩니다.<br>
                             당원가입 확인이 되신 후에는 그 화면을 캡처해서 전화번호와 함께 <br>
-                            카톡(010-4992-5534, 문형대) 또는 mhd0331@gmail.com으로 보내주시면 감사하겠습니다.<br>                    
+                            카톡(010-4992-5534, 문형대) 또는 mhd0331@gmail.com으로 보내주시면 감사하겠습니다.<br>
                         </p>
                         <button onclick="openMembershipPage()"
                             class="direct-membership-btn bg-gradient-to-r from-blue-600 to-green-600 text-white px-12 py-4 rounded-full text-xl font-bold hover:from-blue-700 hover:to-green-700 transition-all transform hover:scale-105 shadow-lg">
@@ -831,80 +837,80 @@
                     throw error;
                 });
         };
-      
-      // 초기화 시 확장 프로그램 간섭 체크
-document.addEventListener('DOMContentLoaded', function () {
-    detectExtensionInterference();
-    
-    // 확장 프로그램 관련 콘솔 에러 필터링
-    const originalConsoleError = console.error;
-    console.error = function (...args) {
-        const message = args.join(' ');
-        
-        // 확장 프로그램 관련 에러는 warn으로 변경
-        if (message.includes('content.js') ||
-            message.includes('storageChangeDispatcher') ||
-            message.includes('chrome-extension') ||
-            message.includes('moz-extension')) {
-            console.warn('[EXTENSION ERROR]:', ...args);
-            return;
-        }
-        
-        // 일반 에러는 그대로 표시
-        originalConsoleError.apply(console, args);
-    };
 
-    // ✅ 여기에 추가: 히어로 섹션 당원가입 버튼 이벤트 리스너
-    const heroBtn = document.getElementById('hero-membership-btn');
-    if (heroBtn) {
-        heroBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('[HTML] 히어로 당원가입 버튼 클릭');
-            if (typeof trackMembershipClick === 'function') {
-                trackMembershipClick('hero_section');
+        // 초기화 시 확장 프로그램 간섭 체크
+        document.addEventListener('DOMContentLoaded', function () {
+            detectExtensionInterference();
+
+            // 확장 프로그램 관련 콘솔 에러 필터링
+            const originalConsoleError = console.error;
+            console.error = function (...args) {
+                const message = args.join(' ');
+
+                // 확장 프로그램 관련 에러는 warn으로 변경
+                if (message.includes('content.js') ||
+                    message.includes('storageChangeDispatcher') ||
+                    message.includes('chrome-extension') ||
+                    message.includes('moz-extension')) {
+                    console.warn('[EXTENSION ERROR]:', ...args);
+                    return;
+                }
+
+                // 일반 에러는 그대로 표시
+                originalConsoleError.apply(console, args);
+            };
+
+            // ✅ 여기에 추가: 히어로 섹션 당원가입 버튼 이벤트 리스너
+            const heroBtn = document.getElementById('hero-membership-btn');
+            if (heroBtn) {
+                heroBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    console.log('[HTML] 히어로 당원가입 버튼 클릭');
+                    if (typeof trackMembershipClick === 'function') {
+                        trackMembershipClick('hero_section');
+                    }
+                    if (typeof showSection === 'function') {
+                        showSection('membership');
+                    }
+                });
             }
-            if (typeof showSection === 'function') {
-                showSection('membership');
+
+            // ✅ 추가: 다른 주요 버튼들도 여기에 함께 설정
+            const directMembershipBtn = document.getElementById('direct-membership-btn');
+            if (directMembershipBtn) {
+                directMembershipBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    console.log('[HTML] 직접 당원가입 버튼 클릭');
+                    if (typeof openMembershipPage === 'function') {
+                        openMembershipPage();
+                    }
+                });
             }
+
+            // ✅ 추가: SNS 공유 버튼들
+            const shareFacebookBtn = document.getElementById('share-facebook');
+            if (shareFacebookBtn) {
+                shareFacebookBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    if (typeof shareToFacebook === 'function') {
+                        shareToFacebook();
+                    }
+                });
+            }
+
+            const shareInstagramBtn = document.getElementById('share-instagram');
+            if (shareInstagramBtn) {
+                shareInstagramBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    if (typeof shareToInstagram === 'function') {
+                        shareToInstagram();
+                    }
+                });
+            }
+
+            // 추가 버튼들도 같은 방식으로...
+            console.log('[HTML] 추가 이벤트 리스너 설정 완료');
         });
-    }
-
-    // ✅ 추가: 다른 주요 버튼들도 여기에 함께 설정
-    const directMembershipBtn = document.getElementById('direct-membership-btn');
-    if (directMembershipBtn) {
-        directMembershipBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('[HTML] 직접 당원가입 버튼 클릭');
-            if (typeof openMembershipPage === 'function') {
-                openMembershipPage();
-            }
-        });
-    }
-
-    // ✅ 추가: SNS 공유 버튼들
-    const shareFacebookBtn = document.getElementById('share-facebook');
-    if (shareFacebookBtn) {
-        shareFacebookBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (typeof shareToFacebook === 'function') {
-                shareToFacebook();
-            }
-        });
-    }
-
-    const shareInstagramBtn = document.getElementById('share-instagram');
-    if (shareInstagramBtn) {
-        shareInstagramBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (typeof shareToInstagram === 'function') {
-                shareToInstagram();
-            }
-        });
-    }
-
-    // 추가 버튼들도 같은 방식으로...
-    console.log('[HTML] 추가 이벤트 리스너 설정 완료');
-});
 
         // CSP (Content Security Policy) 관련 에러 방지
         function preventCSPErrors() {

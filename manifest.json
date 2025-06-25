@@ -112,7 +112,12 @@
       ]
     }
   ],
-  "related_applications": [],
+  "related_applications": [
+  {
+    "platform": "webapp",
+    "url": "/"
+  }
+],
   "prefer_related_applications": false,
   "edge_side_panel": {
     "preferred_width": 400

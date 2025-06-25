@@ -498,6 +498,11 @@ function showNotification(message, type = 'info') {
 
 // PWA 설치 가능 여부 확인 및 배너 표시
 function checkPWAInstallability() {
+    // localStorage 우선 확인 (가장 빠른 체크)
+    if (localStorage.getItem('pwa-installed') === 'true') {
+        console.log('[PWA] localStorage에서 설치 상태 확인됨');
+        return; // 배너 표시하지 않음
+    }
     // localStorage에서 배너 해제 상태 확인
     const dismissedTime = localStorage.getItem('pwa-banner-dismissed');
     const now = Date.now();
@@ -539,15 +544,40 @@ function isPWAInstallable() {
 }
 
 // 앱이 이미 설치되었는지 확인
+// 이전: 단순한 2가지 조건만 확인
+// 개선: 5가지 조건으로 설치 상태 정확히 감지
+
 function isAppInstalled() {
-    // 스탠드얼론 모드로 실행 중인지 확인
-    if (window.matchMedia('(display-mode: standalone)').matches) {
+    // 1. localStorage에서 설치 상태 확인 (가장 우선)
+    if (localStorage.getItem('pwa-installed') === 'true') {
         return true;
     }
 
-    // iOS Safari에서 홈 화면에 추가된 경우
-    if (window.navigator.standalone === true) {
+    // 2. 스탠드얼론 모드로 실행 중인지 확인
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+        localStorage.setItem('pwa-installed', 'true');
         return true;
+    }
+
+    // 3. iOS Safari에서 홈 화면에 추가된 경우
+    if (window.navigator.standalone === true) {
+        localStorage.setItem('pwa-installed', 'true');
+        return true;
+    }
+
+    // 4. URL 파라미터로 PWA 실행 확인
+    if (window.location.search.includes('standalone=true')) {
+        localStorage.setItem('pwa-installed', 'true');
+        return true;
+    }
+
+    // 5. 브라우저 설치된 앱 목록 확인 (지원되는 브라우저)
+    if ('getInstalledRelatedApps' in navigator) {
+        navigator.getInstalledRelatedApps().then(relatedApps => {
+            if (relatedApps.length > 0) {
+                localStorage.setItem('pwa-installed', 'true');
+            }
+        });
     }
 
     return false;
@@ -617,62 +647,196 @@ function isAndroidDevice() {
     return /Android/.test(navigator.userAgent);
 }
 
-// PWA 앱 설치 실행
+// =================================
+// PWA 앱 설치 실행 함수 (완전 코드)
+// =================================
 async function installPWA() {
+    console.log('[PWA] 설치 프로세스 시작');
+    
+    // 🔒 1단계: 이미 설치된 경우 설치 프로세스 중단
+    if (isAppInstalled()) {
+        console.log('[PWA] 이미 설치됨 - 설치 프로세스 중단');
+        showNotification('앱이 이미 설치되어 있습니다! 📱', 'info');
+        hideInstallBanner();
+        return;
+    }
+
+    // 🔒 2단계: deferredPrompt 확인
     if (!deferredPrompt) {
         console.log('[PWA] deferredPrompt가 없음 - 수동 설치 안내');
         showManualInstallInstructions();
         return;
     }
 
+    // 🎯 3단계: 설치 버튼 UI 상태 변경
+    const installBtn = document.getElementById('install-btn');
+    let originalBtnHTML = '';
+    
+    if (installBtn) {
+        originalBtnHTML = installBtn.innerHTML;
+        installBtn.classList.add('loading');
+        installBtn.disabled = true;
+        console.log('[PWA] 설치 버튼 로딩 상태 활성화');
+    }
+
     try {
-        // Analytics 추적
+        // 📊 Analytics 추적 - 설치 시도
         if (typeof gtag !== 'undefined') {
             gtag('event', 'pwa_install_attempted', {
                 'event_category': 'pwa',
-                'event_label': 'install_button'
+                'event_label': 'install_button',
+                'timestamp': Date.now()
             });
         }
 
-        // 설치 프롬프트 표시
+        console.log('[PWA] 설치 프롬프트 표시 중...');
+        
+        // 🚀 4단계: 설치 프롬프트 표시
         const result = await deferredPrompt.prompt();
         console.log('[PWA] 설치 프롬프트 결과:', result);
 
-        // 사용자 선택 대기
+        // ⏳ 5단계: 사용자 선택 대기
         const choiceResult = await deferredPrompt.userChoice;
         console.log('[PWA] 사용자 선택:', choiceResult.outcome);
 
         if (choiceResult.outcome === 'accepted') {
+            // ✅ 설치 승인된 경우
+            console.log('[PWA] 사용자가 설치를 승인함');
+            
             showNotification('앱 설치가 시작됩니다! 🎉', 'success');
+            
+            // 🔒 6단계: 설치 상태 즉시 저장 (appinstalled 이벤트가 안 올 수도 있음)
+            localStorage.setItem('pwa-installed', 'true');
+            localStorage.setItem('pwa-install-date', Date.now().toString());
+            
+            // 🎨 7단계: UI 즉시 업데이트
             hideInstallBanner();
-
-            // Analytics 추적
+            document.body.classList.add('pwa-installed');
+            
+            // 📊 Analytics 추적 - 설치 승인
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'pwa_install_accepted', {
                     'event_category': 'pwa',
-                    'event_label': 'user_accepted'
+                    'event_label': 'user_accepted',
+                    'timestamp': Date.now()
                 });
             }
+            
+            console.log('[PWA] 설치 상태 저장 및 UI 업데이트 완료');
+            
         } else {
+            // ❌ 설치 거부된 경우
+            console.log('[PWA] 사용자가 설치를 거부함');
+            
             showNotification('설치가 취소되었습니다.', 'info');
-
-            // Analytics 추적
+            
+            // 📊 Analytics 추적 - 설치 거부
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'pwa_install_dismissed', {
                     'event_category': 'pwa',
-                    'event_label': 'user_dismissed'
+                    'event_label': 'user_dismissed',
+                    'timestamp': Date.now()
                 });
             }
         }
 
-        // deferredPrompt 초기화
+        // 🗑️ 8단계: deferredPrompt 초기화 (일회성 사용)
         deferredPrompt = null;
+        console.log('[PWA] deferredPrompt 초기화 완료');
 
     } catch (error) {
+        // ⚠️ 오류 처리
         console.error('[PWA] 설치 오류:', error);
+        
         showNotification('설치 중 오류가 발생했습니다.', 'error');
+        
+        // 대안으로 수동 설치 방법 안내
         showManualInstallInstructions();
+        
+        // 📊 Analytics 추적 - 설치 오류
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'pwa_install_error', {
+                'event_category': 'pwa',
+                'event_label': 'install_failed',
+                'error_message': error.message,
+                'timestamp': Date.now()
+            });
+        }
+        
+    } finally {
+        // 🔄 9단계: 설치 버튼 상태 복원 (항상 실행)
+        if (installBtn) {
+            installBtn.classList.remove('loading');
+            installBtn.disabled = false;
+            
+            // 원래 버튼 내용 복원 (로딩 중 변경되었을 수 있음)
+            if (originalBtnHTML) {
+                setTimeout(() => {
+                    installBtn.innerHTML = originalBtnHTML;
+                }, 100);
+            }
+            
+            console.log('[PWA] 설치 버튼 상태 복원 완료');
+        }
+        
+        console.log('[PWA] 설치 프로세스 종료');
     }
+}
+
+// PWA 설치 상태 주기적 확인
+async function registerServiceWorker() {
+    // 🆕 서비스 워커 메시지 리스너 추가
+    navigator.serviceWorker.addEventListener('message', event => {
+        if (event.data && event.data.type) {
+            switch (event.data.type) {
+                case 'PWA_INSTALL_STATUS':
+                    if (event.data.installed) {
+                        localStorage.setItem('pwa-installed', 'true');
+                        hideInstallBanner();
+                        document.body.classList.add('pwa-installed');
+                    }
+                    break;
+            }
+        }
+    });
+
+    // 🆕 정기적 설치 상태 확인 (5분마다)
+    setInterval(() => {
+        checkInstallStatusPeriodically();
+    }, 5 * 60 * 1000);
+}
+
+// PWA 설치 상태 주기적 확인 함수
+function checkInstallStatusPeriodically() {
+    const wasInstalled = localStorage.getItem('pwa-installed') === 'true';
+    const isNowInstalled = isAppInstalled();
+    
+    // 설치 상태가 변경된 경우 처리
+    if (!wasInstalled && isNowInstalled) {
+        console.log('[PWA] 설치 상태 변경 감지 - 설치됨');
+        localStorage.setItem('pwa-installed', 'true');
+        hideInstallBanner();
+        document.body.classList.add('pwa-installed');
+    }
+}
+
+// PWA 초기화 함수
+async function initializePWA() {
+    // 🆕 즉시 설치 상태 확인 및 메타 태그 업데이트
+    const currentInstallStatus = isAppInstalled();
+    const pwaMeta = document.getElementById('pwa-meta');
+    if (pwaMeta) {
+        pwaMeta.setAttribute('content', currentInstallStatus.toString());
+    }
+    
+    if (currentInstallStatus) {
+        document.body.classList.add('pwa-installed');
+    }
+
+    // 🆕 설치 상태 정기 확인 시작
+    setTimeout(() => {
+        checkInstallStatusPeriodically();
+    }, 10000); // 10초 후 시작
 }
 
 // 설치 배너 숨기기
@@ -863,48 +1027,284 @@ function showUpdateNotification() {
     });
 }
 
-// PWA 이벤트 리스너 등록
+// =================================
+// PWA 이벤트 리스너 등록 함수 (완전 코드)
+// =================================
 function setupPWAEventListeners() {
-    // beforeinstallprompt 이벤트 리스너
+    console.log('[PWA] PWA 이벤트 리스너 설정 시작');
+    
+    // 🎯 1. beforeinstallprompt 이벤트 리스너 (설치 가능 상태)
     window.addEventListener('beforeinstallprompt', (e) => {
         console.log('[PWA] beforeinstallprompt 이벤트 발생');
-        e.preventDefault(); // 기본 설치 프롬프트 방지
+        
+        // 🔒 이미 설치된 경우 프롬프트 무시
+        if (isAppInstalled()) {
+            console.log('[PWA] 이미 설치됨 - beforeinstallprompt 무시');
+            e.preventDefault();
+            return;
+        }
+        
+        // 🚫 기본 설치 프롬프트 방지 (커스텀 배너 사용)
+        e.preventDefault();
+        
+        // 📦 deferredPrompt 저장 (나중에 사용)
         deferredPrompt = e;
+        console.log('[PWA] deferredPrompt 저장됨');
+        
+        // 📊 Analytics 추적 - 설치 가능 상태
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'pwa_install_prompt_available', {
+                'event_category': 'pwa',
+                'event_label': 'beforeinstallprompt_triggered',
+                'timestamp': Date.now()
+            });
+        }
 
-        // 커스텀 설치 배너 표시
+        // ⏰ 3초 후 커스텀 설치 배너 표시
         setTimeout(() => {
             if (!installBannerDismissed && !isAppInstalled()) {
+                console.log('[PWA] 커스텀 설치 배너 표시');
                 showInstallBanner();
+            } else {
+                console.log('[PWA] 배너 표시 조건 불충족 - 해제됨 또는 이미 설치됨');
             }
-        }, 3000); // 3초 후 표시
+        }, 3000);
     });
 
-    // appinstalled 이벤트 리스너
-    window.addEventListener('appinstalled', () => {
-        console.log('[PWA] 앱 설치 완료');
+    // 🎉 2. appinstalled 이벤트 리스너 (설치 완료)
+    window.addEventListener('appinstalled', (event) => {
+        console.log('[PWA] 앱 설치 완료 이벤트 수신');
+        
+        // 🔒 설치 상태를 localStorage에 영구 저장
+        localStorage.setItem('pwa-installed', 'true');
+        localStorage.setItem('pwa-install-date', Date.now().toString());
+        localStorage.setItem('pwa-install-method', 'native_prompt');
+        
+        // 🎨 설치 배너 즉시 숨김
         hideInstallBanner();
+        
+        // 🎊 설치 성공 알림 표시
         showNotification('앱이 성공적으로 설치되었습니다! 🎉', 'success');
-
-        // Analytics 추적
+        
+        // 🗑️ deferredPrompt 초기화
+        deferredPrompt = null;
+        
+        // 🎨 페이지에 설치 완료 클래스 추가
+        document.body.classList.add('pwa-installed');
+        
+        // 📝 메타 태그 업데이트
+        const pwaMeta = document.getElementById('pwa-meta');
+        if (pwaMeta) {
+            pwaMeta.setAttribute('content', 'true');
+        }
+        
+        // 📊 Analytics 추적 - 설치 완료
         if (typeof gtag !== 'undefined') {
             gtag('event', 'pwa_install_completed', {
                 'event_category': 'pwa',
-                'event_label': 'app_installed'
+                'event_label': 'app_installed',
+                'install_source': 'native_prompt',
+                'timestamp': Date.now()
             });
         }
+        
+        // 📡 서비스 워커에게 설치 완료 알림
+        if (navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller.postMessage({
+                type: 'PWA_INSTALLED',
+                installed: true,
+                timestamp: Date.now()
+            });
+        }
+        
+        console.log('[PWA] 설치 완료 처리 완료');
     });
 
-    // 설치 버튼 이벤트 리스너
+    // 🖱️ 3. 설치 버튼 이벤트 리스너
     const installBtn = document.getElementById('install-btn');
     if (installBtn) {
-        installBtn.addEventListener('click', installPWA);
+        // 기존 이벤트 리스너 제거 (중복 방지)
+        installBtn.removeEventListener('click', installPWA);
+        
+        // 새 이벤트 리스너 추가
+        installBtn.addEventListener('click', async (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            console.log('[PWA] 설치 버튼 클릭됨');
+            
+            // 📊 Analytics 추적 - 버튼 클릭
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'pwa_install_button_clicked', {
+                    'event_category': 'pwa',
+                    'event_label': 'install_button',
+                    'timestamp': Date.now()
+                });
+            }
+            
+            await installPWA();
+        });
+        
+        console.log('[PWA] 설치 버튼 이벤트 리스너 등록됨');
+    } else {
+        console.warn('[PWA] 설치 버튼을 찾을 수 없음');
     }
 
-    // 배너 닫기 버튼 이벤트 리스너
+    // ❌ 4. 배너 닫기 버튼 이벤트 리스너
     const dismissBtn = document.getElementById('dismiss-banner');
     if (dismissBtn) {
-        dismissBtn.addEventListener('click', dismissInstallBanner);
+        // 기존 이벤트 리스너 제거 (중복 방지)
+        dismissBtn.removeEventListener('click', dismissInstallBanner);
+        
+        // 새 이벤트 리스너 추가
+        dismissBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            console.log('[PWA] 배너 닫기 버튼 클릭됨');
+            
+            // 📊 Analytics 추적 - 배너 해제
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'pwa_banner_dismissed', {
+                    'event_category': 'pwa',
+                    'event_label': 'user_dismissed_banner',
+                    'timestamp': Date.now()
+                });
+            }
+            
+            dismissInstallBanner();
+        });
+        
+        console.log('[PWA] 배너 닫기 버튼 이벤트 리스너 등록됨');
+    } else {
+        console.warn('[PWA] 배너 닫기 버튼을 찾을 수 없음');
     }
+
+    // 👁️ 5. 페이지 가시성 변경 이벤트 (탭 전환 감지)
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            console.log('[PWA] 페이지가 포커스됨 - 설치 상태 재확인');
+            
+            // 🔍 포커스 시 설치 상태 재확인
+            if (isAppInstalled()) {
+                console.log('[PWA] 포커스 시 설치 상태 확인됨');
+                
+                hideInstallBanner();
+                localStorage.setItem('pwa-installed', 'true');
+                document.body.classList.add('pwa-installed');
+                
+                // 📝 메타 태그 업데이트
+                const pwaMeta = document.getElementById('pwa-meta');
+                if (pwaMeta) {
+                    pwaMeta.setAttribute('content', 'true');
+                }
+            }
+        }
+    });
+    
+    console.log('[PWA] 페이지 가시성 변경 이벤트 리스너 등록됨');
+
+    // 🔄 6. 윈도우 포커스 이벤트 (브라우저 창 활성화)
+    window.addEventListener('focus', () => {
+        console.log('[PWA] 윈도우 포커스됨');
+        
+        // 잠시 후 설치 상태 재확인 (브라우저가 안정화된 후)
+        setTimeout(() => {
+            if (isAppInstalled()) {
+                console.log('[PWA] 윈도우 포커스 시 설치 상태 확인됨');
+                hideInstallBanner();
+                localStorage.setItem('pwa-installed', 'true');
+                document.body.classList.add('pwa-installed');
+            }
+        }, 500);
+    });
+    
+    console.log('[PWA] 윈도우 포커스 이벤트 리스너 등록됨');
+
+    // 🔄 7. 페이지 로드 시 즉시 설치 상태 확인
+    const currentInstallStatus = isAppInstalled();
+    if (currentInstallStatus) {
+        console.log('[PWA] 페이지 로드 시 설치 상태 확인됨');
+        
+        document.body.classList.add('pwa-installed');
+        hideInstallBanner();
+        
+        // 📝 메타 태그 업데이트
+        const pwaMeta = document.getElementById('pwa-meta');
+        if (pwaMeta) {
+            pwaMeta.setAttribute('content', 'true');
+        }
+    }
+
+    // 🔄 8. 브라우저 뒤로/앞으로 가기 이벤트 (popstate)
+    window.addEventListener('popstate', () => {
+        console.log('[PWA] 브라우저 네비게이션 이벤트');
+        
+        // 네비게이션 후 설치 상태 재확인
+        setTimeout(() => {
+            if (isAppInstalled()) {
+                hideInstallBanner();
+                document.body.classList.add('pwa-installed');
+            }
+        }, 100);
+    });
+    
+    console.log('[PWA] 브라우저 네비게이션 이벤트 리스너 등록됨');
+
+    // 📱 9. 디바이스 방향 변경 이벤트 (모바일)
+    if ('screen' in window && 'orientation' in window.screen) {
+        window.screen.orientation.addEventListener('change', () => {
+            console.log('[PWA] 화면 방향 변경됨');
+            
+            // 방향 변경 후 설치 상태 재확인 (모바일에서 중요)
+            setTimeout(() => {
+                if (isAppInstalled()) {
+                    hideInstallBanner();
+                    document.body.classList.add('pwa-installed');
+                }
+            }, 300);
+        });
+        
+        console.log('[PWA] 화면 방향 변경 이벤트 리스너 등록됨');
+    }
+
+    // 🔧 10. 서비스 워커 메시지 리스너 (이미 registerServiceWorker에서 설정되지만 추가 보강)
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.addEventListener('message', (event) => {
+            console.log('[PWA] 서비스 워커 메시지:', event.data);
+            
+            if (event.data && event.data.type) {
+                switch (event.data.type) {
+                    case 'PWA_INSTALL_STATUS':
+                        if (event.data.installed) {
+                            console.log('[PWA] 서비스 워커로부터 설치 상태 수신');
+                            localStorage.setItem('pwa-installed', 'true');
+                            hideInstallBanner();
+                            document.body.classList.add('pwa-installed');
+                        }
+                        break;
+                        
+                    case 'CHECK_INSTALL_STATUS_REQUEST':
+                        // 서비스 워커에서 설치 상태 확인 요청
+                        const installed = isAppInstalled();
+                        console.log('[PWA] 서비스 워커 설치 상태 확인 요청 - 응답:', installed);
+                        
+                        if (navigator.serviceWorker.controller) {
+                            navigator.serviceWorker.controller.postMessage({
+                                type: 'PWA_INSTALLED',
+                                installed: installed,
+                                timestamp: Date.now()
+                            });
+                        }
+                        break;
+                }
+            }
+        });
+        
+        console.log('[PWA] 서비스 워커 메시지 리스너 등록됨');
+    }
+
+    console.log('[PWA] PWA 이벤트 리스너 설정 완료 - 총 10개 리스너 등록됨');
 }
 
 // =================================
@@ -1731,7 +2131,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             hideLoading();
         }, 300);
     }
-    
+
     // 기존 DOMContentLoaded 이벤트 리스너의 마지막 부분에 다음 라인 추가:
     // initializePWA();
 

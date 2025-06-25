@@ -357,6 +357,53 @@ self.addEventListener('sync', event => {
   }
 });
 
+//  🆕 PWA 설치 상태 관리 메시지 추가
+// 기존 메시지 처리에 추가
+self.addEventListener('message', event => {
+  if (event.data && event.data.type) {
+    switch (event.data.type) {
+      // 기존 케이스들...
+      
+      // 🆕 PWA 설치 상태 수신
+      case 'PWA_INSTALLED':
+        console.log('[SW] PWA 설치 상태 수신');
+        // 모든 클라이언트에게 설치 상태 전파
+        self.clients.matchAll().then(clients => {
+          clients.forEach(client => {
+            client.postMessage({
+              type: 'PWA_INSTALL_STATUS',
+              installed: true
+            });
+          });
+        });
+        break;
+        
+      // 🆕 설치 상태 확인 요청 처리
+      case 'CHECK_INSTALL_STATUS':
+        const installed = event.data.installed || false;
+        event.ports[0].postMessage({ 
+          type: 'INSTALL_STATUS_RESPONSE',
+          installed: installed 
+        });
+        break;
+    }
+  }
+});
+
+// 클라이언트 연결 시 설치 상태 확인
+self.addEventListener('clientfocus', event => {
+  console.log('[SW] 클라이언트 포커스');
+  
+  // 모든 클라이언트에게 설치 상태 확인 요청
+  self.clients.matchAll().then(clients => {
+    clients.forEach(client => {
+      client.postMessage({
+        type: 'CHECK_INSTALL_STATUS_REQUEST'
+      });
+    });
+  });
+});
+
 // 네트워크 상태 변경 감지
 self.addEventListener('online', event => {
   console.log('[SW] 온라인 상태');
