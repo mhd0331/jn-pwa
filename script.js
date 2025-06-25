@@ -8,6 +8,10 @@ let currentSection = 'home';
 let isInstallPromptShown = false;
 let installBannerDismissed = false;
 
+// Floating 홈 버튼 관련 전역 변수
+let floatingHomeBtn = null;
+let isFloatingBtnVisible = false;
+
 // 브라우저 확장 프로그램 간섭 방지
 window.addEventListener('error', function (event) {
     if (event.filename && (
@@ -27,7 +31,52 @@ window.addEventListener('error', function (event) {
 // 핵심 함수들을 먼저 정의 (전역 함수 등록)
 // =================================
 
-// 섹션 전환 함수
+// 홈으로 이동 함수
+function goToHome() {
+    console.log('[FLOATING] 홈으로 이동 버튼 클릭');
+    
+    // Analytics 추적
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'floating_home_click', {
+            'event_category': 'navigation',
+            'event_label': 'floating_button',
+            'current_section': currentSection
+        });
+    }
+    
+    showSection('home');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Floating 홈 버튼 표시/숨김 함수
+function updateFloatingHomeButton(sectionId) {
+    const floatingBtn = document.getElementById('floating-home-btn');
+    if (!floatingBtn) return;
+    
+    const shouldShow = sectionId !== 'home';
+    
+    if (shouldShow && !isFloatingBtnVisible) {
+        floatingBtn.classList.remove('hidden');
+        isFloatingBtnVisible = true;
+    } else if (!shouldShow && isFloatingBtnVisible) {
+        floatingBtn.classList.add('hidden');
+        isFloatingBtnVisible = false;
+    }
+}
+
+// Floating 버튼 초기화 함수
+function initializeFloatingHomeButton() {
+    floatingHomeBtn = document.getElementById('floating-home-btn');
+    if (!floatingHomeBtn) return;
+    
+    floatingHomeBtn.classList.add('hidden');
+    isFloatingBtnVisible = false;
+}
+
+// =================================
+// 수정된 showSection 함수 (Floating 버튼 로직 추가)
+// =================================
+
 function showSection(sectionId) {
     console.log('[NAV] 섹션 전환:', sectionId);
 
@@ -52,6 +101,9 @@ function showSection(sectionId) {
             targetSection.style.visibility = 'visible';
 
             currentSection = sectionId;
+
+            // 🆕 Floating 홈 버튼 상태 업데이트
+            updateFloatingHomeButton(sectionId);
 
             // 소식 섹션인 경우 모든 뉴스 로드
             if (sectionId === 'news') {
@@ -1331,6 +1383,9 @@ window.showIOSInstallInstructions = showIOSInstallInstructions;
 window.showAndroidInstallInstructions = showAndroidInstallInstructions;
 window.showGeneralInstallInstructions = showGeneralInstallInstructions;
 window.closeInstallInstructions = closeInstallInstructions;
+window.goToHome = goToHome;
+window.updateFloatingHomeButton = updateFloatingHomeButton;
+window.initializeFloatingHomeButton = initializeFloatingHomeButton;
 
 console.log('[SCRIPT] 전역 함수 등록 완료');
 
@@ -1858,11 +1913,11 @@ function trackEngagementTime() {
 }
 
 // =================================
-// 페이지 초기화 - DOMContentLoaded 이벤트 (모든 이벤트 리스너 통합)
+// 수정된 DOMContentLoaded 함수 (Floating 버튼 초기화 추가)
 // =================================
 
 document.addEventListener('DOMContentLoaded', async function () {
-    console.log('[APP] 초기화 시작 - 완전한 수정 버전');
+    console.log('[APP] 초기화 시작 - Floating 홈 버튼 포함 버전');
 
     // 확장 프로그램 간섭 체크
     detectExtensionInterference();
@@ -1885,9 +1940,10 @@ document.addEventListener('DOMContentLoaded', async function () {
         originalConsoleError.apply(console, args);
     };
 
-    // ✅ 추가 이벤트 리스너들 설정
+    // ✅ 기존 추가 이벤트 리스너들 설정
     console.log('[HTML] 추가 이벤트 리스너 설정 시작');
 
+    // PWA 초기화 함수
     async function initializePWA() {
         console.log('[PWA] PWA 초기화 시작');
 
@@ -1944,18 +2000,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             console.log('[HTML] 공약 목록으로 돌아가기 버튼 클릭');
             if (typeof showPromiseList === 'function') {
                 showPromiseList();
-            }
-        });
-    }
-
-    // 공약 링크 복사 버튼
-    const sharePromiseCopyBtn = document.getElementById('share-promise-copy');
-    if (sharePromiseCopyBtn) {
-        sharePromiseCopyBtn.addEventListener('click', function (e) {
-            e.preventDefault();
-            console.log('[HTML] 공약 링크 복사 버튼 클릭');
-            if (typeof sharePromise === 'function') {
-                sharePromise('copy');
             }
         });
     }
@@ -2121,7 +2165,21 @@ document.addEventListener('DOMContentLoaded', async function () {
             fixNavigationVisibility();
         }, 500);
 
-        console.log('[APP] 초기화 완료 - 완전한 수정 버전');
+        // 🆕 9단계: Floating 홈 버튼 초기화
+        setTimeout(() => {
+            console.log('[APP] 9단계: Floating 홈 버튼 초기화');
+            initializeFloatingHomeButton();
+            observePWABannerChanges();
+            adjustFloatingButtonForPWABanner();
+        }, 600);
+
+        // 🆕 10단계: PWA 초기화
+        setTimeout(() => {
+            console.log('[APP] 10단계: PWA 초기화');
+            initializePWA();
+        }, 700);
+
+        console.log('[APP] 초기화 완료 - Floating 홈 버튼 포함 버전');
     } catch (error) {
         console.error('[APP] 초기화 오류:', error);
         showErrorFallback();
@@ -2131,12 +2189,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             hideLoading();
         }, 300);
     }
-
-    // 기존 DOMContentLoaded 이벤트 리스너의 마지막 부분에 다음 라인 추가:
-    // initializePWA();
-
-    console.log('[PWA] PWA 설치 기능 스크립트 로드 완료');
 });
+
 
 // 윈도우 로드 완료 후 최종 네비게이션 확인
 window.addEventListener('load', function () {

@@ -2051,4 +2051,132 @@ img, video {
     }
 }
 
+/* ========== Floating 홈 버튼 스타일 ========== */
+.floating-home-button {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 90;
+    transition: all 0.3s ease;
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.floating-home-button.hidden {
+    transform: translateY(100px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.home-btn {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.home-btn:hover {
+    transform: translateY(-3px) scale(1.1);
+    box-shadow: 0 12px 30px rgba(37, 99, 235, 0.6);
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+}
+
+.home-btn:focus-visible {
+    outline: 3px solid #fbbf24;
+    outline-offset: 3px;
+}
+
+.home-icon {
+    width: 28px;
+    height: 28px;
+    stroke-width: 2.5;
+    transition: transform 0.3s ease;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* PWA 배너가 있을 때 위치 조정 */
+body.has-install-banner .floating-home-button {
+    bottom: 94px;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+    .floating-home-button {
+        bottom: 20px;
+        right: 20px;
+    }
+    
+    .home-btn {
+        width: 56px;
+        height: 56px;
+    }
+    
+    .home-icon {
+        width: 24px;
+        height: 24px;
+    }
+    
+    body.has-install-banner .floating-home-button {
+        bottom: 110px;
+    }
+}
+
+@media (max-width: 480px) {
+    .home-btn {
+        width: 52px;
+        height: 52px;
+    }
+    
+    .home-icon {
+        width: 22px;
+        height: 22px;
+    }
+}
+
+/* 프린트 시 숨김 */
+@media print {
+    .floating-home-button {
+        display: none !important;
+    }
+}
+
+/* 애니메이션 줄이기 설정 준수 */
+@media (prefers-reduced-motion: reduce) {
+    .floating-home-button,
+    .home-btn,
+    .home-icon {
+        transition: none !important;
+    }
+    
+    .home-btn:hover {
+        transform: none !important;
+    }
+}
+
 /* ========== End of style.css ========== */

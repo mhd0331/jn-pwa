@@ -19,7 +19,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="이우규 후보">
-    
+
     <!-- Apple PWA 설정 강화 -->
     <meta name="apple-mobile-web-app-capable" content="yes">
 
@@ -645,292 +645,305 @@
         </div>
     </main>
 
-    <footer class="bg-gray-800 text-white text-center py-8 text-sm mt-16">
-        <div class="container mx-auto px-4">
-            <div class="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-8">
-                <div>
-                    <p class="font-semibold text-lg">이우규 후보 선거사무소</p>
-                    <p class="text-gray-400">전라북도 진안군 진안읍 진무로 1083-1, 2층 진안 더혁신 민주회의</p>
+    <!-- Floating 홈으로 버튼 -->
+    <div id="floating-home-btn" class="floating-home-button hidden">
+        <button onclick="goToHome()" class="home-btn" title="홈으로 돌아가기" aria-label="홈으로 돌아가기">
+            <svg class="home-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span class="sr-only">홈으로</span>
+        </button>
+    </div>
+
+    <footer class="bg-gray-800...">
+
+        <footer class="bg-gray-800 text-white text-center py-8 text-sm mt-16">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-8">
+                    <div>
+                        <p class="font-semibold text-lg">이우규 후보 선거사무소</p>
+                        <p class="text-gray-400">전라북도 진안군 진안읍 진무로 1083-1, 2층 진안 더혁신 민주회의</p>
+                    </div>
+                    <div>
+                        <p class="font-semibold">연락처</p>
+                        <p class="text-gray-400">📞 사무국장 최락기 010-2610-9900</p>
+                        <p class="text-gray-400">📧 nlp@daum.net</p>
+                    </div>
                 </div>
-                <div>
-                    <p class="font-semibold">연락처</p>
-                    <p class="text-gray-400">📞 사무국장 최락기 010-2610-9900</p>
-                    <p class="text-gray-400">📧 nlp@daum.net</p>
+                <div class="mt-6 pt-6 border-t border-gray-700">
+                    <p class="text-gray-400">
+                        Copyright © 2024 이우규 후보 선거사무소.
+                    </p>
                 </div>
             </div>
-            <div class="mt-6 pt-6 border-t border-gray-700">
-                <p class="text-gray-400">
-                    Copyright © 2024 이우규 후보 선거사무소.
-                </p>
-            </div>
-        </div>
-    </footer>
+        </footer>
 
-    <!-- 자바스크립트 -->
-    <script src="script.js?v=1.2">
-        // 브라우저 확장 프로그램 간섭 방지 및 에러 처리 개선
+        <!-- 자바스크립트 -->
+        <script src="script.js?v=1.2">
+            // 브라우저 확장 프로그램 간섭 방지 및 에러 처리 개선
 
-        // 전역 에러 핸들러 설정
-        window.addEventListener('error', function (event) {
-            // 브라우저 확장 프로그램 관련 에러는 무시
-            if (event.filename && (
-                event.filename.includes('chrome-extension://') ||
-                event.filename.includes('moz-extension://') ||
-                event.filename.includes('content.js') ||
-                event.filename.includes('content_script')
-            )) {
-                console.log('[EXTENSION] 브라우저 확장 프로그램 에러 무시:', event.message);
-                event.preventDefault();
-                return false;
-            }
-
-            // 웹사이트 관련 에러만 처리
-            console.error('[WEBSITE ERROR]:', event.error);
-        });
-
-        // Promise rejection 에러 핸들러
-        window.addEventListener('unhandledrejection', function (event) {
-            // JSON 파싱 에러가 확장 프로그램에서 온 경우 무시
-            if (event.reason && event.reason.message &&
-                (event.reason.message.includes('JSON.parse') ||
-                    event.reason.message.includes('storageChangeDispatcher'))) {
-                console.log('[EXTENSION] 확장 프로그램 JSON 파싱 에러 무시:', event.reason.message);
-                event.preventDefault();
-                return false;
-            }
-
-            console.error('[PROMISE REJECTION]:', event.reason);
-        });
-
-        // JSON.parse 안전 래퍼 함수
-        function safeJSONParse(jsonString, fallback = null) {
-            try {
-                if (typeof jsonString !== 'string') {
-                    console.warn('[SAFE PARSE] JSON 파싱 대상이 문자열이 아닙니다:', typeof jsonString);
-                    return fallback;
-                }
-
-                if (jsonString.trim() === '') {
-                    console.warn('[SAFE PARSE] 빈 문자열입니다');
-                    return fallback;
-                }
-
-                // "[object Object]" 같은 문제가 있는 문자열 체크
-                if (jsonString.includes('[object Object]')) {
-                    console.warn('[SAFE PARSE] 잘못된 객체 문자열:', jsonString);
-                    return fallback;
-                }
-
-                return JSON.parse(jsonString);
-            } catch (error) {
-                console.warn('[SAFE PARSE] JSON 파싱 실패:', error.message, 'Input:', jsonString);
-                return fallback;
-            }
-        }
-
-        // 로컬스토리지 안전 래퍼 함수들
-        const SafeStorage = {
-            setItem: function (key, value) {
-                try {
-                    if (typeof value === 'object') {
-                        localStorage.setItem(key, JSON.stringify(value));
-                    } else {
-                        localStorage.setItem(key, value);
-                    }
-                    return true;
-                } catch (error) {
-                    console.warn('[SAFE STORAGE] setItem 실패:', error.message);
+            // 전역 에러 핸들러 설정
+            window.addEventListener('error', function (event) {
+                // 브라우저 확장 프로그램 관련 에러는 무시
+                if (event.filename && (
+                    event.filename.includes('chrome-extension://') ||
+                    event.filename.includes('moz-extension://') ||
+                    event.filename.includes('content.js') ||
+                    event.filename.includes('content_script')
+                )) {
+                    console.log('[EXTENSION] 브라우저 확장 프로그램 에러 무시:', event.message);
+                    event.preventDefault();
                     return false;
                 }
-            },
 
-            getItem: function (key, fallback = null) {
+                // 웹사이트 관련 에러만 처리
+                console.error('[WEBSITE ERROR]:', event.error);
+            });
+
+            // Promise rejection 에러 핸들러
+            window.addEventListener('unhandledrejection', function (event) {
+                // JSON 파싱 에러가 확장 프로그램에서 온 경우 무시
+                if (event.reason && event.reason.message &&
+                    (event.reason.message.includes('JSON.parse') ||
+                        event.reason.message.includes('storageChangeDispatcher'))) {
+                    console.log('[EXTENSION] 확장 프로그램 JSON 파싱 에러 무시:', event.reason.message);
+                    event.preventDefault();
+                    return false;
+                }
+
+                console.error('[PROMISE REJECTION]:', event.reason);
+            });
+
+            // JSON.parse 안전 래퍼 함수
+            function safeJSONParse(jsonString, fallback = null) {
                 try {
-                    const item = localStorage.getItem(key);
-                    if (item === null) {
+                    if (typeof jsonString !== 'string') {
+                        console.warn('[SAFE PARSE] JSON 파싱 대상이 문자열이 아닙니다:', typeof jsonString);
                         return fallback;
                     }
 
-                    // JSON 형태인지 확인
-                    if (item.startsWith('{') || item.startsWith('[')) {
-                        return safeJSONParse(item, fallback);
+                    if (jsonString.trim() === '') {
+                        console.warn('[SAFE PARSE] 빈 문자열입니다');
+                        return fallback;
                     }
 
-                    return item;
+                    // "[object Object]" 같은 문제가 있는 문자열 체크
+                    if (jsonString.includes('[object Object]')) {
+                        console.warn('[SAFE PARSE] 잘못된 객체 문자열:', jsonString);
+                        return fallback;
+                    }
+
+                    return JSON.parse(jsonString);
                 } catch (error) {
-                    console.warn('[SAFE STORAGE] getItem 실패:', error.message);
+                    console.warn('[SAFE PARSE] JSON 파싱 실패:', error.message, 'Input:', jsonString);
                     return fallback;
                 }
-            },
-
-            removeItem: function (key) {
-                try {
-                    localStorage.removeItem(key);
-                    return true;
-                } catch (error) {
-                    console.warn('[SAFE STORAGE] removeItem 실패:', error.message);
-                    return false;
-                }
-            }
-        };
-
-        // 브라우저 확장 프로그램 감지 및 경고
-        function detectExtensionInterference() {
-            // Chrome 확장 프로그램 감지
-            if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
-                console.log('[EXTENSION] Chrome 확장 프로그램 환경 감지됨');
             }
 
-            // Firefox 확장 프로그램 감지
-            if (typeof browser !== 'undefined' && browser.runtime) {
-                console.log('[EXTENSION] Firefox 확장 프로그램 환경 감지됨');
-            }
-
-            // Content Script 감지
-            if (document.documentElement.getAttribute('data-extension-injected')) {
-                console.log('[EXTENSION] Content Script 주입 감지됨');
-            }
-
-            // DOM 변경 감시로 확장 프로그램 간섭 체크
-            const observer = new MutationObserver(function (mutations) {
-                mutations.forEach(function (mutation) {
-                    if (mutation.type === 'childList') {
-                        mutation.addedNodes.forEach(function (node) {
-                            if (node.nodeType === Node.ELEMENT_NODE) {
-                                // 확장 프로그램이 주입한 요소 체크
-                                if (node.className && typeof node.className === 'string' &&
-                                    (node.className.includes('extension') ||
-                                        node.className.includes('chrome-') ||
-                                        node.className.includes('moz-'))) {
-                                    console.log('[EXTENSION] 확장 프로그램이 DOM에 요소 추가:', node);
-                                }
-                            }
-                        });
+            // 로컬스토리지 안전 래퍼 함수들
+            const SafeStorage = {
+                setItem: function (key, value) {
+                    try {
+                        if (typeof value === 'object') {
+                            localStorage.setItem(key, JSON.stringify(value));
+                        } else {
+                            localStorage.setItem(key, value);
+                        }
+                        return true;
+                    } catch (error) {
+                        console.warn('[SAFE STORAGE] setItem 실패:', error.message);
+                        return false;
                     }
-                });
-            });
+                },
 
-            observer.observe(document.body, {
-                childList: true,
-                subtree: true
-            });
-        }
+                getItem: function (key, fallback = null) {
+                    try {
+                        const item = localStorage.getItem(key);
+                        if (item === null) {
+                            return fallback;
+                        }
 
-        // 네트워크 요청 인터셉터 (확장 프로그램 간섭 방지)
-        const originalFetch = window.fetch;
-        window.fetch = function (...args) {
-            const url = args[0];
+                        // JSON 형태인지 확인
+                        if (item.startsWith('{') || item.startsWith('[')) {
+                            return safeJSONParse(item, fallback);
+                        }
 
-            // 확장 프로그램 관련 요청은 차단
-            if (typeof url === 'string' && (
-                url.includes('chrome-extension://') ||
-                url.includes('moz-extension://') ||
-                url.includes('extension://')
-            )) {
-                console.log('[EXTENSION] 확장 프로그램 네트워크 요청 차단:', url);
-                return Promise.reject(new Error('Extension request blocked'));
-            }
+                        return item;
+                    } catch (error) {
+                        console.warn('[SAFE STORAGE] getItem 실패:', error.message);
+                        return fallback;
+                    }
+                },
 
-            return originalFetch.apply(this, args)
-                .catch(error => {
-                    console.warn('[FETCH] 네트워크 요청 실패:', error.message);
-                    throw error;
-                });
-        };
-
-        // 초기화 시 확장 프로그램 간섭 체크
-        document.addEventListener('DOMContentLoaded', function () {
-            detectExtensionInterference();
-
-            // 확장 프로그램 관련 콘솔 에러 필터링
-            const originalConsoleError = console.error;
-            console.error = function (...args) {
-                const message = args.join(' ');
-
-                // 확장 프로그램 관련 에러는 warn으로 변경
-                if (message.includes('content.js') ||
-                    message.includes('storageChangeDispatcher') ||
-                    message.includes('chrome-extension') ||
-                    message.includes('moz-extension')) {
-                    console.warn('[EXTENSION ERROR]:', ...args);
-                    return;
+                removeItem: function (key) {
+                    try {
+                        localStorage.removeItem(key);
+                        return true;
+                    } catch (error) {
+                        console.warn('[SAFE STORAGE] removeItem 실패:', error.message);
+                        return false;
+                    }
                 }
-
-                // 일반 에러는 그대로 표시
-                originalConsoleError.apply(console, args);
             };
 
-            // ✅ 여기에 추가: 히어로 섹션 당원가입 버튼 이벤트 리스너
-            const heroBtn = document.getElementById('hero-membership-btn');
-            if (heroBtn) {
-                heroBtn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    console.log('[HTML] 히어로 당원가입 버튼 클릭');
-                    if (typeof trackMembershipClick === 'function') {
-                        trackMembershipClick('hero_section');
-                    }
-                    if (typeof showSection === 'function') {
-                        showSection('membership');
-                    }
+            // 브라우저 확장 프로그램 감지 및 경고
+            function detectExtensionInterference() {
+                // Chrome 확장 프로그램 감지
+                if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
+                    console.log('[EXTENSION] Chrome 확장 프로그램 환경 감지됨');
+                }
+
+                // Firefox 확장 프로그램 감지
+                if (typeof browser !== 'undefined' && browser.runtime) {
+                    console.log('[EXTENSION] Firefox 확장 프로그램 환경 감지됨');
+                }
+
+                // Content Script 감지
+                if (document.documentElement.getAttribute('data-extension-injected')) {
+                    console.log('[EXTENSION] Content Script 주입 감지됨');
+                }
+
+                // DOM 변경 감시로 확장 프로그램 간섭 체크
+                const observer = new MutationObserver(function (mutations) {
+                    mutations.forEach(function (mutation) {
+                        if (mutation.type === 'childList') {
+                            mutation.addedNodes.forEach(function (node) {
+                                if (node.nodeType === Node.ELEMENT_NODE) {
+                                    // 확장 프로그램이 주입한 요소 체크
+                                    if (node.className && typeof node.className === 'string' &&
+                                        (node.className.includes('extension') ||
+                                            node.className.includes('chrome-') ||
+                                            node.className.includes('moz-'))) {
+                                        console.log('[EXTENSION] 확장 프로그램이 DOM에 요소 추가:', node);
+                                    }
+                                }
+                            });
+                        }
+                    });
+                });
+
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
                 });
             }
 
-            // ✅ 추가: 다른 주요 버튼들도 여기에 함께 설정
-            const directMembershipBtn = document.getElementById('direct-membership-btn');
-            if (directMembershipBtn) {
-                directMembershipBtn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    console.log('[HTML] 직접 당원가입 버튼 클릭');
-                    if (typeof openMembershipPage === 'function') {
-                        openMembershipPage();
+            // 네트워크 요청 인터셉터 (확장 프로그램 간섭 방지)
+            const originalFetch = window.fetch;
+            window.fetch = function (...args) {
+                const url = args[0];
+
+                // 확장 프로그램 관련 요청은 차단
+                if (typeof url === 'string' && (
+                    url.includes('chrome-extension://') ||
+                    url.includes('moz-extension://') ||
+                    url.includes('extension://')
+                )) {
+                    console.log('[EXTENSION] 확장 프로그램 네트워크 요청 차단:', url);
+                    return Promise.reject(new Error('Extension request blocked'));
+                }
+
+                return originalFetch.apply(this, args)
+                    .catch(error => {
+                        console.warn('[FETCH] 네트워크 요청 실패:', error.message);
+                        throw error;
+                    });
+            };
+
+            // 초기화 시 확장 프로그램 간섭 체크
+            document.addEventListener('DOMContentLoaded', function () {
+                detectExtensionInterference();
+
+                // 확장 프로그램 관련 콘솔 에러 필터링
+                const originalConsoleError = console.error;
+                console.error = function (...args) {
+                    const message = args.join(' ');
+
+                    // 확장 프로그램 관련 에러는 warn으로 변경
+                    if (message.includes('content.js') ||
+                        message.includes('storageChangeDispatcher') ||
+                        message.includes('chrome-extension') ||
+                        message.includes('moz-extension')) {
+                        console.warn('[EXTENSION ERROR]:', ...args);
+                        return;
                     }
-                });
-            }
 
-            // ✅ 추가: SNS 공유 버튼들
-            const shareFacebookBtn = document.getElementById('share-facebook');
-            if (shareFacebookBtn) {
-                shareFacebookBtn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    if (typeof shareToFacebook === 'function') {
-                        shareToFacebook();
+                    // 일반 에러는 그대로 표시
+                    originalConsoleError.apply(console, args);
+                };
+
+                // ✅ 여기에 추가: 히어로 섹션 당원가입 버튼 이벤트 리스너
+                const heroBtn = document.getElementById('hero-membership-btn');
+                if (heroBtn) {
+                    heroBtn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        console.log('[HTML] 히어로 당원가입 버튼 클릭');
+                        if (typeof trackMembershipClick === 'function') {
+                            trackMembershipClick('hero_section');
+                        }
+                        if (typeof showSection === 'function') {
+                            showSection('membership');
+                        }
+                    });
+                }
+
+                // ✅ 추가: 다른 주요 버튼들도 여기에 함께 설정
+                const directMembershipBtn = document.getElementById('direct-membership-btn');
+                if (directMembershipBtn) {
+                    directMembershipBtn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        console.log('[HTML] 직접 당원가입 버튼 클릭');
+                        if (typeof openMembershipPage === 'function') {
+                            openMembershipPage();
+                        }
+                    });
+                }
+
+                // ✅ 추가: SNS 공유 버튼들
+                const shareFacebookBtn = document.getElementById('share-facebook');
+                if (shareFacebookBtn) {
+                    shareFacebookBtn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        if (typeof shareToFacebook === 'function') {
+                            shareToFacebook();
+                        }
+                    });
+                }
+
+                const shareInstagramBtn = document.getElementById('share-instagram');
+                if (shareInstagramBtn) {
+                    shareInstagramBtn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        if (typeof shareToInstagram === 'function') {
+                            shareToInstagram();
+                        }
+                    });
+                }
+
+                // 추가 버튼들도 같은 방식으로...
+                console.log('[HTML] 추가 이벤트 리스너 설정 완료');
+            });
+
+            // CSP (Content Security Policy) 관련 에러 방지
+            function preventCSPErrors() {
+                // inline script 실행 전 CSP 체크
+                const metaCSP = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
+                if (metaCSP) {
+                    const cspContent = metaCSP.getAttribute('content');
+                    if (cspContent && !cspContent.includes("'unsafe-inline'")) {
+                        console.warn('[CSP] Inline script 실행이 제한될 수 있습니다');
                     }
-                });
-            }
-
-            const shareInstagramBtn = document.getElementById('share-instagram');
-            if (shareInstagramBtn) {
-                shareInstagramBtn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    if (typeof shareToInstagram === 'function') {
-                        shareToInstagram();
-                    }
-                });
-            }
-
-            // 추가 버튼들도 같은 방식으로...
-            console.log('[HTML] 추가 이벤트 리스너 설정 완료');
-        });
-
-        // CSP (Content Security Policy) 관련 에러 방지
-        function preventCSPErrors() {
-            // inline script 실행 전 CSP 체크
-            const metaCSP = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
-            if (metaCSP) {
-                const cspContent = metaCSP.getAttribute('content');
-                if (cspContent && !cspContent.includes("'unsafe-inline'")) {
-                    console.warn('[CSP] Inline script 실행이 제한될 수 있습니다');
                 }
             }
-        }
 
 
-        // 익스포트
-        window.SafeStorage = SafeStorage;
-        window.safeJSONParse = safeJSONParse;
+            // 익스포트
+            window.SafeStorage = SafeStorage;
+            window.safeJSONParse = safeJSONParse;
 
-        console.log('[PROTECTION] 브라우저 확장 프로그램 간섭 방지 시스템 활성화됨');
-    </script>
+            console.log('[PROTECTION] 브라우저 확장 프로그램 간섭 방지 시스템 활성화됨');
+        </script>
 </body>
 
 </html>
