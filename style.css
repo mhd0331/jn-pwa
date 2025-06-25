@@ -1362,10 +1362,10 @@ nav {
     }
     
     .hero-candidate-image {
-        width: 100px;
-        height: 100px;
-        right: 8px;
-        bottom: 8px;
+        width: 80px;
+        height: 80px;
+        right: 6px;
+        bottom: 6px;
     }
     
     .sns-container button {
