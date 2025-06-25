@@ -5,6 +5,8 @@ let currentPromiseData = null;
 let deferredPrompt = null;
 let appData = null;
 let currentSection = 'home';
+let isInstallPromptShown = false;
+let installBannerDismissed = false;
 
 // 브라우저 확장 프로그램 간섭 방지
 window.addEventListener('error', function (event) {
@@ -28,7 +30,7 @@ window.addEventListener('error', function (event) {
 // 섹션 전환 함수
 function showSection(sectionId) {
     console.log('[NAV] 섹션 전환:', sectionId);
-    
+
     try {
         // 모든 섹션 숨기기
         const sections = document.querySelectorAll('.page-section');
@@ -58,7 +60,7 @@ function showSection(sectionId) {
 
             // 네비게이션 버튼 활성 상태 업데이트
             updateActiveNavButton(sectionId);
-            
+
             // Analytics 추적
             if (typeof trackSectionView === 'function') {
                 trackSectionView(sectionId);
@@ -491,6 +493,421 @@ function showNotification(message, type = 'info') {
 }
 
 // =================================
+// PWA 설치 기능 (새로 추가할 함수들)
+// =================================
+
+// PWA 설치 가능 여부 확인 및 배너 표시
+function checkPWAInstallability() {
+    // localStorage에서 배너 해제 상태 확인
+    const dismissedTime = localStorage.getItem('pwa-banner-dismissed');
+    const now = Date.now();
+    const oneDayInMs = 24 * 60 * 60 * 1000; // 24시간
+
+    // 24시간 이내에 해제했다면 배너 표시하지 않음
+    if (dismissedTime && (now - parseInt(dismissedTime)) < oneDayInMs) {
+        console.log('[PWA] 배너가 최근에 해제되어 표시하지 않음');
+        return;
+    }
+
+    // 이미 설치된 앱인지 확인
+    if (isAppInstalled()) {
+        console.log('[PWA] 앱이 이미 설치되어 있음');
+        return;
+    }
+
+    // PWA 설치 조건 확인
+    if (isPWAInstallable()) {
+        showInstallBanner();
+    } else {
+        // 모바일에서는 항상 안내 배너 표시 (브라우저별 설치 방법 안내)
+        if (isMobileDevice()) {
+            showMobileInstallBanner();
+        }
+    }
+}
+
+// PWA 설치 가능 여부 확인
+function isPWAInstallable() {
+    // 기본 PWA 요구사항 확인
+    if ('serviceWorker' in navigator &&
+        window.matchMedia('(display-mode: standalone)').matches === false) {
+        return true;
+    }
+
+    // deferredPrompt가 있으면 설치 가능
+    return deferredPrompt !== null;
+}
+
+// 앱이 이미 설치되었는지 확인
+function isAppInstalled() {
+    // 스탠드얼론 모드로 실행 중인지 확인
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+        return true;
+    }
+
+    // iOS Safari에서 홈 화면에 추가된 경우
+    if (window.navigator.standalone === true) {
+        return true;
+    }
+
+    return false;
+}
+
+// 모바일 디바이스 여부 확인
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+        window.innerWidth <= 768;
+}
+
+// 설치 배너 표시
+function showInstallBanner() {
+    const banner = document.getElementById('install-banner');
+    if (banner) {
+        banner.classList.remove('hidden');
+        isInstallPromptShown = true;
+
+        // Analytics 추적
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'pwa_install_banner_shown', {
+                'event_category': 'pwa',
+                'event_label': 'install_banner'
+            });
+        }
+
+        console.log('[PWA] 설치 배너 표시됨');
+    }
+}
+
+// 모바일 설치 안내 배너 표시
+function showMobileInstallBanner() {
+    const banner = document.getElementById('install-banner');
+    if (banner) {
+        // 모바일용 텍스트로 변경
+        const bannerText = banner.querySelector('span');
+        const installBtn = document.getElementById('install-btn');
+
+        if (bannerText && installBtn) {
+            if (isIOSDevice()) {
+                bannerText.textContent = '📱 Safari에서 공유버튼 > 홈 화면에 추가를 눌러 앱으로 설치하세요!';
+                installBtn.textContent = '설치방법';
+                installBtn.onclick = showIOSInstallInstructions;
+            } else if (isAndroidDevice()) {
+                bannerText.textContent = '📱 Chrome 메뉴에서 "앱 설치" 또는 "홈 화면에 추가"를 눌러 설치하세요!';
+                installBtn.textContent = '설치방법';
+                installBtn.onclick = showAndroidInstallInstructions;
+            } else {
+                bannerText.textContent = '📱 브라우저 메뉴에서 "앱 설치" 또는 "홈 화면에 추가"를 찾아 설치하세요!';
+                installBtn.textContent = '설치방법';
+                installBtn.onclick = showGeneralInstallInstructions;
+            }
+
+            banner.classList.remove('hidden');
+            isInstallPromptShown = true;
+        }
+    }
+}
+
+// iOS 디바이스 확인
+function isIOSDevice() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent);
+}
+
+// Android 디바이스 확인
+function isAndroidDevice() {
+    return /Android/.test(navigator.userAgent);
+}
+
+// PWA 앱 설치 실행
+async function installPWA() {
+    if (!deferredPrompt) {
+        console.log('[PWA] deferredPrompt가 없음 - 수동 설치 안내');
+        showManualInstallInstructions();
+        return;
+    }
+
+    try {
+        // Analytics 추적
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'pwa_install_attempted', {
+                'event_category': 'pwa',
+                'event_label': 'install_button'
+            });
+        }
+
+        // 설치 프롬프트 표시
+        const result = await deferredPrompt.prompt();
+        console.log('[PWA] 설치 프롬프트 결과:', result);
+
+        // 사용자 선택 대기
+        const choiceResult = await deferredPrompt.userChoice;
+        console.log('[PWA] 사용자 선택:', choiceResult.outcome);
+
+        if (choiceResult.outcome === 'accepted') {
+            showNotification('앱 설치가 시작됩니다! 🎉', 'success');
+            hideInstallBanner();
+
+            // Analytics 추적
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'pwa_install_accepted', {
+                    'event_category': 'pwa',
+                    'event_label': 'user_accepted'
+                });
+            }
+        } else {
+            showNotification('설치가 취소되었습니다.', 'info');
+
+            // Analytics 추적
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'pwa_install_dismissed', {
+                    'event_category': 'pwa',
+                    'event_label': 'user_dismissed'
+                });
+            }
+        }
+
+        // deferredPrompt 초기화
+        deferredPrompt = null;
+
+    } catch (error) {
+        console.error('[PWA] 설치 오류:', error);
+        showNotification('설치 중 오류가 발생했습니다.', 'error');
+        showManualInstallInstructions();
+    }
+}
+
+// 설치 배너 숨기기
+function hideInstallBanner() {
+    const banner = document.getElementById('install-banner');
+    if (banner) {
+        banner.classList.add('hidden');
+        isInstallPromptShown = false;
+    }
+}
+
+// 설치 배너 해제 (24시간 동안 표시하지 않음)
+function dismissInstallBanner() {
+    hideInstallBanner();
+    localStorage.setItem('pwa-banner-dismissed', Date.now().toString());
+    installBannerDismissed = true;
+
+    // Analytics 추적
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'pwa_banner_dismissed', {
+            'event_category': 'pwa',
+            'event_label': 'user_dismissed_banner'
+        });
+    }
+
+    console.log('[PWA] 설치 배너 해제됨 (24시간)');
+}
+
+// 수동 설치 안내
+function showManualInstallInstructions() {
+    const userAgent = navigator.userAgent;
+    let instructions = '';
+
+    if (isIOSDevice()) {
+        instructions = `
+            <div class="text-left">
+                <h4 class="font-bold mb-2">📱 iPhone/iPad 설치 방법:</h4>
+                <ol class="list-decimal list-inside space-y-1 text-sm">
+                    <li>Safari 브라우저에서 이 페이지를 열어주세요</li>
+                    <li>하단의 <strong>공유 버튼</strong> (⬆️)을 눌러주세요</li>
+                    <li><strong>"홈 화면에 추가"</strong>를 선택해주세요</li>
+                    <li><strong>"추가"</strong> 버튼을 눌러 완료해주세요</li>
+                </ol>
+                <p class="text-xs text-gray-600 mt-2">* Chrome이나 다른 브라우저에서는 설치가 제한될 수 있습니다</p>
+            </div>
+        `;
+    } else if (isAndroidDevice()) {
+        instructions = `
+            <div class="text-left">
+                <h4 class="font-bold mb-2">📱 Android 설치 방법:</h4>
+                <ol class="list-decimal list-inside space-y-1 text-sm">
+                    <li>Chrome 브라우저에서 이 페이지를 열어주세요</li>
+                    <li>우상단의 <strong>메뉴 버튼</strong> (⋮)을 눌러주세요</li>
+                    <li><strong>"앱 설치"</strong> 또는 <strong>"홈 화면에 추가"</strong>를 선택해주세요</li>
+                    <li><strong>"설치"</strong> 버튼을 눌러 완료해주세요</li>
+                </ol>
+                <p class="text-xs text-gray-600 mt-2">* 일부 브라우저에서는 메뉴 위치가 다를 수 있습니다</p>
+            </div>
+        `;
+    } else {
+        instructions = `
+            <div class="text-left">
+                <h4 class="font-bold mb-2">💻 데스크톱 설치 방법:</h4>
+                <ol class="list-decimal list-inside space-y-1 text-sm">
+                    <li>Chrome 또는 Edge 브라우저를 사용해주세요</li>
+                    <li>주소창 우측의 <strong>설치 아이콘</strong> (💻)을 클릭하거나</li>
+                    <li>브라우저 메뉴에서 <strong>"앱 설치"</strong>를 찾아 클릭해주세요</li>
+                    <li><strong>"설치"</strong> 버튼을 눌러 완료해주세요</li>
+                </ol>
+                <p class="text-xs text-gray-600 mt-2">* Firefox는 PWA 설치를 지원하지 않습니다</p>
+            </div>
+        `;
+    }
+
+    // 모달 생성
+    const modalHTML = `
+        <div id="install-instructions-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">앱 설치 방법</h3>
+                        <button onclick="closeInstallInstructions()" class="text-gray-500 hover:text-gray-700 text-2xl">✕</button>
+                    </div>
+                    ${instructions}
+                    <div class="mt-6 pt-4 border-t text-center">
+                        <button onclick="closeInstallInstructions()" 
+                                class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">
+                            확인
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    // Analytics 추적
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'pwa_manual_instructions_shown', {
+            'event_category': 'pwa',
+            'event_label': isIOSDevice() ? 'ios' : isAndroidDevice() ? 'android' : 'desktop'
+        });
+    }
+}
+
+// iOS 설치 안내
+function showIOSInstallInstructions() {
+    showManualInstallInstructions();
+}
+
+// Android 설치 안내
+function showAndroidInstallInstructions() {
+    showManualInstallInstructions();
+}
+
+// 일반 설치 안내
+function showGeneralInstallInstructions() {
+    showManualInstallInstructions();
+}
+
+// 설치 안내 모달 닫기
+function closeInstallInstructions() {
+    const modal = document.getElementById('install-instructions-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// 서비스 워커 등록
+async function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        try {
+            const registration = await navigator.serviceWorker.register('/sw.js');
+            console.log('[SW] 서비스 워커 등록 성공:', registration);
+
+            // 업데이트 확인
+            registration.addEventListener('updatefound', () => {
+                console.log('[SW] 새로운 서비스 워커 발견');
+                const newWorker = registration.installing;
+
+                if (newWorker) {
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            console.log('[SW] 새로운 버전 사용 가능');
+                            showUpdateNotification();
+                        }
+                    });
+                }
+            });
+
+            return registration;
+        } catch (error) {
+            console.error('[SW] 서비스 워커 등록 실패:', error);
+            return null;
+        }
+    } else {
+        console.log('[SW] 서비스 워커를 지원하지 않는 브라우저');
+        return null;
+    }
+}
+
+// 앱 업데이트 알림
+function showUpdateNotification() {
+    const updateBanner = document.createElement('div');
+    updateBanner.id = 'update-banner';
+    updateBanner.className = 'fixed top-0 left-0 right-0 bg-green-600 text-white p-3 text-center z-50';
+    updateBanner.innerHTML = `
+        <div class="flex items-center justify-between max-w-4xl mx-auto">
+            <span class="text-sm">🔄 새로운 버전이 사용 가능합니다!</span>
+            <div class="space-x-2">
+                <button id="update-btn" class="bg-white text-green-600 px-3 py-1 rounded text-sm font-semibold">업데이트</button>
+                <button id="dismiss-update" class="text-white/80 hover:text-white px-2">✕</button>
+            </div>
+        </div>
+    `;
+
+    document.body.prepend(updateBanner);
+
+    // 업데이트 버튼 이벤트
+    document.getElementById('update-btn').addEventListener('click', () => {
+        window.location.reload();
+    });
+
+    // 닫기 버튼 이벤트
+    document.getElementById('dismiss-update').addEventListener('click', () => {
+        updateBanner.remove();
+    });
+}
+
+// PWA 이벤트 리스너 등록
+function setupPWAEventListeners() {
+    // beforeinstallprompt 이벤트 리스너
+    window.addEventListener('beforeinstallprompt', (e) => {
+        console.log('[PWA] beforeinstallprompt 이벤트 발생');
+        e.preventDefault(); // 기본 설치 프롬프트 방지
+        deferredPrompt = e;
+
+        // 커스텀 설치 배너 표시
+        setTimeout(() => {
+            if (!installBannerDismissed && !isAppInstalled()) {
+                showInstallBanner();
+            }
+        }, 3000); // 3초 후 표시
+    });
+
+    // appinstalled 이벤트 리스너
+    window.addEventListener('appinstalled', () => {
+        console.log('[PWA] 앱 설치 완료');
+        hideInstallBanner();
+        showNotification('앱이 성공적으로 설치되었습니다! 🎉', 'success');
+
+        // Analytics 추적
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'pwa_install_completed', {
+                'event_category': 'pwa',
+                'event_label': 'app_installed'
+            });
+        }
+    });
+
+    // 설치 버튼 이벤트 리스너
+    const installBtn = document.getElementById('install-btn');
+    if (installBtn) {
+        installBtn.addEventListener('click', installPWA);
+    }
+
+    // 배너 닫기 버튼 이벤트 리스너
+    const dismissBtn = document.getElementById('dismiss-banner');
+    if (dismissBtn) {
+        dismissBtn.addEventListener('click', dismissInstallBanner);
+    }
+}
+
+// =================================
 // 전역 함수 등록 (즉시 실행)
 // =================================
 window.showSection = showSection;
@@ -508,6 +925,12 @@ window.showNewsDetail = showNewsDetail;
 window.closeNewsDetail = closeNewsDetail;
 window.shareNews = shareNews;
 window.trackMembershipClick = trackMembershipClick;
+window.installPWA = installPWA;
+window.dismissInstallBanner = dismissInstallBanner;
+window.showIOSInstallInstructions = showIOSInstallInstructions;
+window.showAndroidInstallInstructions = showAndroidInstallInstructions;
+window.showGeneralInstallInstructions = showGeneralInstallInstructions;
+window.closeInstallInstructions = closeInstallInstructions;
 
 console.log('[SCRIPT] 전역 함수 등록 완료');
 
@@ -1043,12 +1466,12 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // 확장 프로그램 간섭 체크
     detectExtensionInterference();
-    
+
     // 확장 프로그램 관련 콘솔 에러 필터링
     const originalConsoleError = console.error;
     console.error = function (...args) {
         const message = args.join(' ');
-        
+
         // 확장 프로그램 관련 에러는 warn으로 변경
         if (message.includes('content.js') ||
             message.includes('storageChangeDispatcher') ||
@@ -1057,18 +1480,39 @@ document.addEventListener('DOMContentLoaded', async function () {
             console.warn('[EXTENSION ERROR]:', ...args);
             return;
         }
-        
+
         // 일반 에러는 그대로 표시
         originalConsoleError.apply(console, args);
     };
 
     // ✅ 추가 이벤트 리스너들 설정
     console.log('[HTML] 추가 이벤트 리스너 설정 시작');
-    
+
+    async function initializePWA() {
+        console.log('[PWA] PWA 초기화 시작');
+
+        try {
+            // 1. 서비스 워커 등록
+            await registerServiceWorker();
+
+            // 2. PWA 이벤트 리스너 설정
+            setupPWAEventListeners();
+
+            // 3. 설치 가능성 확인 (페이지 로드 후 3초 뒤)
+            setTimeout(() => {
+                checkPWAInstallability();
+            }, 3000);
+
+            console.log('[PWA] PWA 초기화 완료');
+        } catch (error) {
+            console.error('[PWA] PWA 초기화 오류:', error);
+        }
+    }
+
     // 히어로 섹션 당원가입 버튼
     const heroMembershipBtn = document.getElementById('hero-membership-btn');
     if (heroMembershipBtn) {
-        heroMembershipBtn.addEventListener('click', function(e) {
+        heroMembershipBtn.addEventListener('click', function (e) {
             e.preventDefault();
             console.log('[HTML] 히어로 당원가입 버튼 클릭');
             if (typeof trackMembershipClick === 'function') {
@@ -1083,7 +1527,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // 당원가입 페이지 직접 가입 버튼
     const directMembershipBtn = document.getElementById('direct-membership-btn');
     if (directMembershipBtn) {
-        directMembershipBtn.addEventListener('click', function(e) {
+        directMembershipBtn.addEventListener('click', function (e) {
             e.preventDefault();
             console.log('[HTML] 직접 당원가입 버튼 클릭');
             if (typeof openMembershipPage === 'function') {
@@ -1095,7 +1539,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // 공약 목록으로 돌아가기 버튼
     const backToPromiseListBtn = document.getElementById('back-to-promise-list');
     if (backToPromiseListBtn) {
-        backToPromiseListBtn.addEventListener('click', function(e) {
+        backToPromiseListBtn.addEventListener('click', function (e) {
             e.preventDefault();
             console.log('[HTML] 공약 목록으로 돌아가기 버튼 클릭');
             if (typeof showPromiseList === 'function') {
@@ -1107,7 +1551,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // 공약 링크 복사 버튼
     const sharePromiseCopyBtn = document.getElementById('share-promise-copy');
     if (sharePromiseCopyBtn) {
-        sharePromiseCopyBtn.addEventListener('click', function(e) {
+        sharePromiseCopyBtn.addEventListener('click', function (e) {
             e.preventDefault();
             console.log('[HTML] 공약 링크 복사 버튼 클릭');
             if (typeof sharePromise === 'function') {
@@ -1119,7 +1563,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // SNS 공유 버튼들 (홈 섹션)
     const shareFacebookBtn = document.getElementById('share-facebook');
     if (shareFacebookBtn) {
-        shareFacebookBtn.addEventListener('click', function(e) {
+        shareFacebookBtn.addEventListener('click', function (e) {
             e.preventDefault();
             if (typeof shareToFacebook === 'function') {
                 shareToFacebook();
@@ -1129,7 +1573,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     const shareInstagramBtn = document.getElementById('share-instagram');
     if (shareInstagramBtn) {
-        shareInstagramBtn.addEventListener('click', function(e) {
+        shareInstagramBtn.addEventListener('click', function (e) {
             e.preventDefault();
             if (typeof shareToInstagram === 'function') {
                 shareToInstagram();
@@ -1139,7 +1583,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     const shareYoutubeBtn = document.getElementById('share-youtube');
     if (shareYoutubeBtn) {
-        shareYoutubeBtn.addEventListener('click', function(e) {
+        shareYoutubeBtn.addEventListener('click', function (e) {
             e.preventDefault();
             if (typeof shareToYoutube === 'function') {
                 shareToYoutube();
@@ -1149,7 +1593,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     const shareKakaoBtn = document.getElementById('share-kakao');
     if (shareKakaoBtn) {
-        shareKakaoBtn.addEventListener('click', function(e) {
+        shareKakaoBtn.addEventListener('click', function (e) {
             e.preventDefault();
             if (typeof shareToKakao === 'function') {
                 shareToKakao();
@@ -1159,7 +1603,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     const shareWebsiteBtn = document.getElementById('share-website');
     if (shareWebsiteBtn) {
-        shareWebsiteBtn.addEventListener('click', function(e) {
+        shareWebsiteBtn.addEventListener('click', function (e) {
             e.preventDefault();
             if (typeof shareWebsite === 'function') {
                 shareWebsite();
@@ -1170,7 +1614,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // SNS 공유 버튼들 (공약 페이지 섹션) - 클래스 기반
     const shareFacebookBtns = document.querySelectorAll('.share-facebook-btn');
     shareFacebookBtns.forEach(btn => {
-        btn.addEventListener('click', function(e) {
+        btn.addEventListener('click', function (e) {
             e.preventDefault();
             if (typeof shareToFacebook === 'function') {
                 shareToFacebook();
@@ -1180,7 +1624,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     const shareInstagramBtns = document.querySelectorAll('.share-instagram-btn');
     shareInstagramBtns.forEach(btn => {
-        btn.addEventListener('click', function(e) {
+        btn.addEventListener('click', function (e) {
             e.preventDefault();
             if (typeof shareToInstagram === 'function') {
                 shareToInstagram();
@@ -1190,7 +1634,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     const shareYoutubeBtns = document.querySelectorAll('.share-youtube-btn');
     shareYoutubeBtns.forEach(btn => {
-        btn.addEventListener('click', function(e) {
+        btn.addEventListener('click', function (e) {
             e.preventDefault();
             if (typeof shareToYoutube === 'function') {
                 shareToYoutube();
@@ -1200,7 +1644,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     const shareKakaoBtns = document.querySelectorAll('.share-kakao-btn');
     shareKakaoBtns.forEach(btn => {
-        btn.addEventListener('click', function(e) {
+        btn.addEventListener('click', function (e) {
             e.preventDefault();
             if (typeof shareToKakao === 'function') {
                 shareToKakao();
@@ -1210,7 +1654,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     const shareWebsiteBtns = document.querySelectorAll('.share-website-btn');
     shareWebsiteBtns.forEach(btn => {
-        btn.addEventListener('click', function(e) {
+        btn.addEventListener('click', function (e) {
             e.preventDefault();
             if (typeof shareWebsite === 'function') {
                 shareWebsite();
@@ -1287,6 +1731,11 @@ document.addEventListener('DOMContentLoaded', async function () {
             hideLoading();
         }, 300);
     }
+    
+    // 기존 DOMContentLoaded 이벤트 리스너의 마지막 부분에 다음 라인 추가:
+    // initializePWA();
+
+    console.log('[PWA] PWA 설치 기능 스크립트 로드 완료');
 });
 
 // 윈도우 로드 완료 후 최종 네비게이션 확인

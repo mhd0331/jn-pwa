@@ -1,4 +1,4 @@
-/* 이우규 후보 6대 공약 및 면단위 공약 PWA 스타일시트 - 네비게이션 문제 해결 버전 */
+/* 이우규 후보 6대 공약 및 면단위 공약 PWA 스타일시트 - PWA 설치 기능 통합 완성 버전 */
 
 /* ========== 기본 설정 ========== */
 body {
@@ -39,7 +39,496 @@ body {
     100% { transform: rotate(360deg); }
 }
 
-/* ========== 네비게이션 바 스타일 (단순화 버전) ========== */
+/* ========== PWA 설치 배너 스타일 ========== */
+
+/* 메인 설치 배너 */
+.install-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    color: white;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    animation: slideDownBanner 0.5s ease-out;
+}
+
+@keyframes slideDownBanner {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.install-banner-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 12px 16px;
+    gap: 12px;
+}
+
+.install-banner-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-4px);
+    }
+    60% {
+        transform: translateY(-2px);
+    }
+}
+
+.install-banner-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.install-banner-title {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 2px;
+    line-height: 1.2;
+}
+
+.install-banner-subtitle {
+    font-size: 0.75rem;
+    opacity: 0.9;
+    line-height: 1.2;
+}
+
+.install-banner-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+/* 설치 버튼 */
+.install-btn {
+    background: rgba(255, 255, 255, 0.95);
+    color: #1e40af;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-weight: 700;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    min-width: 70px;
+    justify-content: center;
+}
+
+.install-btn:hover {
+    background: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.install-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.install-btn-icon {
+    font-size: 1rem;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.install-btn-text {
+    white-space: nowrap;
+}
+
+/* 닫기 버튼 */
+.dismiss-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+}
+
+.dismiss-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+/* 설치 진행 표시 */
+.install-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.1);
+    padding: 8px 16px;
+    text-align: center;
+}
+
+.install-progress-bar {
+    width: 100%;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 1px;
+    overflow: hidden;
+    margin-bottom: 4px;
+}
+
+.install-progress-bar::before {
+    content: '';
+    display: block;
+    width: 30%;
+    height: 100%;
+    background: white;
+    animation: progressMove 1.5s infinite;
+}
+
+@keyframes progressMove {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(400%);
+    }
+}
+
+.install-progress-text {
+    font-size: 0.75rem;
+    opacity: 0.9;
+}
+
+/* 설치 성공 알림 */
+.install-success-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    color: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(5, 150, 105, 0.3);
+    z-index: 1000;
+    animation: slideInFromRight 0.5s ease-out;
+    max-width: 320px;
+}
+
+@keyframes slideInFromRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.install-success-content {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    gap: 12px;
+}
+
+.install-success-icon {
+    font-size: 1.5rem;
+    animation: celebrate 0.6s ease-out;
+}
+
+@keyframes celebrate {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2) rotate(10deg);
+    }
+}
+
+.install-success-text {
+    flex: 1;
+}
+
+.install-success-title {
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.install-success-subtitle {
+    font-size: 0.875rem;
+    opacity: 0.9;
+}
+
+.close-success-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+}
+
+.close-success-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* iOS 설치 안내 팝업 */
+.ios-install-popup {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.ios-install-content {
+    background: white;
+    border-radius: 16px;
+    max-width: 400px;
+    width: 100%;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    animation: scaleIn 0.3s ease-out;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.ios-install-header {
+    background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ios-install-header h3 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+
+.close-ios-popup {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ios-install-steps {
+    padding: 24px;
+}
+
+.ios-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.ios-step:last-child {
+    margin-bottom: 0;
+}
+
+.ios-step-number {
+    background: #007AFF;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+}
+
+.ios-step-text {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #333;
+}
+
+.ios-install-note {
+    background: #FFF3CD;
+    color: #856404;
+    padding: 12px 24px;
+    font-size: 0.8rem;
+    border-top: 1px solid #FFEAA7;
+    text-align: center;
+}
+
+/* Android 설치 안내 팝업 */
+.android-install-popup {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.android-install-content {
+    background: white;
+    border-radius: 16px;
+    max-width: 400px;
+    width: 100%;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    animation: scaleIn 0.3s ease-out;
+}
+
+.android-install-header {
+    background: linear-gradient(135deg, #4CAF50 0%, #2196F3 100%);
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.android-install-header h3 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+
+.close-android-popup {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.android-install-steps {
+    padding: 24px;
+}
+
+.android-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.android-step:last-child {
+    margin-bottom: 0;
+}
+
+.android-step-number {
+    background: #4CAF50;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+}
+
+.android-step-text {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #333;
+}
+
+.android-install-note {
+    background: #E3F2FD;
+    color: #1565C0;
+    padding: 12px 24px;
+    font-size: 0.8rem;
+    border-top: 1px solid #BBDEFB;
+    text-align: center;
+}
+
+/* 설치 배너가 있을 때 페이지 상단 여백 조정 */
+body.has-install-banner {
+    margin-top: 70px;
+    transition: margin-top 0.3s ease;
+}
+
+body.has-install-banner header {
+    top: 70px;
+    transition: top 0.3s ease;
+}
+
+/* ========== 네비게이션 바 스타일 ========== */
 header {
     position: sticky !important;
     top: 0 !important;
@@ -150,66 +639,7 @@ nav {
     display: none; /* Chrome/Safari */
 }
 
-/* 반응형 네비게이션 */
-@media (max-width: 768px) {
-    #main-nav-menu {
-        gap: 1rem !important;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    
-    .nav-btn {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.875rem;
-        min-width: auto;
-        white-space: nowrap;
-    }
-    
-    nav {
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.75rem 1rem !important;
-    }
-    
-    #logo-btn {
-        font-size: 1.125rem !important;
-        margin-bottom: 0.25rem;
-    }
-}
-
-@media (max-width: 480px) {
-    #main-nav-menu {
-        gap: 0.5rem !important;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        width: 100%;
-    }
-    
-    .nav-btn {
-        padding: 0.375rem 0.5rem;
-        font-size: 0.75rem;
-        flex: 1;
-        text-align: center;
-        min-width: 60px;
-        max-width: 80px;
-    }
-    
-    #nav-membership {
-        flex: 1.2;
-        max-width: 100px;
-    }
-    
-    nav {
-        padding: 0.5rem 0.75rem !important;
-    }
-    
-    #logo-btn {
-        font-size: 1rem !important;
-    }
-}
-
-/* ========== 페이지 섹션 관리 (통합 및 최적화) ========== */
+/* ========== 페이지 섹션 관리 ========== */
 #page-container {
     position: relative;
     width: 100%;
@@ -220,7 +650,7 @@ nav {
 .page-section {
     width: 100%;
     min-height: 50vh;
-    transition: none; /* 성능 최적화를 위해 애니메이션 제거 */
+    transition: none;
 }
 
 .page-section.section-active {
@@ -494,6 +924,14 @@ nav {
 .profile-candidate-image .candidate-photo {
     width: 100%;
     height: 100%;
+    border: 3px solid rgba(37, 99, 235, 0.2);
+    transition: all 0.3s ease;
+}
+
+.profile-candidate-image .candidate-photo:hover {
+    border-color: rgba(37, 99, 235, 0.5);
+    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.2);
+    transform: scale(1.02);
 }
 
 .image-fallback {
@@ -508,6 +946,17 @@ nav {
     font-weight: bold;
     border-radius: 50%;
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.profile-candidate-image .image-fallback {
+    font-size: 2.5rem;
+    border: 3px solid rgba(255, 255, 255, 0.9);
+    transition: all 0.3s ease;
+}
+
+.profile-candidate-image .image-fallback:hover {
+    transform: scale(1.02);
+    box-shadow: 0 12px 30px rgba(37, 99, 235, 0.4);
 }
 
 /* ========== 모달 스타일 ========== */
@@ -565,170 +1014,9 @@ nav {
     background: #94a3b8;
 }
 
-/* 모바일 모달 최적화 */
-@media (max-width: 768px) {
-    #core-promise-modal .p-6,
-    #news-detail-modal .p-6 {
-        padding: 1rem;
-    }
-    
-    #core-promise-modal h2,
-    #news-detail-modal h2 {
-        font-size: 1.5rem;
-    }
-    
-    #core-promise-modal .space-y-6 > div,
-    #news-detail-modal .space-y-6 > div {
-        padding: 1rem;
-    }
-}
-
-/* 뉴스 타입 배지 스타일 개선 */
-.news-card .type-badge {
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-    color: #1e40af;
-    font-weight: 600;
-    border: 1px solid #93c5fd;
-    transition: all 0.2s ease;
-}
-
-.news-card .type-badge:hover {
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    color: white;
-    transform: scale(1.05);
-}
-
-/* 후보자 사진 스타일 개선 */
-.profile-candidate-image .candidate-photo {
-    border: 3px solid rgba(37, 99, 235, 0.2);
-    transition: all 0.3s ease;
-    object-fit: cover;
-    border-radius: 50%;
-}
-
-.profile-candidate-image .candidate-photo:hover {
-    border-color: rgba(37, 99, 235, 0.5);
-    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.2);
-    transform: scale(1.02);
-}
-
-.profile-candidate-image .image-fallback {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.5rem;
-    font-weight: bold;
-    border-radius: 50%;
-    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
-    border: 3px solid rgba(255, 255, 255, 0.9);
-    transition: all 0.3s ease;
-}
-
-.profile-candidate-image .image-fallback:hover {
-    transform: scale(1.02);
-    box-shadow: 0 12px 30px rgba(37, 99, 235, 0.4);
-}
-
-/* 뉴스 전문보기 버튼 스타일 */
-.news-card .text-blue-600.hover\:underline,
-.news-card .text-green-600.hover\:underline {
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    transition: all 0.2s ease;
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.2);
-    text-decoration: none;
-}
-
-.news-card .text-green-600.hover\:underline {
-    background: rgba(16, 185, 129, 0.1);
-    border-color: rgba(16, 185, 129, 0.2);
-}
-
-.news-card .text-blue-600.hover\:underline:hover {
-    background: rgba(59, 130, 246, 0.2);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
-}
-
-.news-card .text-green-600.hover\:underline:hover {
-    background: rgba(16, 185, 129, 0.2);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
-}
-
-/* 뉴스 상세 모달 애니메이션 */
-@keyframes modalFadeIn {
-    from {
-        opacity: 0;
-        transform: scale(0.9) translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-}
-
-#core-promise-modal > div,
-#news-detail-modal > div {
-    animation: modalFadeIn 0.3s ease-out;
-}
-
-/* 뉴스 카드 타입별 색상 구분 */
-.news-card[data-type="기고문"] {
-    border-left-color: #059669;
-}
-
-.news-card[data-type="행사"] {
-    border-left-color: #7c3aed;
-}
-
-.news-card[data-type="방문"] {
-    border-left-color: #dc2626;
-}
-
-.news-card[data-type="발표"] {
-    border-left-color: #ea580c;
-}
-
-/* 뉴스 상세 내용 스타일링 */
-#news-detail-modal .border-l-4.border-blue-500 {
-    background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
-    border-radius: 0.5rem;
-    padding: 1.5rem;
-    margin: 1rem 0;
-}
-
-#news-detail-modal .bg-blue-50 {
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-    border: 1px solid #93c5fd;
-}
-
-#news-detail-modal .bg-green-50 {
-    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-    border: 1px solid #86efac;
-}
-
-/* 반응형 뉴스 상세 모달 */
-@media (max-width: 640px) {
-    #news-detail-modal .text-2xl {
-        font-size: 1.25rem;
-    }
-    
-    #news-detail-modal .text-xl {
-        font-size: 1.125rem;
-    }
-    
-    #news-detail-modal .space-y-6 {
-        gap: 1rem;
-    }
-}
-
 /* ========== 당원가입안내 페이지 스타일 ========== */
 
-/* 새로 추가된 스타일 */
+/* 히어로 섹션 당원가입 버튼 */
 .hero-membership-btn {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
     backdrop-filter: blur(12px);
@@ -750,7 +1038,6 @@ nav {
     overflow: hidden;
 }
 
-/* 빛나는 애니메이션 효과 */
 .hero-membership-btn:before {
     content: '';
     position: absolute;
@@ -766,7 +1053,6 @@ nav {
     left: 100%;
 }
 
-/* 호버 효과 */
 .hero-membership-btn:hover {
     transform: translateY(-2px) scale(1.05);
     box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
@@ -774,28 +1060,9 @@ nav {
     color: #1d4ed8;
 }
 
-/* 반응형 스타일 */
-@media (max-width: 768px) {
-    .hero-membership-btn {
-        padding: 10px 20px;
-        font-size: 0.875rem;
-        margin-top: 16px;
-    }
-}
-
-@media (max-width: 480px) {
-    .hero-membership-btn {
-        padding: 8px 16px;
-        font-size: 0.8rem;
-        margin-top: 12px;
-        border-radius: 25px;
-    }
-}
-
 /* 바로가기 버튼 스타일 */
 .direct-membership-btn {
     background: rgba(255, 255, 255, 0.95);
-    /* ... 글로우 효과 및 애니메이션 */
 }
 
 .membership-hero {
@@ -854,53 +1121,135 @@ nav {
     box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
-/* ========== 에러 발생 시 안전장치 ========== */
-main {
-    min-height: 50vh;
-    position: relative;
-}
-
-.loading-state {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 200px;
-    color: #6b7280;
-}
-
-/* ========== 포커스 표시 개선 ========== */
-button:focus-visible,
-a:focus-visible {
-    outline: 2px solid #2563eb;
-    outline-offset: 2px;
-    border-radius: 4px;
-}
-
-/* ========== 스크롤바 스타일링 ========== */
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: #f1f5f9;
-}
-
-::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
-}
-
-/* Firefox 스크롤바 */
-* {
-    scrollbar-width: thin;
-    scrollbar-color: #cbd5e1 #f1f5f9;
-}
-
 /* ========== 반응형 디자인 ========== */
+
+/* 반응형 네비게이션 */
+@media (max-width: 768px) {
+    #main-nav-menu {
+        gap: 1rem !important;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .nav-btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        min-width: auto;
+        white-space: nowrap;
+    }
+    
+    nav {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem !important;
+    }
+    
+    #logo-btn {
+        font-size: 1.125rem !important;
+        margin-bottom: 0.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    #main-nav-menu {
+        gap: 0.5rem !important;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        width: 100%;
+    }
+    
+    .nav-btn {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.75rem;
+        flex: 1;
+        text-align: center;
+        min-width: 60px;
+        max-width: 80px;
+    }
+    
+    #nav-membership {
+        flex: 1.2;
+        max-width: 100px;
+    }
+    
+    nav {
+        padding: 0.5rem 0.75rem !important;
+    }
+    
+    #logo-btn {
+        font-size: 1rem !important;
+    }
+    
+    /* PWA 배너 반응형 */
+    body.has-install-banner {
+        margin-top: 90px;
+    }
+    
+    body.has-install-banner header {
+        top: 90px;
+    }
+    
+    .install-banner-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 8px 10px;
+    }
+    
+    .install-banner-text {
+        width: 100%;
+    }
+    
+    .install-banner-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .install-btn {
+        flex: 1;
+        margin-right: 8px;
+        padding: 6px 12px;
+        font-size: 0.8rem;
+        min-width: 60px;
+    }
+    
+    .install-banner-title {
+        font-size: 0.85rem;
+    }
+    
+    .install-banner-subtitle {
+        font-size: 0.65rem;
+    }
+    
+    .dismiss-btn {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .install-success-notification {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+    
+    .ios-install-popup,
+    .android-install-popup {
+        padding: 15px;
+    }
+    
+    .ios-install-content,
+    .android-install-content {
+        max-width: none;
+    }
+    
+    .ios-install-steps,
+    .android-install-steps {
+        padding: 20px;
+    }
+}
+
 @media (min-width: 768px) {
     /* 태블릿 이상에서 6대 공약을 3x2 그리드로 */
     #core-promises-grid {
@@ -941,8 +1290,8 @@ a:focus-visible {
     }
     
     .hero-candidate-image {
-        width: 80px;
-        height: 80px;
+        width: 180px;
+        height: 180px;
         right: 12px;
         bottom: 12px;
     }
@@ -973,6 +1322,28 @@ a:focus-visible {
         gap: 0.5rem;
         font-size: 0.8rem;
     }
+    
+    /* 모바일에서 모달 최적화 */
+    #core-promise-modal .p-6,
+    #news-detail-modal .p-6 {
+        padding: 1rem;
+    }
+    
+    #core-promise-modal h2,
+    #news-detail-modal h2 {
+        font-size: 1.5rem;
+    }
+    
+    #core-promise-modal .space-y-6 > div,
+    #news-detail-modal .space-y-6 > div {
+        padding: 1rem;
+    }
+    
+    .hero-membership-btn {
+        padding: 10px 20px;
+        font-size: 0.875rem;
+        margin-top: 16px;
+    }
 }
 
 @media (max-width: 640px) {
@@ -991,8 +1362,8 @@ a:focus-visible {
     }
     
     .hero-candidate-image {
-        width: 60px;
-        height: 60px;
+        width: 180px;
+        height: 180px;
         right: 8px;
         bottom: 8px;
     }
@@ -1019,23 +1390,74 @@ a:focus-visible {
     #township-grid-content {
         grid-template-columns: 1fr;
     }
+    
+    .hero-membership-btn {
+        padding: 8px 16px;
+        font-size: 0.8rem;
+        margin-top: 12px;
+        border-radius: 25px;
+    }
 }
 
-/* ========== 터치 디바이스 최적화 ========== */
-@media (hover: none) {
-    .card-hover:hover,
-    .promise-card:hover,
-    .sns-container button:hover,
-    .news-card:hover {
-        transform: none;
+/* 극소형 디바이스 (320px 이하) */
+@media (max-width: 320px) {
+    body.has-install-banner {
+        margin-top: 100px;
     }
     
-    /* 터치 피드백 */
-    .promise-card:active,
-    .sns-container button:active,
-    .news-card:active {
-        transform: scale(0.98);
-        opacity: 0.9;
+    body.has-install-banner header {
+        top: 100px;
+    }
+}
+
+/* ========== PWA 전용 스타일 ========== */
+@media (display-mode: standalone) {
+    /* 스탠드얼론 모드에서는 설치 배너 완전히 숨김 */
+    .install-banner,
+    #install-banner {
+        display: none !important;
+    }
+    
+    body {
+        margin-top: 0 !important;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+    }
+    
+    header {
+        top: 0 !important;
+    }
+    
+    .safe-area-top {
+        padding-top: env(safe-area-inset-top);
+    }
+    
+    .safe-area-bottom {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+    
+    /* PWA에서 스크롤바 숨기기 */
+    ::-webkit-scrollbar {
+        width: 0px;
+        background: transparent;
+    }
+    
+    .page-section.section-active {
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+    
+    /* PWA 상태 표시 */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #2563eb, #059669);
+        z-index: 9999;
+        pointer-events: none;
     }
 }
 
@@ -1049,6 +1471,32 @@ a:focus-visible {
     
     .page-section {
         transition: none !important;
+    }
+    
+    .install-banner,
+    .install-success-notification,
+    .ios-install-popup,
+    .android-install-popup {
+        animation: none !important;
+        transition: none !important;
+    }
+    
+    .install-banner-icon,
+    .install-btn-icon {
+        animation: none !important;
+    }
+    
+    .install-btn,
+    .dismiss-btn,
+    .close-success-btn {
+        transition: none !important;
+    }
+    
+    .ios-step,
+    .android-step {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
     }
 }
 
@@ -1070,32 +1518,112 @@ a:focus-visible {
     .text-gray-700 {
         color: #000000;
     }
+    
+    .install-banner {
+        background: #000;
+        border: 2px solid #fff;
+        color: #fff;
+    }
+    
+    .install-btn {
+        background: #fff;
+        color: #000;
+        border: 2px solid #000;
+    }
+    
+    .dismiss-btn {
+        background: #fff;
+        color: #000;
+        border: 1px solid #fff;
+    }
+    
+    .ios-install-content,
+    .android-install-content {
+        border: 2px solid #000;
+    }
 }
 
-/* ========== PWA 전용 스타일 ========== */
-@media (display-mode: standalone) {
-    body {
-        -webkit-user-select: none;
-        -webkit-touch-callout: none;
+/* ========== 다크 모드 지원 ========== */
+@media (prefers-color-scheme: dark) {
+    .install-banner {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        color: #f1f5f9;
+        border-bottom-color: rgba(255, 255, 255, 0.1);
     }
     
-    .safe-area-top {
-        padding-top: env(safe-area-inset-top);
+    .install-btn {
+        background: rgba(248, 250, 252, 0.9);
+        color: #1e293b;
     }
     
-    .safe-area-bottom {
-        padding-bottom: env(safe-area-inset-bottom);
+    .install-btn:hover {
+        background: #f8fafc;
     }
     
-    /* PWA에서 스크롤바 숨기기 */
-    ::-webkit-scrollbar {
-        width: 0px;
-        background: transparent;
+    .install-success-notification {
+        background: linear-gradient(135deg, #047857 0%, #059669 100%);
     }
     
-    .page-section.section-active {
-        padding-top: env(safe-area-inset-top);
-        padding-bottom: env(safe-area-inset-bottom);
+    .ios-install-content,
+    .android-install-content {
+        background: #1e293b;
+        color: #f1f5f9;
+    }
+    
+    .ios-install-header,
+    .android-install-header {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    }
+    
+    .ios-step-text,
+    .android-step-text {
+        color: #e2e8f0;
+    }
+    
+    .ios-install-note {
+        background: #374151;
+        color: #fbbf24;
+        border-top-color: #6b7280;
+    }
+    
+    .android-install-note {
+        background: #374151;
+        color: #60a5fa;
+        border-top-color: #6b7280;
+    }
+}
+
+/* ========== 터치 디바이스 최적화 ========== */
+@media (hover: none) {
+    .card-hover:hover,
+    .promise-card:hover,
+    .sns-container button:hover,
+    .news-card:hover {
+        transform: none;
+    }
+    
+    .install-btn:hover,
+    .dismiss-btn:hover,
+    .close-success-btn:hover {
+        transform: none;
+    }
+    
+    /* 터치 피드백 */
+    .promise-card:active,
+    .sns-container button:active,
+    .news-card:active {
+        transform: scale(0.98);
+        opacity: 0.9;
+    }
+    
+    .install-btn:active {
+        background: rgba(255, 255, 255, 0.8);
+        transform: scale(0.98);
+    }
+    
+    .dismiss-btn:active {
+        background: rgba(255, 255, 255, 0.4);
+        transform: scale(0.95);
     }
 }
 
@@ -1106,6 +1634,10 @@ a:focus-visible {
     footer,
     #notification-container,
     #install-banner,
+    .install-banner,
+    .install-success-notification,
+    .ios-install-popup,
+    .android-install-popup,
     .sns-container,
     button {
         display: none !important;
@@ -1114,6 +1646,15 @@ a:focus-visible {
     body {
         background: white !important;
         color: black !important;
+        margin-top: 0 !important;
+    }
+    
+    body.has-install-banner {
+        margin-top: 0 !important;
+    }
+    
+    body.has-install-banner header {
+        top: 0 !important;
     }
     
     .page-section {
@@ -1141,6 +1682,56 @@ a:focus-visible {
     .page-section:first-child {
         page-break-before: avoid;
     }
+}
+
+/* ========== 스크롤바 스타일링 ========== */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+}
+
+/* Firefox 스크롤바 */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+/* 설치 배너가 있을 때 스크롤바 조정 */
+body.has-install-banner::-webkit-scrollbar-track {
+    margin-top: 70px;
+}
+
+@media (max-width: 480px) {
+    body.has-install-banner::-webkit-scrollbar-track {
+        margin-top: 90px;
+    }
+}
+
+/* ========== 포커스 표시 개선 ========== */
+button:focus-visible,
+a:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.install-btn:focus-visible,
+.dismiss-btn:focus-visible {
+    outline: 2px solid #fbbf24;
+    outline-offset: 2px;
+    border-radius: 4px;
 }
 
 /* ========== 유틸리티 클래스 ========== */
@@ -1187,29 +1778,57 @@ a:focus-visible {
     transition: none !important;
 }
 
-/* ========== 버튼 기본 스타일 ========== */
-button {
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
+/* PWA 전용 유틸리티 클래스 */
+.pwa-hidden {
+    display: none !important;
 }
 
-/* ========== 인풋 필드 스타일 ========== */
-input, textarea, select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
+.pwa-visible {
+    display: block !important;
 }
 
-/* ========== 안전 영역 패딩 (iOS) ========== */
-.safe-padding {
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
+.pwa-installing {
+    pointer-events: none;
+    opacity: 0.6;
 }
 
-/* ========== 레이아웃 안정성 ========== */
-img, video {
-    max-width: 100%;
-    height: auto;
+.pwa-installed {
+    opacity: 0.8;
+}
+
+.pwa-error {
+    background-color: #dc2626 !important;
+    color: white !important;
+}
+
+.pwa-success {
+    background-color: #059669 !important;
+    color: white !important;
+}
+
+.pwa-fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.pwa-fade-out {
+    animation: fadeOut 0.3s ease-out;
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+.pwa-pulse {
+    animation: pulse 1.5s infinite;
+}
+
+.pwa-bounce {
+    animation: bounce 2s infinite;
 }
 
 /* ========== 그라디언트 배경 ========== */
@@ -1239,11 +1858,167 @@ img, video {
     to { transform: translateY(0); opacity: 1; }
 }
 
+/* 설치 버튼 특수 효과 */
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(37, 99, 235, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(37, 99, 235, 0.8);
+    }
+}
+
+.install-btn.pulse-glow {
+    animation: pulseGlow 2s infinite;
+}
+
+@keyframes wiggle {
+    0%, 7% { transform: rotateZ(0); }
+    15% { transform: rotateZ(-15deg); }
+    20% { transform: rotateZ(10deg); }
+    25% { transform: rotateZ(-10deg); }
+    30% { transform: rotateZ(6deg); }
+    35% { transform: rotateZ(-4deg); }
+    40%, 100% { transform: rotateZ(0); }
+}
+
+.install-banner-icon.wiggle {
+    animation: wiggle 2s ease-in-out infinite;
+}
+
 /* ========== 태블릿 호버 효과 ========== */
 @media (hover: hover) and (pointer: fine) {
     .hover-scale:hover {
         transform: scale(1.05);
         transition: transform 0.2s ease;
+    }
+}
+
+/* ========== 버튼 기본 스타일 ========== */
+button {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+/* ========== 인풋 필드 스타일 ========== */
+input, textarea, select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* ========== 안전 영역 패딩 (iOS) ========== */
+.safe-padding {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+}
+
+/* ========== 레이아웃 안정성 ========== */
+img, video {
+    max-width: 100%;
+    height: auto;
+}
+
+/* ========== 성능 최적화 ========== */
+.install-banner * {
+    will-change: auto;
+}
+
+.install-banner.animating * {
+    will-change: transform, opacity;
+}
+
+.install-banner:not(.animating) * {
+    will-change: auto;
+}
+
+/* GPU 가속 활용 */
+.install-banner,
+.install-success-notification,
+.ios-install-popup,
+.android-install-popup {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+/* 터치 영역 확장 */
+.install-btn,
+.dismiss-btn {
+    position: relative;
+}
+
+.install-btn::before,
+.dismiss-btn::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    right: -8px;
+    bottom: -8px;
+    pointer-events: auto;
+}
+
+/* 설치 배너 텍스트 선택 방지 */
+.install-banner {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* 키보드 네비게이션 지원 */
+.install-banner {
+    position: relative;
+}
+
+.install-banner:focus-within {
+    box-shadow: 0 0 0 2px #fbbf24;
+}
+
+/* 설치 버튼 로딩 상태 */
+.install-btn.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.install-btn.loading .install-btn-text {
+    opacity: 0;
+}
+
+.install-btn.loading::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 16px;
+    height: 16px;
+    border: 2px solid #1e40af;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* ========== 브라우저별 최적화 ========== */
+/* Firefox */
+@-moz-document url-prefix() {
+    .install-banner {
+        background: -moz-linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    }
+}
+
+/* Safari */
+@supports (-webkit-backdrop-filter: blur(10px)) {
+    .install-banner {
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+    }
+}
+
+/* Edge Legacy */
+@supports (-ms-ime-align: auto) {
+    .install-banner {
+        background: #1e40af; /* 폴백 색상 */
     }
 }
 
