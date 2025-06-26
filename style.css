@@ -18,11 +18,19 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95); /* 투명도 약간 증가 */
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 9999;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#loading-overlay.hidden {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    display: none !important;
 }
 
 .loading {
@@ -586,6 +594,19 @@ nav {
     opacity: 1 !important;
 }
 
+/* 네비게이션 메뉴 항목 */
+main {
+    opacity: 1 !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+}
+
+#page-container {
+    opacity: 1 !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+}
+
 /* 네비게이션 버튼 기본 스타일 */
 .nav-btn {
     display: inline-block !important;
@@ -645,15 +666,15 @@ nav {
     width: 100%;
 }
 
+/* 네비게이션 메뉴 스크롤 시 그라디언트 효과 제거 (성능 향상) */
 #main-nav-menu {
-    max-width: 100%;
-    overflow-x: auto;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE/Edge */
+    background: transparent;
 }
 
-#main-nav-menu::-webkit-scrollbar {
-    display: none; /* Chrome/Safari */
+/* 터치 스크롤 개선 */
+#main-nav-menu {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
 }
 
 /* ========== 페이지 섹션 관리 ========== */
@@ -664,10 +685,13 @@ nav {
     overflow: hidden;
 }
 
+/* 반투명 문제 해결을 위한 CSS 수정 */
 .page-section {
     width: 100%;
     min-height: 50vh;
     transition: none;
+    filter: none !important; /* 필터 효과 강제 제거 */
+    backdrop-filter: none !important; /* 백드롭 필터 강제 제거 */
 }
 
 .page-section.section-active {
@@ -676,6 +700,8 @@ nav {
     visibility: visible !important;
     position: relative !important;
     z-index: 1 !important;
+    filter: none !important; /* 필터 효과 강제 제거 */
+    backdrop-filter: none !important; /* 백드롭 필터 강제 제거 */
 }
 
 .page-section.section-hidden {
@@ -745,7 +771,9 @@ nav {
     min-height: 100px;
     text-align: center;
     border: 2px solid #e5e7eb;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 #township-grid-content .promise-card:hover {
@@ -768,6 +796,161 @@ nav {
 
 #township-grid-content .promise-card:hover .text-xs {
     opacity: 1;
+}
+
+/* 파스텔 색상 클래스들 */
+.township-card-blue {
+    background: linear-gradient(135deg, rgba(191, 219, 254, 0.4) 0%, rgba(239, 246, 255, 0.6) 100%);
+    border-color: rgba(96, 165, 250, 0.3);
+}
+
+.township-card-green {
+    background: linear-gradient(135deg, rgba(187, 247, 208, 0.4) 0%, rgba(236, 253, 245, 0.6) 100%);
+    border-color: rgba(74, 222, 128, 0.3);
+}
+
+.township-card-purple {
+    background: linear-gradient(135deg, rgba(221, 214, 254, 0.4) 0%, rgba(245, 243, 255, 0.6) 100%);
+    border-color: rgba(167, 139, 250, 0.3);
+}
+
+.township-card-pink {
+    background: linear-gradient(135deg, rgba(252, 207, 238, 0.4) 0%, rgba(253, 242, 248, 0.6) 100%);
+    border-color: rgba(244, 114, 182, 0.3);
+}
+
+.township-card-yellow {
+    background: linear-gradient(135deg, rgba(254, 240, 138, 0.4) 0%, rgba(255, 251, 235, 0.6) 100%);
+    border-color: rgba(251, 191, 36, 0.3);
+}
+
+.township-card-indigo {
+    background: linear-gradient(135deg, rgba(196, 181, 253, 0.4) 0%, rgba(238, 242, 255, 0.6) 100%);
+    border-color: rgba(129, 140, 248, 0.3);
+}
+
+.township-card-orange {
+    background: linear-gradient(135deg, rgba(253, 186, 116, 0.4) 0%, rgba(255, 247, 237, 0.6) 100%);
+    border-color: rgba(251, 146, 60, 0.3);
+}
+
+.township-card-teal {
+    background: linear-gradient(135deg, rgba(153, 246, 228, 0.4) 0%, rgba(240, 253, 250, 0.6) 100%);
+    border-color: rgba(45, 212, 191, 0.3);
+}
+
+.township-card-red {
+    background: linear-gradient(135deg, rgba(252, 165, 165, 0.4) 0%, rgba(254, 242, 242, 0.6) 100%);
+    border-color: rgba(248, 113, 113, 0.3);
+}
+
+.township-card-cyan {
+    background: linear-gradient(135deg, rgba(165, 243, 252, 0.4) 0%, rgba(236, 254, 255, 0.6) 100%);
+    border-color: rgba(34, 211, 238, 0.3);
+}
+
+.township-card-emerald {
+    background: linear-gradient(135deg, rgba(167, 243, 208, 0.4) 0%, rgba(236, 253, 245, 0.6) 100%);
+    border-color: rgba(52, 211, 153, 0.3);
+}
+
+/* 호버 효과 개선 */
+#township-grid-content .promise-card:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: #3b82f6;
+}
+
+.township-card-blue:hover {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    border-color: #1e40af;
+}
+
+.township-card-green:hover {
+    background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+    color: white;
+    border-color: #065f46;
+}
+
+.township-card-purple:hover {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: white;
+    border-color: #6d28d9;
+}
+
+.township-card-pink:hover {
+    background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+    color: white;
+    border-color: #be185d;
+}
+
+.township-card-yellow:hover {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    border-color: #b45309;
+}
+
+.township-card-indigo:hover {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: white;
+    border-color: #4338ca;
+}
+
+.township-card-orange:hover {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    color: white;
+    border-color: #c2410c;
+}
+
+.township-card-teal:hover {
+    background: linear-gradient(135deg, #14b8a6 0%, #0f766e 100%);
+    color: white;
+    border-color: #115e59;
+}
+
+.township-card-red:hover {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border-color: #b91c1c;
+}
+
+.township-card-cyan:hover {
+    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+    color: white;
+    border-color: #0e7490;
+}
+
+.township-card-emerald:hover {
+    background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+    color: white;
+    border-color: #047857;
+}
+
+/* 호버 시 텍스트 색상 보정 */
+#township-grid-content .promise-card:hover .text-xs {
+    opacity: 0.9;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* 미묘한 빛 효과 추가 */
+#township-grid-content .promise-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.2), 
+        transparent);
+    transition: left 0.6s;
+    pointer-events: none;
+}
+
+#township-grid-content .promise-card:hover::before {
+    left: 100%;
 }
 
 /* ========== Tailwind 색상 클래스 정의 ========== */
@@ -1143,60 +1326,82 @@ nav {
 /* 반응형 네비게이션 */
 @media (max-width: 768px) {
     #main-nav-menu {
-        gap: 1rem !important;
-        flex-wrap: wrap;
-        justify-content: center;
+        gap: 0.5rem !important; /* 1rem -> 0.5rem으로 축소 */
+        flex-wrap: nowrap; /* wrap -> nowrap으로 변경 */
+        justify-content: space-between; /* center -> space-between으로 변경 */
+        overflow-x: auto; /* 필요시 가로 스크롤 */
+        padding: 0 0.25rem; /* 양쪽 패딩 추가 */
     }
     
     .nav-btn {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.875rem;
+        padding: 0.375rem 0.5rem; /* 패딩 축소 */
+        font-size: 0.8rem; /* 폰트 크기 축소 */
         min-width: auto;
         white-space: nowrap;
+        flex-shrink: 0; /* 축소 방지 */
     }
     
     nav {
         flex-direction: column;
         align-items: center;
-        gap: 0.5rem;
-        padding: 0.75rem 1rem !important;
+        gap: 0.25rem; /* 0.5rem -> 0.25rem으로 축소 */
+        padding: 0.5rem 0.75rem !important;
     }
     
     #logo-btn {
         font-size: 1.125rem !important;
-        margin-bottom: 0.25rem;
+        margin-bottom: 0.125rem; /* 마진 축소 */
+    }
+    
+    /* 당원가입 버튼 크기 조정 */
+    #nav-membership {
+        padding: 0.375rem 0.5rem !important;
+        font-size: 0.8rem !important;
+        border-radius: 0.375rem;
     }
 }
 
 @media (max-width: 480px) {
     #main-nav-menu {
-        gap: 0.5rem !important;
-        flex-wrap: wrap;
+        gap: 0.25rem !important; /* 더욱 축소 */
+        flex-wrap: nowrap;
         justify-content: space-between;
         width: 100%;
+        overflow-x: auto;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE/Edge */
+    }
+    
+    #main-nav-menu::-webkit-scrollbar {
+        display: none; /* Chrome/Safari */
     }
     
     .nav-btn {
-        padding: 0.375rem 0.5rem;
-        font-size: 0.75rem;
-        flex: 1;
+        padding: 0.25rem 0.375rem; /* 더욱 축소 */
+        font-size: 0.7rem; /* 더 작은 폰트 */
+        min-width: 50px; /* 최소 너비 설정 */
+        max-width: 70px; /* 최대 너비 제한 */
         text-align: center;
-        min-width: 60px;
-        max-width: 80px;
+        flex: 0 0 auto; /* 고정 크기 */
+        border-radius: 0.25rem;
     }
     
     #nav-membership {
-        flex: 1.2;
-        max-width: 100px;
+        padding: 0.25rem 0.375rem !important;
+        font-size: 0.7rem !important;
+        min-width: 55px;
+        max-width: 75px;
     }
     
     nav {
-        padding: 0.5rem 0.75rem !important;
+        padding: 0.375rem 0.5rem !important; /* 패딩 더욱 축소 */
     }
     
     #logo-btn {
         font-size: 1rem !important;
+        margin-bottom: 0.125rem;
     }
+}
     
     /* PWA 배너 반응형 */
     body.has-install-banner {
@@ -1264,6 +1469,26 @@ nav {
     .ios-install-steps,
     .android-install-steps {
         padding: 20px;
+    }
+
+/* 극소형 디바이스 (360px 이하) 추가 대응 */
+@media (max-width: 360px) {
+    #main-nav-menu {
+        gap: 0.125rem !important;
+    }
+    
+    .nav-btn {
+        padding: 0.25rem 0.25rem;
+        font-size: 0.65rem;
+        min-width: 45px;
+        max-width: 60px;
+    }
+    
+    #nav-membership {
+        padding: 0.25rem 0.25rem !important;
+        font-size: 0.65rem !important;
+        min-width: 50px;
+        max-width: 65px;
     }
 }
 

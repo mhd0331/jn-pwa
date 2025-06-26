@@ -100,6 +100,14 @@ function showSection(sectionId) {
             targetSection.style.opacity = '1';
             targetSection.style.visibility = 'visible';
 
+            // 🔧 반투명 문제 해결: 강제로 opacity와 visibility 설정
+            requestAnimationFrame(() => {
+                targetSection.style.opacity = '1';
+                targetSection.style.visibility = 'visible';
+                targetSection.style.filter = 'none'; // 필터 효과 제거
+                targetSection.style.backdropFilter = 'none'; // 백드롭 필터 제거
+            });
+
             currentSection = sectionId;
 
             // 🆕 Floating 홈 버튼 상태 업데이트
@@ -1444,10 +1452,42 @@ function showLoading() {
     }
 }
 
+// hideLoading 함수 수정 (반투명 문제 해결)
 function hideLoading() {
     const loadingOverlay = document.getElementById('loading-overlay');
     if (loadingOverlay) {
-        loadingOverlay.classList.add('hidden');
+        loadingOverlay.style.opacity = '0';
+        loadingOverlay.style.visibility = 'hidden';
+        loadingOverlay.style.pointerEvents = 'none';
+        
+        // 🔧 반투명 문제 해결: 로딩 오버레이 완전 제거
+        setTimeout(() => {
+            loadingOverlay.classList.add('hidden');
+            loadingOverlay.style.display = 'none';
+            
+            // 메인 컨테이너의 opacity 확실히 설정
+            const mainElement = document.querySelector('main');
+            const pageContainer = document.getElementById('page-container');
+            
+            if (mainElement) {
+                mainElement.style.opacity = '1';
+                mainElement.style.filter = 'none';
+            }
+            
+            if (pageContainer) {
+                pageContainer.style.opacity = '1';
+                pageContainer.style.filter = 'none';
+            }
+            
+            // 현재 활성 섹션 재확인
+            const activeSection = document.querySelector('.page-section.section-active');
+            if (activeSection) {
+                activeSection.style.opacity = '1';
+                activeSection.style.visibility = 'visible';
+                activeSection.style.filter = 'none';
+            }
+            
+        }, 100);
     }
 }
 
