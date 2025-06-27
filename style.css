@@ -536,12 +536,19 @@ body.has-install-banner header {
     transition: top 0.3s ease;
 }
 
-/* PWA가 설치된 상태일 때 설치 배너 숨김 */
-body.pwa-installed .install-banner,
-body.pwa-installed #install-banner {
+body.pwa-installed main,
+body.pwa-installed #page-container,
+body.pwa-installed .page-section {
+    opacity: 1 !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+}
+
+/* 로딩 상태 완전 제거 */
+body.pwa-installed #loading-overlay {
     display: none !important;
-    visibility: hidden !important;
     opacity: 0 !important;
+    visibility: hidden !important;
     pointer-events: none !important;
 }
 
@@ -1652,56 +1659,76 @@ nav {
     }
 }
 
-/* ========== PWA 전용 스타일 ========== */
+/* ========== PWA 스탠드얼론 모드 강제 수정 ========== */
 @media (display-mode: standalone) {
-    /* 스탠드얼론 모드에서는 설치 배너 완전히 숨김 */
-    .install-banner,
-    #install-banner {
-        display: none !important;
+    /* 모든 필터 효과 완전 제거 */
+    *, *::before, *::after {
+        filter: none !important;
+        backdrop-filter: none !important;
+        -webkit-filter: none !important;
+        -webkit-backdrop-filter: none !important;
     }
     
-    body {
-        margin-top: 0 !important;
-        -webkit-user-select: none;
-        -webkit-touch-callout: none;
+    /* 메인 컨테이너 완전 불투명 */
+    body, html {
+        opacity: 1 !important;
+        visibility: visible !important;
+        background-color: #f8fafc !important;
+        filter: none !important;
+        backdrop-filter: none !important;
     }
     
-    header {
-        top: 0 !important;
+    main, #page-container {
+        opacity: 1 !important;
+        visibility: visible !important;
+        filter: none !important;
+        backdrop-filter: none !important;
+        background: transparent !important;
     }
     
-    .safe-area-top {
-        padding-top: env(safe-area-inset-top);
-    }
-    
-    .safe-area-bottom {
-        padding-bottom: env(safe-area-inset-bottom);
-    }
-    
-    /* PWA에서 스크롤바 숨기기 */
-    ::-webkit-scrollbar {
-        width: 0px;
-        background: transparent;
+    /* 페이지 섹션 강제 수정 */
+    .page-section {
+        opacity: 1 !important;
+        visibility: visible !important;
+        filter: none !important;
+        backdrop-filter: none !important;
+        background: transparent !important;
     }
     
     .page-section.section-active {
-        padding-top: env(safe-area-inset-top);
-        padding-bottom: env(safe-area-inset-bottom);
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        filter: none !important;
+        backdrop-filter: none !important;
+        position: relative !important;
+        z-index: 1 !important;
     }
     
-    /* PWA 상태 표시 */
-    body::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, #2563eb, #059669);
-        z-index: 9999;
-        pointer-events: none;
+    /* 로딩 오버레이 완전 제거 */
+    #loading-overlay {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+    }
+    
+    /* 네비게이션 투명도 수정 */
+    header, nav {
+        opacity: 1 !important;
+        visibility: visible !important;
+        filter: none !important;
+        backdrop-filter: blur(4px) !important; /* 네비게이션만 블러 유지 */
+    }
+    
+    /* 카드들 투명도 수정 */
+    .promise-card, .news-card, .membership-benefit-card {
+        opacity: 1 !important;
+        filter: none !important;
+        backdrop-filter: none !important;
     }
 }
+
 
 /* ========== 접근성 - 애니메이션 줄이기 ========== */
 @media (prefers-reduced-motion: reduce) {

@@ -950,8 +950,8 @@ function showManualInstallInstructions() {
                 <ol class="list-decimal list-inside space-y-1 text-sm">
                     <li>Chrome 브라우저에서 이 페이지를 열어주세요</li>
                     <li>우상단의 <strong>메뉴 버튼</strong> (⋮)을 눌러주세요</li>
-                    <li><strong>"앱 설치"</strong> 또는 <strong>"홈 화면에 추가"</strong>를 선택해주세요</li>
-                    <li><strong>"설치"</strong> 버튼을 눌러 완료해주세요</li>
+                    <li><strong>"앱 설치"</strong>, <strong>"앱에서 열기"</strong> 또는 <strong>"홈 화면에 추가"</strong>를 선택해주세요</li>
+                    <li><strong>"설치"</strong> 또는 <strong>"열기"</strong> 버튼을 눌러 완료해주세요</li>
                 </ol>
                 <p class="text-xs text-gray-600 mt-2">* 일부 브라우저에서는 메뉴 위치가 다를 수 있습니다</p>
             </div>
@@ -963,8 +963,8 @@ function showManualInstallInstructions() {
                 <ol class="list-decimal list-inside space-y-1 text-sm">
                     <li>Chrome 또는 Edge 브라우저를 사용해주세요</li>
                     <li>주소창 우측의 <strong>설치 아이콘</strong> (💻)을 클릭하거나</li>
-                    <li>브라우저 메뉴에서 <strong>"앱 설치"</strong>를 찾아 클릭해주세요</li>
-                    <li><strong>"설치"</strong> 버튼을 눌러 완료해주세요</li>
+                    <li>브라우저 메뉴에서 <strong>"앱 설치"</strong>, <strong>"앱에서 열기"</strong>를 찾아 클릭해주세요</li>
+                    <li><strong>"설치"</strong> 또는 <strong>"열기"</strong> 버튼을 눌러 완료해주세요</li>
                 </ol>
                 <p class="text-xs text-gray-600 mt-2">* Firefox는 PWA 설치를 지원하지 않습니다</p>
             </div>
