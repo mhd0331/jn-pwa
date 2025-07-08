@@ -257,9 +257,12 @@ body {
     border-radius: 20px;
     max-width: 480px;
     width: 100%;
+    max-height: calc(100vh - 40px); /* 화면 높이에서 패딩만큼 뺀 높이 */
     overflow: hidden;
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
     animation: slideUp 0.3s ease-out;
+    display: flex;
+    flex-direction: column;
 }
 
 .install-guide-header {
