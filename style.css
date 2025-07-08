@@ -2918,6 +2918,11 @@ body.has-install-banner .floating-home-button {
     transform: translateY(-1px);
 }
 
+/* 설치 방법 버튼 숨기기 */
+#guide-btn {
+    display: none !important;
+}
+
 /* 닫기 버튼 */
 .dismiss-install-btn {
     background: rgba(255, 255, 255, 0.3);
