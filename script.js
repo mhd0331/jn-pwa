@@ -692,60 +692,95 @@ function isMobileDevice() {
 }
 
 // script.js의 showInstallBanner 함수 수정
+// script.js의 showInstallBanner 함수 수정
 function showInstallBanner() {
     const banner = document.getElementById('install-banner');
-    if (!banner) return;
+    if (!banner) {
+        console.warn('[PWA] 설치 배너 엘리먼트를 찾을 수 없습니다');
+        return;
+    }
 
     const { os, browser } = detectDeviceAndBrowser();
+    console.log('[PWA] 디바이스 정보:', { os, browser });
 
     // 설치 힌트 요소 가져오기
     const installHint = document.getElementById('install-hint');
     const installHintText = document.getElementById('install-hint-text');
     const installBtn = document.getElementById('install-btn');
+    const guideBtn = document.getElementById('guide-btn');
 
     if (installHint && installHintText) {
         let hintText = '';
+        let showInstallBtn = true;
 
         // OS별 힌트 텍스트 설정
         if (os === 'ios') {
+            showInstallBtn = false; // iOS는 직접 설치 불가
             if (browser === 'safari') {
                 hintText = '💡 Safari 하단의 공유 버튼(⬆️)을 눌러 "홈 화면에 추가"를 선택하세요';
             } else {
                 hintText = '⚠️ iOS에서는 Safari 브라우저에서만 홈 화면에 추가할 수 있습니다. Safari로 열어주세요!';
             }
-
-            // iOS는 수동 설치만 가능
-            if (installBtn) {
-                installBtn.textContent = '설치 방법 보기';
-                installBtn.onclick = () => showDetailedInstallGuide();
-            }
         } else if (os === 'android') {
-            // Android 브라우저별 안내
+            // Android에서 deferredPrompt가 없으면 수동 설치만 가능
+            if (!deferredPrompt) {
+                showInstallBtn = false;
+            }
+            
             const browserGuides = {
-                'chrome': '💡 Chrome 메뉴(⋮)에서 "앱 설치" 또는 "홈 화면에 추가"를 찾으세요',
+                'chrome': '💡 Chrome 메뉴(⋮)에서 "앱 설치", "앱에서 열기" 또는 "홈 화면에 추가"를 찾으세요',
                 'samsung': '💡 Samsung Internet 메뉴(≡)에서 "홈 화면에 추가"를 찾으세요',
                 'firefox': '💡 Firefox 메뉴(⋮)에서 "홈 화면에 추가"를 찾으세요',
-                'edge': '💡 Edge 메뉴(•••)에서 "앱 설치"를 찾으세요'
+                'edge': '💡 Edge 메뉴(•••)에서 "앱 설치", "앱에서 열기"를 찾으세요'
             };
-            hintText = browserGuides[browser] || '💡 브라우저 메뉴에서 "앱 설치" 또는 "홈 화면에 추가"를 찾으세요';
+            hintText = browserGuides[browser] || '💡 브라우저 메뉴에서 "앱 설치", "앱에서 열기" 또는 "홈 화면에 추가"를 찾으세요';
         } else {
-            // 데스크톱 안내
+            // 데스크톱
+            if (!deferredPrompt) {
+                showInstallBtn = false;
+            }
+            
             if (browser === 'chrome' || browser === 'edge') {
-                hintText = '💡 주소창 오른쪽의 설치 아이콘(💻)을 클릭하거나 메뉴에서 "앱 설치"를 찾으세요';
+                hintText = '💡 주소창 오른쪽의 설치 아이콘(💻)을 클릭하거나 메뉴에서 "앱 설치", "앱에서 열기"를 찾으세요';
             } else if (browser === 'firefox') {
+                showInstallBtn = false;
                 hintText = '⚠️ Firefox는 PWA 설치를 지원하지 않습니다. Chrome이나 Edge를 사용해주세요';
             } else {
-                hintText = '💡 브라우저 메뉴에서 "앱 설치" 옵션을 찾으세요';
+                hintText = '💡 브라우저 메뉴에서 "앱 설치", "앱에서 열기" 옵션을 찾으세요';
             }
         }
 
+        // 힌트 텍스트 설정
         installHintText.textContent = hintText;
         installHint.classList.remove('hidden');
         installHint.style.display = 'block';
+
+        // 버튼 표시/숨김 처리
+        if (installBtn) {
+            if (!showInstallBtn || !deferredPrompt) {
+                console.log('[PWA] 바로 설치하기 버튼 숨김 - showInstallBtn:', showInstallBtn, 'deferredPrompt:', !!deferredPrompt);
+                installBtn.style.display = 'none';
+                if (guideBtn) {
+                    guideBtn.style.flex = '1';
+                    guideBtn.style.maxWidth = '200px';
+                }
+            } else {
+                console.log('[PWA] 바로 설치하기 버튼 표시');
+                installBtn.style.display = 'flex';
+                installBtn.style.visibility = 'visible';
+                installBtn.style.opacity = '1';
+            }
+        }
     }
 
+    // 배너 표시
     banner.classList.remove('hidden');
+    banner.style.display = 'block';
+    banner.style.visibility = 'visible';
+    banner.style.opacity = '1';
     isInstallPromptShown = true;
+
+    console.log('[PWA] 설치 배너 표시 완료');
 
     // Analytics 추적
     if (typeof gtag !== 'undefined') {
@@ -753,7 +788,8 @@ function showInstallBanner() {
             'event_category': 'pwa',
             'event_label': 'install_banner',
             'os': os,
-            'browser': browser
+            'browser': browser,
+            'has_deferred_prompt': !!deferredPrompt
         });
     }
 }
@@ -772,11 +808,11 @@ function showMobileInstallBanner() {
                 installBtn.textContent = '설치방법';
                 installBtn.onclick = showIOSInstallInstructions;
             } else if (isAndroidDevice()) {
-                bannerText.textContent = '📱 Chrome 메뉴에서 "앱 설치" 또는 "홈 화면에 추가"를 눌러 설치하세요!';
+                bannerText.textContent = '📱 Chrome 메뉴에서 "앱 설치", "앱에서 열기" 또는 "홈 화면에 추가"를 눌러 설치하세요!';
                 installBtn.textContent = '설치방법';
                 installBtn.onclick = showAndroidInstallInstructions;
             } else {
-                bannerText.textContent = '📱 브라우저 메뉴에서 "앱 설치" 또는 "홈 화면에 추가"를 찾아 설치하세요!';
+                bannerText.textContent = '📱 브라우저 메뉴에서 "앱 설치", "앱에서 열기"  또는 "홈 화면에 추가"를 찾아 설치하세요!';
                 installBtn.textContent = '설치방법';
                 installBtn.onclick = showGeneralInstallInstructions;
             }
@@ -814,7 +850,8 @@ async function installPWA() {
     // 🔒 2단계: deferredPrompt 확인
     if (!deferredPrompt) {
         console.log('[PWA] deferredPrompt가 없음 - 수동 설치 안내');
-        showManualInstallInstructions();
+        showNotification('브라우저 메뉴에서 직접 설치해주세요', 'info');
+        showDetailedInstallGuide();
         return;
     }
 
@@ -826,7 +863,7 @@ async function installPWA() {
         originalBtnHTML = installBtn.innerHTML;
         installBtn.classList.add('loading');
         installBtn.disabled = true;
-        console.log('[PWA] 설치 버튼 로딩 상태 활성화');
+        installBtn.innerHTML = '<span class="loading-spinner"></span><span>설치 중...</span>';
     }
 
     try {
@@ -1241,61 +1278,73 @@ function detectDeviceAndBrowser() {
 function showInstallBanner() {
     const banner = document.getElementById('install-banner');
     if (!banner) return;
-
+    
     const { os, browser } = detectDeviceAndBrowser();
-
-    // 브라우저별 설치 안내 텍스트 설정
+    
+    // 설치 힌트 요소 가져오기
     const installHint = document.getElementById('install-hint');
     const installHintText = document.getElementById('install-hint-text');
     const installBtn = document.getElementById('install-btn');
-
+    const guideBtn = document.getElementById('guide-btn');
+    
+    // 브라우저별 설치 방법 설정
     if (installHint && installHintText) {
         let hintText = '';
-
-        // iOS 브라우저별 안내
+        let showInstallBtn = true;
+        
+        // OS별 힌트 텍스트 설정
         if (os === 'ios') {
+            showInstallBtn = false; // iOS는 직접 설치 불가
             if (browser === 'safari') {
                 hintText = '💡 Safari 하단의 공유 버튼(⬆️)을 눌러 "홈 화면에 추가"를 선택하세요';
             } else {
                 hintText = '⚠️ iOS에서는 Safari 브라우저에서만 홈 화면에 추가할 수 있습니다. Safari로 열어주세요!';
             }
-
-            // iOS는 수동 설치만 가능
-            if (installBtn) {
-                installBtn.textContent = '설치 방법 보기';
-                installBtn.onclick = () => showDetailedInstallGuide();
-            }
-        }
-        // Android 브라우저별 안내
-        else if (os === 'android') {
+        } else if (os === 'android') {
             if (browser === 'chrome') {
-                hintText = '💡 Chrome 메뉴(⋮)에서 "앱 설치" 또는 "홈 화면에 추가"를 찾으세요';
+                hintText = '💡 "바로 설치하기" 버튼을 눌러 설치하거나, Chrome 메뉴(⋮)에서 "앱 설치"를 찾으세요';
             } else if (browser === 'samsung') {
+                showInstallBtn = false; // 삼성 브라우저는 수동 설치
                 hintText = '💡 Samsung Internet 메뉴(≡)에서 "홈 화면에 추가"를 찾으세요';
             } else if (browser === 'firefox') {
+                showInstallBtn = false; // Firefox는 수동 설치
                 hintText = '💡 Firefox 메뉴(⋮)에서 "홈 화면에 추가"를 찾으세요';
             } else {
                 hintText = '💡 브라우저 메뉴에서 "앱 설치" 또는 "홈 화면에 추가"를 찾으세요';
             }
-        }
-        // 데스크톱 브라우저별 안내
-        else {
+        } else {
+            // 데스크톱
             if (browser === 'chrome' || browser === 'edge') {
-                hintText = '💡 주소창 오른쪽의 설치 아이콘(💻)을 클릭하거나 메뉴에서 "앱 설치"를 찾으세요';
+                hintText = '💡 "바로 설치하기" 버튼을 클릭하거나 주소창 오른쪽의 설치 아이콘(💻)을 클릭하세요';
             } else if (browser === 'firefox') {
+                showInstallBtn = false; // Firefox는 PWA 미지원
                 hintText = '⚠️ Firefox는 PWA 설치를 지원하지 않습니다. Chrome이나 Edge를 사용해주세요';
             } else {
                 hintText = '💡 브라우저 메뉴에서 "앱 설치" 옵션을 찾으세요';
             }
         }
-
+        
+        // 힌트 텍스트 설정
         installHintText.textContent = hintText;
-        installHint.style.display = 'block';
+        installHint.classList.remove('hidden');
+        
+        // 버튼 표시/숨김 처리
+        if (installBtn) {
+            if (!showInstallBtn || !deferredPrompt) {
+                installBtn.style.display = 'none';
+                if (guideBtn) {
+                    guideBtn.style.flex = '1';
+                    guideBtn.style.maxWidth = '200px';
+                }
+            } else {
+                installBtn.style.display = 'flex';
+            }
+        }
     }
-
+    
     banner.classList.remove('hidden');
     isInstallPromptShown = true;
-
+    
     // Analytics 추적
     if (typeof gtag !== 'undefined') {
         gtag('event', 'pwa_install_banner_shown', {
@@ -1834,6 +1883,30 @@ function setupPWAEventListeners() {
         console.log('[PWA] 설치 버튼 이벤트 리스너 등록됨');
     } else {
         console.warn('[PWA] 설치 버튼을 찾을 수 없음');
+    }
+
+    // 3-1. 가이드 버튼 이벤트 리스너 추가
+    const guideBtn = document.getElementById('guide-btn');
+    if (guideBtn) {
+        guideBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            console.log('[PWA] 설치방법 버튼 클릭됨');
+            
+            // Analytics 추적
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'pwa_guide_button_clicked', {
+                    'event_category': 'pwa',
+                    'event_label': 'guide_button',
+                    'timestamp': Date.now()
+                });
+            }
+            
+            showDetailedInstallGuide();
+        });
+        
+        console.log('[PWA] 가이드 버튼 이벤트 리스너 등록됨');
     }
 
     // ❌ 4. 배너 닫기 버튼 이벤트 리스너
@@ -2646,6 +2719,16 @@ document.addEventListener('DOMContentLoaded', async function () {
         } catch (error) {
             console.error('[PWA] PWA 초기화 오류:', error);
         }
+    }
+
+    const closeSuccessBtn = document.getElementById('close-success-notification');
+    if (closeSuccessBtn) {
+        closeSuccessBtn.addEventListener('click', function() {
+            const notification = document.getElementById('install-success-notification');
+            if (notification) {
+                notification.classList.add('hidden');
+            }
+        });
     }
 
     // 히어로 섹션 당원가입 버튼
