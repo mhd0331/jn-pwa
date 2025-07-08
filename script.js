@@ -7,6 +7,12 @@ let appData = null;
 let currentSection = 'home';
 let isInstallPromptShown = false;
 let installBannerDismissed = false;
+let elderlyInstallHelper = {
+    isShown: false,
+    currentStep: 1,
+    currentDevice: 'samsung',
+    autoStepInterval: null
+};
 
 // Floating 홈 버튼 관련 전역 변수
 let floatingHomeBtn = null;
@@ -81,56 +87,62 @@ function showSection(sectionId) {
     console.log('[NAV] 섹션 전환:', sectionId);
 
     try {
-        // 모든 섹션 숨기기
+        const targetSection = document.getElementById(sectionId + '-section');
+        if (!targetSection) {
+            console.error('[NAV] 섹션을 찾을 수 없습니다:', sectionId + '-section');
+            return;
+        }
+
+        // 현재 활성화된 섹션 찾기
+        const currentActiveSection = document.querySelector('.page-section.section-active');
+        
+        // 이미 같은 섹션이면 처리하지 않음
+        if (currentActiveSection === targetSection) {
+            console.log('[NAV] 이미 활성화된 섹션입니다:', sectionId);
+            return;
+        }
+
+        // 다른 섹션들 숨기기 (현재 활성 섹션과 타겟 섹션 제외)
         const sections = document.querySelectorAll('.page-section');
         sections.forEach(section => {
-            section.classList.remove('section-active');
-            section.classList.add('section-hidden');
-            section.style.display = 'none';
-            section.style.opacity = '0';
-            section.style.visibility = 'hidden';
+            if (section !== targetSection) {
+                section.classList.remove('section-active');
+                section.classList.add('section-hidden');
+                section.style.display = 'none';
+                section.style.opacity = '0';
+                section.style.visibility = 'hidden';
+            }
         });
 
-        // 대상 섹션 표시
-        const targetSection = document.getElementById(sectionId + '-section');
-        if (targetSection) {
-            targetSection.classList.remove('section-hidden');
-            targetSection.classList.add('section-active');
-            targetSection.style.display = 'block';
-            targetSection.style.opacity = '1';
-            targetSection.style.visibility = 'visible';
+        // 타겟 섹션 즉시 표시 (requestAnimationFrame 제거)
+        targetSection.classList.remove('section-hidden');
+        targetSection.classList.add('section-active');
+        targetSection.style.display = 'block';
+        targetSection.style.opacity = '1';
+        targetSection.style.visibility = 'visible';
+        targetSection.style.filter = 'none';
+        targetSection.style.backdropFilter = 'none';
 
-            // 🔧 반투명 문제 해결: 강제로 opacity와 visibility 설정
-            requestAnimationFrame(() => {
-                targetSection.style.opacity = '1';
-                targetSection.style.visibility = 'visible';
-                targetSection.style.filter = 'none'; // 필터 효과 제거
-                targetSection.style.backdropFilter = 'none'; // 백드롭 필터 제거
-            });
+        currentSection = sectionId;
 
-            currentSection = sectionId;
+        // 🆕 Floating 홈 버튼 상태 업데이트
+        updateFloatingHomeButton(sectionId);
 
-            // 🆕 Floating 홈 버튼 상태 업데이트
-            updateFloatingHomeButton(sectionId);
-
-            // 소식 섹션인 경우 모든 뉴스 로드
-            if (sectionId === 'news') {
-                loadAllNews();
-            }
-
-            // 네비게이션 버튼 활성 상태 업데이트
-            updateActiveNavButton(sectionId);
-
-            // Analytics 추적
-            if (typeof trackSectionView === 'function') {
-                trackSectionView(sectionId);
-            }
-
-            window.scrollTo(0, 0);
-            console.log('[NAV] 섹션 전환 완료:', sectionId);
-        } else {
-            console.error('[NAV] 섹션을 찾을 수 없습니다:', sectionId + '-section');
+        // 소식 섹션인 경우 모든 뉴스 로드
+        if (sectionId === 'news') {
+            loadAllNews();
         }
+
+        // 네비게이션 버튼 활성 상태 업데이트
+        updateActiveNavButton(sectionId);
+
+        // Analytics 추적
+        if (typeof trackSectionView === 'function') {
+            trackSectionView(sectionId);
+        }
+
+        window.scrollTo(0, 0);
+        console.log('[NAV] 섹션 전환 완료:', sectionId);
     } catch (error) {
         console.error('[NAV] 섹션 전환 오류:', error);
     }
@@ -1087,6 +1099,518 @@ function showUpdateNotification() {
     });
 }
 
+// 브라우저 및 OS 감지 함수 개선
+function detectDeviceAndBrowser() {
+    const ua = navigator.userAgent;
+    const platform = navigator.platform;
+    
+    // OS 감지
+    let os = 'unknown';
+    if (/iPhone|iPad|iPod/.test(ua)) {
+        os = 'ios';
+    } else if (/Android/.test(ua)) {
+        os = 'android';
+    } else if (/Windows/.test(ua)) {
+        os = 'windows';
+    } else if (/Mac/.test(platform)) {
+        os = 'macos';
+    } else if (/Linux/.test(platform)) {
+        os = 'linux';
+    }
+    
+    // 브라우저 감지
+    let browser = 'unknown';
+    if (/CriOS/.test(ua)) {
+        browser = 'chrome-ios';
+    } else if (/FxiOS/.test(ua)) {
+        browser = 'firefox-ios';
+    } else if (/EdgiOS/.test(ua)) {
+        browser = 'edge-ios';
+    } else if (/Safari/.test(ua) && os === 'ios') {
+        browser = 'safari';
+    } else if (/Chrome/.test(ua) && /Google Inc/.test(navigator.vendor)) {
+        browser = 'chrome';
+    } else if (/Firefox/.test(ua)) {
+        browser = 'firefox';
+    } else if (/Edg/.test(ua)) {
+        browser = 'edge';
+    } else if (/SamsungBrowser/.test(ua)) {
+        browser = 'samsung';
+    } else if (/Opera|OPR/.test(ua)) {
+        browser = 'opera';
+    }
+    
+    return { os, browser };
+}
+
+// 설치 안내 배너 표시 함수 개선
+function showInstallBanner() {
+    const banner = document.getElementById('install-banner');
+    if (!banner) return;
+    
+    const { os, browser } = detectDeviceAndBrowser();
+    
+    // 브라우저별 설치 안내 텍스트 설정
+    const installHint = document.getElementById('install-hint');
+    const installHintText = document.getElementById('install-hint-text');
+    const installBtn = document.getElementById('install-btn');
+    
+    if (installHint && installHintText) {
+        let hintText = '';
+        
+        // iOS 브라우저별 안내
+        if (os === 'ios') {
+            if (browser === 'safari') {
+                hintText = '💡 Safari 하단의 공유 버튼(⬆️)을 눌러 "홈 화면에 추가"를 선택하세요';
+            } else {
+                hintText = '⚠️ iOS에서는 Safari 브라우저에서만 홈 화면에 추가할 수 있습니다. Safari로 열어주세요!';
+            }
+            
+            // iOS는 수동 설치만 가능
+            if (installBtn) {
+                installBtn.textContent = '설치 방법 보기';
+                installBtn.onclick = () => showDetailedInstallGuide();
+            }
+        }
+        // Android 브라우저별 안내
+        else if (os === 'android') {
+            if (browser === 'chrome') {
+                hintText = '💡 Chrome 메뉴(⋮)에서 "앱 설치" 또는 "홈 화면에 추가"를 찾으세요';
+            } else if (browser === 'samsung') {
+                hintText = '💡 Samsung Internet 메뉴(≡)에서 "홈 화면에 추가"를 찾으세요';
+            } else if (browser === 'firefox') {
+                hintText = '💡 Firefox 메뉴(⋮)에서 "홈 화면에 추가"를 찾으세요';
+            } else {
+                hintText = '💡 브라우저 메뉴에서 "앱 설치" 또는 "홈 화면에 추가"를 찾으세요';
+            }
+        }
+        // 데스크톱 브라우저별 안내
+        else {
+            if (browser === 'chrome' || browser === 'edge') {
+                hintText = '💡 주소창 오른쪽의 설치 아이콘(💻)을 클릭하거나 메뉴에서 "앱 설치"를 찾으세요';
+            } else if (browser === 'firefox') {
+                hintText = '⚠️ Firefox는 PWA 설치를 지원하지 않습니다. Chrome이나 Edge를 사용해주세요';
+            } else {
+                hintText = '💡 브라우저 메뉴에서 "앱 설치" 옵션을 찾으세요';
+            }
+        }
+        
+        installHintText.textContent = hintText;
+        installHint.style.display = 'block';
+    }
+    
+    banner.classList.remove('hidden');
+    isInstallPromptShown = true;
+    
+    // Analytics 추적
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'pwa_install_banner_shown', {
+            'event_category': 'pwa',
+            'event_label': 'install_banner',
+            'os': os,
+            'browser': browser
+        });
+    }
+}
+
+// 상세 설치 가이드 모달 표시
+function showDetailedInstallGuide() {
+    const { os, browser } = detectDeviceAndBrowser();
+    
+    // 기존 모달이 있으면 제거
+    const existingModal = document.getElementById('install-guide-modal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // 모달 HTML 생성
+    let modalContent = '';
+    
+    if (os === 'ios') {
+        modalContent = createIOSInstallGuide(browser);
+    } else if (os === 'android') {
+        modalContent = createAndroidInstallGuide(browser);
+    } else {
+        modalContent = createDesktopInstallGuide(browser);
+    }
+    
+    const modalHTML = `
+        <div id="install-guide-modal" class="install-guide-modal">
+            <div class="install-guide-content">
+                ${modalContent}
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // 이벤트 리스너 설정
+    setupInstallGuideEventListeners();
+    
+    // Analytics 추적
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'install_guide_opened', {
+            'event_category': 'pwa',
+            'event_label': 'detailed_guide',
+            'os': os,
+            'browser': browser
+        });
+    }
+}
+
+// iOS 설치 가이드 생성
+function createIOSInstallGuide(browser) {
+    if (browser !== 'safari') {
+        return `
+            <div class="install-guide-header">
+                <h3>📱 iPhone/iPad 앱 설치</h3>
+                <p class="install-guide-subtitle">Safari 브라우저가 필요합니다</p>
+            </div>
+            <div class="install-guide-body">
+                <div class="install-step-visual">
+                    <div class="step-visual-icon">🚫</div>
+                    <div class="step-visual-content">
+                        <div class="step-visual-title">Safari로 열어주세요</div>
+                        <div class="step-visual-desc">
+                            iOS에서는 Safari 브라우저에서만 홈 화면에 추가할 수 있습니다.
+                        </div>
+                        <div class="step-visual-note">
+                            현재 브라우저: ${getBrowserName(browser)}
+                        </div>
+                    </div>
+                </div>
+                <button onclick="copyURLAndShowSafariGuide()" class="install-btn" style="width: 100%; margin-top: 16px;">
+                    링크 복사하고 Safari로 이동
+                </button>
+            </div>
+        `;
+    }
+    
+    return `
+        <div class="install-guide-header">
+            <h3>📱 iPhone/iPad 앱 설치</h3>
+            <p class="install-guide-subtitle">3단계로 쉽게 설치하세요!</p>
+        </div>
+        <div class="install-guide-body">
+            <div class="install-step-visual">
+                <div class="step-visual-icon">⬆️</div>
+                <div class="step-visual-content">
+                    <div class="step-visual-number">1</div>
+                    <div class="step-visual-title">공유 버튼 찾기</div>
+                    <div class="step-visual-desc">
+                        Safari 브라우저 하단 중앙의 공유 버튼(⬆️)을 터치하세요.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="install-step-visual">
+                <div class="step-visual-icon">🏠</div>
+                <div class="step-visual-content">
+                    <div class="step-visual-number">2</div>
+                    <div class="step-visual-title">"홈 화면에 추가" 선택</div>
+                    <div class="step-visual-desc">
+                        메뉴를 아래로 스크롤하여 "홈 화면에 추가"를 찾아 터치하세요.
+                    </div>
+                    <div class="step-visual-note">
+                        회색 배경의 사각형 아이콘입니다
+                    </div>
+                </div>
+            </div>
+            
+            <div class="install-step-visual">
+                <div class="step-visual-icon">✅</div>
+                <div class="step-visual-content">
+                    <div class="step-visual-number">3</div>
+                    <div class="step-visual-title">"추가" 버튼 터치</div>
+                    <div class="step-visual-desc">
+                        화면 우상단의 "추가" 버튼을 터치하면 홈 화면에 앱이 설치됩니다!
+                    </div>
+                </div>
+            </div>
+            
+            <button onclick="closeInstallGuide()" class="install-btn" style="width: 100%; margin-top: 24px;">
+                확인했습니다
+            </button>
+        </div>
+    `;
+}
+
+// Android 설치 가이드 생성
+function createAndroidInstallGuide(browser) {
+    const browserGuides = {
+        'chrome': {
+            menuIcon: '⋮',
+            menuLocation: '화면 우측 상단',
+            installText: '"앱 설치" 또는 "홈 화면에 추가"'
+        },
+        'samsung': {
+            menuIcon: '≡',
+            menuLocation: '화면 하단',
+            installText: '"홈 화면에 추가" 또는 "앱 추가"'
+        },
+        'firefox': {
+            menuIcon: '⋮',
+            menuLocation: '화면 우측 상단',
+            installText: '"홈 화면에 추가"'
+        },
+        'edge': {
+            menuIcon: '•••',
+            menuLocation: '화면 하단',
+            installText: '"앱 설치" 또는 "홈 화면에 추가"'
+        }
+    };
+    
+    const guide = browserGuides[browser] || browserGuides['chrome'];
+    
+    return `
+        <div class="install-guide-header">
+            <h3>📱 Android 앱 설치</h3>
+            <p class="install-guide-subtitle">${getBrowserName(browser)}에서 설치하기</p>
+        </div>
+        <div class="install-guide-body">
+            <div class="install-step-visual">
+                <div class="step-visual-icon">${guide.menuIcon}</div>
+                <div class="step-visual-content">
+                    <div class="step-visual-number">1</div>
+                    <div class="step-visual-title">메뉴 버튼 찾기</div>
+                    <div class="step-visual-desc">
+                        ${guide.menuLocation}의 메뉴 버튼(${guide.menuIcon})을 터치하세요.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="install-step-visual">
+                <div class="step-visual-icon">🏠</div>
+                <div class="step-visual-content">
+                    <div class="step-visual-number">2</div>
+                    <div class="step-visual-title">설치 옵션 선택</div>
+                    <div class="step-visual-desc">
+                        메뉴에서 ${guide.installText}를 찾아 터치하세요.
+                    </div>
+                    <div class="step-visual-note">
+                        브라우저 버전에 따라 문구가 다를 수 있습니다
+                    </div>
+                </div>
+            </div>
+            
+            <div class="install-step-visual">
+                <div class="step-visual-icon">✅</div>
+                <div class="step-visual-content">
+                    <div class="step-visual-number">3</div>
+                    <div class="step-visual-title">"설치" 확인</div>
+                    <div class="step-visual-desc">
+                        팝업창에서 "설치" 또는 "추가" 버튼을 터치하면 완료됩니다!
+                    </div>
+                </div>
+            </div>
+            
+            <button onclick="closeInstallGuide()" class="install-btn" style="width: 100%; margin-top: 24px;">
+                확인했습니다
+            </button>
+        </div>
+    `;
+}
+
+// 데스크톱 설치 가이드 생성
+function createDesktopInstallGuide(browser) {
+    if (browser === 'firefox') {
+        return `
+            <div class="install-guide-header">
+                <h3>💻 데스크톱 앱 설치</h3>
+                <p class="install-guide-subtitle">Firefox는 PWA를 지원하지 않습니다</p>
+            </div>
+            <div class="install-guide-body">
+                <div class="install-step-visual">
+                    <div class="step-visual-icon">🚫</div>
+                    <div class="step-visual-content">
+                        <div class="step-visual-title">다른 브라우저를 사용해주세요</div>
+                        <div class="step-visual-desc">
+                            Chrome, Edge, 또는 Opera 브라우저에서 PWA 설치가 가능합니다.
+                        </div>
+                    </div>
+                </div>
+                <button onclick="closeInstallGuide()" class="install-btn" style="width: 100%; margin-top: 16px;">
+                    확인
+                </button>
+            </div>
+        `;
+    }
+    
+    return `
+        <div class="install-guide-header">
+            <h3>💻 데스크톱 앱 설치</h3>
+            <p class="install-guide-subtitle">${getBrowserName(browser)}에서 설치하기</p>
+        </div>
+        <div class="install-guide-body">
+            <div class="browser-tabs">
+                <button class="browser-tab active" onclick="switchInstallTab('address-bar')">
+                    주소창에서 설치
+                </button>
+                <button class="browser-tab" onclick="switchInstallTab('menu')">
+                    메뉴에서 설치
+                </button>
+            </div>
+            
+            <div id="address-bar-content" class="browser-content active">
+                <div class="install-step-visual">
+                    <div class="step-visual-icon">💻</div>
+                    <div class="step-visual-content">
+                        <div class="step-visual-number">1</div>
+                        <div class="step-visual-title">주소창 오른쪽 확인</div>
+                        <div class="step-visual-desc">
+                            주소창 오른쪽에 설치 아이콘(💻, ⊕, ⬇️)이 있는지 확인하세요.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="install-step-visual">
+                    <div class="step-visual-icon">🖱️</div>
+                    <div class="step-visual-content">
+                        <div class="step-visual-number">2</div>
+                        <div class="step-visual-title">아이콘 클릭</div>
+                        <div class="step-visual-desc">
+                            설치 아이콘을 클릭하면 설치 팝업이 나타납니다.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="install-step-visual">
+                    <div class="step-visual-icon">✅</div>
+                    <div class="step-visual-content">
+                        <div class="step-visual-number">3</div>
+                        <div class="step-visual-title">"설치" 클릭</div>
+                        <div class="step-visual-desc">
+                            팝업에서 "설치" 버튼을 클릭하면 앱이 설치됩니다!
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="menu-content" class="browser-content">
+                <div class="install-step-visual">
+                    <div class="step-visual-icon">⋮</div>
+                    <div class="step-visual-content">
+                        <div class="step-visual-number">1</div>
+                        <div class="step-visual-title">브라우저 메뉴 열기</div>
+                        <div class="step-visual-desc">
+                            브라우저 우측 상단의 메뉴 버튼(⋮ 또는 ⋯)을 클릭하세요.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="install-step-visual">
+                    <div class="step-visual-icon">💾</div>
+                    <div class="step-visual-content">
+                        <div class="step-visual-number">2</div>
+                        <div class="step-visual-title">"앱 설치" 찾기</div>
+                        <div class="step-visual-desc">
+                            메뉴에서 "앱 설치", "설치", 또는 "${document.title} 설치"를 찾아 클릭하세요.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="install-step-visual">
+                    <div class="step-visual-icon">✅</div>
+                    <div class="step-visual-content">
+                        <div class="step-visual-number">3</div>
+                        <div class="step-visual-title">설치 확인</div>
+                        <div class="step-visual-desc">
+                            설치 팝업에서 "설치" 버튼을 클릭하면 완료됩니다!
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button onclick="closeInstallGuide()" class="install-btn" style="width: 100%; margin-top: 24px;">
+                확인했습니다
+            </button>
+        </div>
+    `;
+}
+
+// 브라우저 이름 가져오기
+function getBrowserName(browser) {
+    const names = {
+        'chrome': 'Chrome',
+        'chrome-ios': 'Chrome (iOS)',
+        'safari': 'Safari',
+        'firefox': 'Firefox',
+        'firefox-ios': 'Firefox (iOS)',
+        'edge': 'Edge',
+        'edge-ios': 'Edge (iOS)',
+        'samsung': 'Samsung Internet',
+        'opera': 'Opera'
+    };
+    return names[browser] || '현재 브라우저';
+}
+
+// URL 복사 및 Safari 안내
+function copyURLAndShowSafariGuide() {
+    const url = window.location.href;
+    
+    navigator.clipboard.writeText(url).then(() => {
+        showNotification('링크가 복사되었습니다! Safari에서 붙여넣기 하세요.', 'success');
+        
+        // Safari 앱 열기 시도 (iOS)
+        setTimeout(() => {
+            window.location.href = 'x-web-search://';
+        }, 1000);
+    }).catch(() => {
+        showNotification('링크 복사에 실패했습니다. 수동으로 복사해주세요.', 'error');
+    });
+}
+
+// 설치 가이드 탭 전환
+function switchInstallTab(tabName) {
+    // 모든 탭과 콘텐츠 비활성화
+    document.querySelectorAll('.browser-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelectorAll('.browser-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    
+    // 선택된 탭과 콘텐츠 활성화
+    if (tabName === 'address-bar') {
+        document.querySelector('.browser-tab:first-child').classList.add('active');
+        document.getElementById('address-bar-content').classList.add('active');
+    } else {
+        document.querySelector('.browser-tab:last-child').classList.add('active');
+        document.getElementById('menu-content').classList.add('active');
+    }
+}
+
+// 설치 가이드 닫기
+function closeInstallGuide() {
+    const modal = document.getElementById('install-guide-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// 설치 가이드 이벤트 리스너 설정
+function setupInstallGuideEventListeners() {
+    const modal = document.getElementById('install-guide-modal');
+    if (!modal) return;
+    
+    // 모달 배경 클릭 시 닫기
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeInstallGuide();
+        }
+    });
+    
+    // ESC 키로 닫기
+    const handleEscape = function(e) {
+        if (e.key === 'Escape') {
+            closeInstallGuide();
+            document.removeEventListener('keydown', handleEscape);
+        }
+    };
+    document.addEventListener('keydown', handleEscape);
+}
+
+
 // =================================
 // PWA 이벤트 리스너 등록 함수 (완전 코드)
 // =================================
@@ -1394,6 +1918,10 @@ window.closeInstallInstructions = closeInstallInstructions;
 window.goToHome = goToHome;
 window.updateFloatingHomeButton = updateFloatingHomeButton;
 window.initializeFloatingHomeButton = initializeFloatingHomeButton;
+window.showDetailedInstallGuide = showDetailedInstallGuide;
+window.closeInstallGuide = closeInstallGuide;
+window.switchInstallTab = switchInstallTab;
+window.copyURLAndShowSafariGuide = copyURLAndShowSafariGuide;
 
 console.log('[SCRIPT] 전역 함수 등록 완료');
 

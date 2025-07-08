@@ -80,9 +80,56 @@
         Kakao.init('2d2314bffebe68ccc1d592e504ddb4d5'); // 여기에 발급받은 JavaScript 키를 넣으세요.
     </script>
 
+    <!-- </head> 태그 직전에 추가 -->
+<script>
+// 페이지 로드 시 즉시 실행되는 안전장치
+document.addEventListener('DOMContentLoaded', function() {
+    // 0.5초 후 강제로 opacity 확인 및 수정
+    setTimeout(function() {
+        const activeSection = document.querySelector('.page-section.section-active');
+        if (activeSection) {
+            activeSection.style.opacity = '1';
+            activeSection.style.visibility = 'visible';
+            activeSection.style.filter = 'none';
+            activeSection.style.backdropFilter = 'none';
+        }
+        
+        const mainElement = document.querySelector('main');
+        if (mainElement) {
+            mainElement.style.opacity = '1';
+            mainElement.style.filter = 'none';
+        }
+        
+        const pageContainer = document.getElementById('page-container');
+        if (pageContainer) {
+            pageContainer.style.opacity = '1';
+            pageContainer.style.filter = 'none';
+        }
+    }, 500);
+});
+</script>
+
 </head>
 
 <body class="bg-gray-100">
+
+    <!-- PWA 설치 안내 팝업 --> <script>
+        // 페이지 로드 즉시 실행
+        (function() {
+            // 0.3초 후 강제 불투명도 설정
+            setTimeout(function() {
+                document.body.style.opacity = '1';
+                var allElements = document.querySelectorAll('*');
+                allElements.forEach(function(el) {
+                    if (el.style.opacity === '0' || el.style.opacity === '') {
+                        el.style.opacity = '1';
+                    }
+                });
+                console.log('[FORCE] 모든 요소 불투명도 강제 설정 완료');
+            }, 300);
+        })();
+    </script>
+        
     <!-- 로딩 오버레이 -->
     <div id="loading-overlay" class="fixed inset-0 bg-white bg-opacity-90 flex items-center justify-center z-50 hidden">
         <div class="text-center">
@@ -93,7 +140,7 @@
         </div>
     </div>
 
-    <!-- 개선된 앱 설치 배너 (index.html의 기존 설치 배너를 이것으로 교체) -->
+    <!-- 개선된 앱 설치 배너 -->
     <div id="install-banner" class="hidden install-banner">
         <div class="install-banner-content">
             <div class="install-banner-icon">📱</div>
@@ -112,16 +159,29 @@
             </div>
         </div>
 
-        <!-- 설치 진행 표시 (선택사항) -->
-        <div id="install-progress" class="install-progress hidden">
-            <div class="install-progress-bar"></div>
-            <div class="install-progress-text">설치 중...</div>
-        </div>
-
-        <!-- 다양한 디바이스용 설치 안내 -->
+        <!-- 설치 힌트 영역 -->
         <div id="install-hint" class="install-hint hidden">
             <div class="install-hint-text" id="install-hint-text">
                 <!-- JavaScript에서 디바이스별 텍스트가 설정됩니다 -->
+            </div>
+        </div>
+
+        <!-- 간단한 단계별 가이드 (선택사항) -->
+        <div class="install-steps-inline" style="display: none;">
+            <div class="install-step-inline">
+                <span class="step-icon">⋮</span>
+                <div class="step-number">1</div>
+                <div class="step-title">메뉴 열기</div>
+            </div>
+            <div class="install-step-inline">
+                <span class="step-icon">🏠</span>
+                <div class="step-number">2</div>
+                <div class="step-title">앱 설치</div>
+            </div>
+            <div class="install-step-inline">
+                <span class="step-icon">✅</span>
+                <div class="step-number">3</div>
+                <div class="step-title">확인</div>
             </div>
         </div>
     </div>
