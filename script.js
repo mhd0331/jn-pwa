@@ -597,6 +597,14 @@ function showNotification(message, type = 'info') {
 // =================================
 // PWA 설치 기능 (새로 추가할 함수들)
 // =================================
+/* function checkPWAInstallability() {
+    // 배너 해제 상태 확인 - 해제되었어도 무시하고 표시
+    const dismissedTime = localStorage.getItem('pwa-banner-dismissed');
+    
+    // 모바일 또는 PWA 설치 가능한 환경에서 항상 배너 표시
+    showInstallBanner();
+}
+*/
 
 // PWA 설치 가능 여부 확인 및 배너 표시
 function checkPWAInstallability() {
@@ -632,6 +640,7 @@ function checkPWAInstallability() {
         }
     }
 }
+
 
 // PWA 설치 가능 여부 확인
 function isPWAInstallable() {
@@ -727,12 +736,12 @@ function showInstallBanner() {
             }
 
             const browserGuides = {
-                'chrome': '💡 Chrome 메뉴(⋮)에서 "앱 설치", "앱에서 열기" 또는 "홈 화면에 추가"를 찾으세요',
-                'samsung': '💡 Samsung Internet 메뉴(≡)에서 "홈 화면에 추가"를 찾으세요',
-                'firefox': '💡 Firefox 메뉴(⋮)에서 "홈 화면에 추가"를 찾으세요',
-                'edge': '💡 Edge 메뉴(•••)에서 "앱 설치", "앱에서 열기"를 찾으세요'
+                'chrome': '💡 화면 맨 위의 Chrome 메뉴(⋮)에서 "앱 설치", "앱에서 열기" 또는 "홈 화면에 추가"를 찾으세요',
+                'samsung': '💡 화면 맨 위의 Samsung Internet 메뉴(≡)에서 "홈 화면에 추가"를 찾으세요',
+                'firefox': '💡 화면 맨 위의 Firefox 메뉴(⋮)에서 "홈 화면에 추가"를 찾으세요',
+                'edge': '💡 화면 맨 위의 Edge 메뉴(•••)에서 "앱 설치", "앱에서 열기"를 찾으세요'
             };
-            hintText = browserGuides[browser] || '💡 브라우저 메뉴에서 "앱 설치", "앱에서 열기" 또는 "홈 화면에 추가"를 찾으세요';
+            hintText = browserGuides[browser] || '💡 화면 맨 위의 브라우저 메뉴에서 "앱 설치", "앱에서 열기" 또는 "홈 화면에 추가"를 찾으세요';
         } else {
             // 데스크톱
             if (!deferredPrompt) {
@@ -740,12 +749,12 @@ function showInstallBanner() {
             }
 
             if (browser === 'chrome' || browser === 'edge') {
-                hintText = '💡 주소창 오른쪽의 설치 아이콘(💻)을 클릭하거나 메뉴에서 "앱 설치", "앱에서 열기"를 찾으세요';
+                hintText = '💡 화면 맨 위 주소창 오른쪽의 설치 아이콘(💻)을 클릭하거나 메뉴에서 "앱 설치", "앱에서 열기"를 찾으세요';
             } else if (browser === 'firefox') {
                 showInstallBtn = false;
                 hintText = '⚠️ Firefox는 PWA 설치를 지원하지 않습니다. Chrome이나 Edge를 사용해주세요';
             } else {
-                hintText = '💡 브라우저 메뉴에서 "앱 설치", "앱에서 열기" 옵션을 찾으세요';
+                hintText = '💡 화면 맨 위의 브라우저 메뉴에서 "앱 설치", "앱에서 열기" 옵션을 찾으세요';
             }
         }
 
@@ -803,15 +812,15 @@ function showMobileInstallBanner() {
 
         if (bannerText && installBtn) {
             if (isIOSDevice()) {
-                bannerText.textContent = '📱 Safari에서 공유버튼 > 홈 화면에 추가를 눌러 앱으로 설치하세요!';
+                bannerText.textContent = '📱 화면 맨 위의 Safari에서 공유버튼 > 홈 화면에 추가를 눌러 앱으로 설치하세요!';
                 installBtn.textContent = '설치방법';
                 installBtn.onclick = showIOSInstallInstructions;
             } else if (isAndroidDevice()) {
-                bannerText.textContent = '📱 Chrome 메뉴에서 "앱 설치", "앱에서 열기" 또는 "홈 화면에 추가"를 눌러 설치하세요!';
+                bannerText.textContent = '📱 화면 맨 위의 Chrome 메뉴에서 "앱 설치", "앱에서 열기" 또는 "홈 화면에 추가"를 눌러 설치하세요!';
                 installBtn.textContent = '설치방법';
                 installBtn.onclick = showAndroidInstallInstructions;
             } else {
-                bannerText.textContent = '📱 브라우저 메뉴에서 "앱 설치", "앱에서 열기"  또는 "홈 화면에 추가"를 찾아 설치하세요!';
+                bannerText.textContent = '📱 화면 맨 위의 브라우저 메뉴에서 "앱 설치", "앱에서 열기"  또는 "홈 화면에 추가"를 찾아 설치하세요!';
                 installBtn.textContent = '설치방법';
                 installBtn.onclick = showGeneralInstallInstructions;
             }
@@ -849,7 +858,7 @@ async function installPWA() {
     // 🔒 2단계: deferredPrompt 확인
     if (!deferredPrompt) {
         console.log('[PWA] deferredPrompt가 없음 - 수동 설치 안내');
-        showNotification('브라우저 메뉴에서 직접 설치해주세요', 'info');
+        showNotification('화면 맨 위의 브라우저 메뉴에서 직접 설치해주세요', 'info');
         showDetailedInstallGuide();
         return;
     }
@@ -1077,7 +1086,7 @@ function showManualInstallInstructions() {
             <div class="text-left">
                 <h4 class="font-bold mb-2">📱 iPhone/iPad 설치 방법:</h4>
                 <ol class="list-decimal list-inside space-y-1 text-sm">
-                    <li>Safari 브라우저에서 이 페이지를 열어주세요</li>
+                    <li>화면 맨 위의 Safari 브라우저에서 이 페이지를 열어주세요</li>
                     <li>하단의 <strong>공유 버튼</strong> (⬆️)을 눌러주세요</li>
                     <li><strong>"홈 화면에 추가"</strong>를 선택해주세요</li>
                     <li><strong>"추가"</strong> 버튼을 눌러 완료해주세요</li>
@@ -1090,7 +1099,7 @@ function showManualInstallInstructions() {
             <div class="text-left">
                 <h4 class="font-bold mb-2">📱 Android 설치 방법:</h4>
                 <ol class="list-decimal list-inside space-y-1 text-sm">
-                    <li>Chrome 브라우저에서 이 페이지를 열어주세요</li>
+                    <li>화면 맨 위의 Chrome 브라우저에서 이 페이지를 열어주세요</li>
                     <li>우상단의 <strong>메뉴 버튼</strong> (⋮)을 눌러주세요</li>
                     <li><strong>"앱 설치"</strong>, <strong>"앱에서 열기"</strong> 또는 <strong>"홈 화면에 추가"</strong>를 선택해주세요</li>
                     <li><strong>"설치"</strong> 또는 <strong>"열기"</strong> 버튼을 눌러 완료해주세요</li>
@@ -1103,9 +1112,9 @@ function showManualInstallInstructions() {
             <div class="text-left">
                 <h4 class="font-bold mb-2">💻 데스크톱 설치 방법:</h4>
                 <ol class="list-decimal list-inside space-y-1 text-sm">
-                    <li>Chrome 또는 Edge 브라우저를 사용해주세요</li>
-                    <li>주소창 우측의 <strong>설치 아이콘</strong> (💻)을 클릭하거나</li>
-                    <li>브라우저 메뉴에서 <strong>"앱 설치"</strong>, <strong>"앱에서 열기"</strong>를 찾아 클릭해주세요</li>
+                    <li>화면 맨 위의 Chrome 또는 Edge 브라우저를 사용해주세요</li>
+                    <li>화면 맨 위의 주소창 우측의 <strong>설치 아이콘</strong> (💻)을 클릭하거나</li>
+                    <li>화면 맨 위의 브라우저 메뉴에서 <strong>"앱 설치"</strong>, <strong>"앱에서 열기"</strong>를 찾아 클릭해주세요</li>
                     <li><strong>"설치"</strong> 또는 <strong>"열기"</strong> 버튼을 눌러 완료해주세요</li>
                 </ol>
                 <p class="text-xs text-gray-600 mt-2">* Firefox는 PWA 설치를 지원하지 않습니다</p>
@@ -1274,6 +1283,7 @@ function detectDeviceAndBrowser() {
 }
 
 // 설치 안내 배너 표시 함수 개선
+/*
 function showInstallBanner() {
     const banner = document.getElementById('install-banner');
     if (!banner) return;
@@ -1295,31 +1305,31 @@ function showInstallBanner() {
         if (os === 'ios') {
             showInstallBtn = false; // iOS는 직접 설치 불가
             if (browser === 'safari') {
-                hintText = '💡 Safari 하단의 공유 버튼(⬆️)을 눌러 "홈 화면에 추가"를 선택하세요';
+                hintText = '💡 화면 맨 위의 Safari 하단의 공유 버튼(⬆️)을 눌러 "홈 화면에 추가"를 선택하세요';
             } else {
                 hintText = '⚠️ iOS에서는 Safari 브라우저에서만 홈 화면에 추가할 수 있습니다. Safari로 열어주세요!';
             }
         } else if (os === 'android') {
             if (browser === 'chrome') {
-                hintText = '💡 "설치 안내" 버튼을 클릭하거나, Chrome 메뉴(⋮)에서 "앱 설치", "앱에서 열기", "홈화면에 추가"를 찾아 클릭하세요.';
+                hintText = '💡 "설치 안내" 버튼을 클릭하거나, 화면 맨 위의 Chrome 메뉴(⋮)에서 "앱 설치", "앱에서 열기", "홈화면에 추가"를 찾아 클릭하세요.';
             } else if (browser === 'samsung') {
                 showInstallBtn = false; // 삼성 브라우저는 수동 설치
-                hintText = '💡 Samsung Internet 메뉴(≡)에서 "앱 설치", "앱에서 열기", "홈화면에 추가"를 찾아 클릭하세요.';
+                hintText = '💡 화면 맨 위의 Samsung Internet 메뉴(≡)에서 "앱 설치", "앱에서 열기", "홈화면에 추가"를 찾아 클릭하세요.';
             } else if (browser === 'firefox') {
                 showInstallBtn = false; // Firefox는 수동 설치
-                hintText = '💡 Firefox 메뉴(⋮)에서 "앱 설치", "앱에서 열기", "홈화면에 추가"를 찾아 클릭하세요.';
+                hintText = '💡 화면 맨 위의 Firefox 메뉴(⋮)에서 "앱 설치", "앱에서 열기", "홈화면에 추가"를 찾아 클릭하세요.';
             } else {
-                hintText = '💡 브라우저 메뉴에서 "앱 설치", "앱에서 열기", "홈화면에 추가"를 찾아 클릭하세요.';
+                hintText = '💡 화면 맨 위의 브라우저 메뉴에서 "앱 설치", "앱에서 열기", "홈화면에 추가"를 찾아 클릭하세요.';
             }
         } else {
             // 데스크톱
             if (browser === 'chrome' || browser === 'edge') {
-                hintText = '💡 "설치 안내" 버튼을 클릭하거나 주소창 오른쪽의 "앱 설치", "앱에서 열기", "홈화면에 추가"를 찾아 클릭하세요.';
+                hintText = '💡 "설치 안내" 버튼을 클릭하거나 화면 맨 위의 주소창 오른쪽의 "앱 설치", "앱에서 열기", "홈화면에 추가"를 찾아 클릭하세요.';
             } else if (browser === 'firefox') {
                 showInstallBtn = false; // Firefox는 PWA 미지원
                 hintText = '⚠️ Firefox는 PWA 설치를 지원하지 않습니다. Chrome이나 Edge를 사용해주세요';
             } else {
-                hintText = '💡 브라우저 메뉴에서 "앱 설치", "앱에서 열기", "홈화면에 추가"를 찾아 클릭하세요.';
+                hintText = '💡 화면 맨 위의 브라우저 메뉴에서 "앱 설치", "앱에서 열기", "홈화면에 추가"를 찾아 클릭하세요.';
             }
         }
 
@@ -1354,6 +1364,7 @@ function showInstallBanner() {
         });
     }
 }
+*/
 
 // 상세 설치 가이드 모달 표시
 function showDetailedInstallGuide() {
@@ -1414,7 +1425,7 @@ function createIOSInstallGuide(browser) {
                     <div class="step-visual-content">
                         <div class="step-visual-title">Safari로 열어주세요</div>
                         <div class="step-visual-desc">
-                            iOS에서는 Safari 브라우저에서만 홈 화면에 추가할 수 있습니다.
+                            iOS에서는 화면 맨위의 Safari 브라우저에서만 홈 화면에 추가할 수 있습니다.
                         </div>
                         <div class="step-visual-note">
                             현재 브라우저: ${getBrowserName(browser)}
@@ -1440,7 +1451,7 @@ function createIOSInstallGuide(browser) {
                     <div class="step-visual-number">1</div>
                     <div class="step-visual-title">공유 버튼 찾기</div>
                     <div class="step-visual-desc">
-                        Safari 브라우저 하단 중앙의 공유 버튼(⬆️)을 터치하세요.
+                        화면 맨위의 Safari 브라우저 하단 중앙의 공유 버튼(⬆️)을 터치하세요.
                     </div>
                 </div>
             </div>
@@ -1498,7 +1509,7 @@ function createAndroidInstallGuide(browser) {
         'edge': {
             menuIcon: '•••',
             menuLocation: '화면 하단',
-            installText: '""앱 설치", "앱에서 열기", "홈 화면에 추가"'
+            installText: '"앱 설치", "앱에서 열기", "홈 화면에 추가"'
         }
     };
 
@@ -1516,7 +1527,7 @@ function createAndroidInstallGuide(browser) {
                     <div class="step-visual-number">1</div>
                     <div class="step-visual-title">메뉴 버튼 찾기</div>
                     <div class="step-visual-desc">
-                        ${guide.menuLocation}의 메뉴 버튼(${guide.menuIcon})을 터치하세요.
+                        화면 맨 위 ${guide.menuLocation}의 메뉴 버튼(${guide.menuIcon})을 터치하세요.
                     </div>
                 </div>
             </div>
@@ -1602,7 +1613,7 @@ function createDesktopInstallGuide(browser) {
                         <div class="step-visual-number">1</div>
                         <div class="step-visual-title">브라우저 메뉴 열기</div>
                         <div class="step-visual-desc">
-                            브라우저 우측 상단의 메뉴 버튼(⋮ 또는 ⋯)을 클릭하세요.
+                            화면 맨 위 브라우저 우측 상단의 메뉴 버튼(⋮ 또는 ⋯)을 클릭하세요.
                         </div>
                     </div>
                 </div>
@@ -1650,7 +1661,7 @@ function createDesktopInstallGuide(browser) {
                         <div class="step-visual-number">1</div>
                         <div class="step-visual-title">주소창 오른쪽 확인</div>
                         <div class="step-visual-desc">
-                            주소창 오른쪽에 설치 아이콘이 있는지 확인하세요.
+                            화면 맨 위 주소창 오른쪽에 설치 아이콘이 있는지 확인하세요.
                         </div>
                         <div class="step-visual-note">
                             Chrome: <svg style="display: inline-block; width: 16px; height: 16px; vertical-align: middle;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1690,7 +1701,7 @@ function createDesktopInstallGuide(browser) {
             </div>
             
             <button onclick="closeInstallGuide()" class="install-btn" style="width: 100%; margin-top: 24px;">
-                확인했습니다
+                화면으로 돌아가기
             </button>
         </div>
     `;
