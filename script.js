@@ -1482,7 +1482,7 @@ function createIOSInstallGuide(browser) {
             </div>
             
             <button onclick="closeInstallGuide()" class="install-btn" style="width: 100%; margin-top: 24px;">
-                확인했습니다
+                화면 돌아가기
             </button>
         </div>
     `;
@@ -1558,7 +1558,7 @@ function createAndroidInstallGuide(browser) {
             </div>
             
             <button onclick="closeInstallGuide()" class="install-btn" style="width: 100%; margin-top: 24px;">
-                확인했습니다
+                화면 돌아가기
             </button>
         </div>
     `;
@@ -1701,7 +1701,7 @@ function createDesktopInstallGuide(browser) {
             </div>
             
             <button onclick="closeInstallGuide()" class="install-btn" style="width: 100%; margin-top: 24px;">
-                화면으로 돌아가기
+                화면 돌아가기
             </button>
         </div>
     `;
