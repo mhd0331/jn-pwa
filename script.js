@@ -2350,6 +2350,36 @@ function loadCandidateProfile() {
             </div>
         `;
 
+         // 🆕 유튜브 동영상 섹션 추가
+        const videoSection = document.createElement('div');
+        videoSection.className = 'bg-white rounded-lg shadow-md p-6 mb-6';
+        videoSection.innerHTML = `
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+                <span class="mr-2">🎥</span>
+                이우규 후보 소개 영상
+            </h3>
+            <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+                <iframe 
+                    src="https://www.youtube-nocookie.com/embed/dQt9iQ_xGMk?autoplay=1&mute=1" 
+                    title="이우규 후보 소개 영상"
+                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; border-radius: 0.5rem;"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    allowfullscreen
+                    loading="lazy">
+                </iframe>
+            </div>
+            <p class="text-sm text-gray-600 mt-3 text-center">
+                ※ 영상을 클릭하여 재생하세요. 전체화면으로 보시려면 우측 하단의 전체화면 버튼을 클릭하세요.
+            </p>
+        `;
+
+        // profileElement 다음에 videoSection 삽입
+        if (experienceElement) {
+            experienceElement.parentNode.insertBefore(videoSection, experienceElement);
+        }
+
+
+
         // 경력 사항
         if (experienceElement && candidate.experience && candidate.experience.length > 0) {
             experienceElement.innerHTML = `
