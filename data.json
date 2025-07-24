@@ -66,17 +66,17 @@
     {"id": "population", "title": "미래 100년 인구 유입", "icon": "🏡", "color": "purple"}
   ],
   "townshipPromises": [
-    {"id": "jinan", "name": "진안읍", "population": "약 9,605명", "characteristics": "군청 소재지, 상업·행정 중심지"},
-    {"id": "donghyang", "name": "동향면", "population": "약 1,200명", "characteristics": "수려한 자연환경, 생태관광 잠재력"},
-    {"id": "maryeong", "name": "마령면", "population": "약 1,800명", "characteristics": "농업 중심지, 인삼 특산지"},
-    {"id": "baegun", "name": "백운면", "population": "약 1,400명", "characteristics": "농기계 임대사업소 운영, 고령화 진행"},
-    {"id": "bugui", "name": "부귀면", "population": "약 1,100명", "characteristics": "고랭지 농업, 금강·섬진강 발원지"},
-    {"id": "sangjeon", "name": "상전면", "population": "약 919명", "characteristics": "용담댐 수몰지역, 교육시설 부족"},
-    {"id": "seongsu", "name": "성수면", "population": "약 1,693명", "characteristics": "의료 취약지, 고산 협곡 지역"},
-    {"id": "ancheon", "name": "안천면", "population": "약 1,055명", "characteristics": "전북 최소 인구, 용담댐 수몰 영향"},
-    {"id": "yongdam", "name": "용담면", "population": "약 1,800명", "characteristics": "용담호 관광자원, 수변 레저 잠재력"},
-    {"id": "jeongcheon", "name": "정천면", "population": "약 2,100명", "characteristics": "수몰민 최대 지역, 아토피 치유마을"},
-    {"id": "jucheon", "name": "주천면", "population": "약 902명", "characteristics": "인구 소멸 위기, 운일암반일암 관광지"}
+    {"id": "jinan", "name": "진안읍", "population": "약 9,630명", "characteristics": "군청 소재지, 상업·행정 중심지"},
+    {"id": "donghyang", "name": "동향면", "population": "약 1,325명", "characteristics": "수려한 자연환경, 생태관광 잠재력"},
+    {"id": "maryeong", "name": "마령면", "population": "약 1,808명", "characteristics": "농업 중심지, 인삼 특산지"},
+    {"id": "baegun", "name": "백운면", "population": "약 1,951명", "characteristics": "농기계 임대사업소 운영, 고령화 진행"},
+    {"id": "bugui", "name": "부귀면", "population": "약 2,840명", "characteristics": "고랭지 농업, 금강·섬진강 발원지"},
+    {"id": "sangjeon", "name": "상전면", "population": "약 843명", "characteristics": "용담댐 수몰지역, 교육시설 부족"},
+    {"id": "seongsu", "name": "성수면", "population": "약 1,755명", "characteristics": "의료 취약지, 고산 협곡 지역"},
+    {"id": "ancheon", "name": "안천면", "population": "약 1,054명", "characteristics": "전북 최소 인구, 용담댐 수몰 영향"},
+    {"id": "yongdam", "name": "용담면", "population": "약 837명", "characteristics": "용담호 관광자원, 수변 레저 잠재력"},
+    {"id": "jeongcheon", "name": "정천면", "population": "약 1,037명", "characteristics": "수몰민 최대 지역, 아토피 치유마을"},
+    {"id": "jucheon", "name": "주천면", "population": "약 1,483명", "characteristics": "인구 소멸 위기, 운일암반일암 관광지"}
   ],
   "promiseDetails": {
     "participation": {
@@ -141,7 +141,7 @@
       "category": "면단위공약",
       "why": "동향면은 수려한 자연환경을 보유하고 있으나 이를 활용한 관광 및 생활 인프라가 부족하고, 디지털 격차 문제와 최근 인구 감소 추세가 지속되고 있습니다.",
       "what": "수변생태공원 조성 및 민물고기 보호센터 건립(80억원), 디지털 소통망 구축 및 정보격차 해소(28억원), 생활편의 인프라 확충 및 교통 서비스 개선(120억원)을 추진하겠습니다.",
-      "how": "1단계(2026-2027)로 하천생태 정밀조사 및 기본계획을 수립하고, 2단계(2028-2029)로 수변생태공원 1단계 조성(산책로, 관찰데크, 체험장)을 실시하며, 3단계(2030)로 민물고기 보호센터를 완공하겠습니다. 생활편의를 위한 면소재지의 신규 점포 유치를 위해 혁신적인 방안을 강구하며, ICT 인프라 확충으로 광통신망 고도화와 공공Wi-Fi를 확대하고, 의료·교통·복지 서비스를 종합 강화하겠습니다."
+      "how": "1단계(2026-2027)로 하천생태 정밀조사 및 기본계획을 수립하고, 2단계(2028-2029)로 수변생태공원 1단계 조성(산책로, 관찰데크, 체험장)을 실시하며, 3단계(2030)로 민물고기 보호센터를 완공하겠습니다. 생활편의를 위한 면소재지의 복합상가를 건립하고 상가 임대료를 3년간 50% 지원하며, ICT 인프라 확충으로 광통신망 고도화와 공공Wi-Fi를 확대하고, 의료·교통·복지 서비스를 종합 강화하겠습니다."
     },
     "maryeong": {
       "id": "maryeong",
@@ -157,7 +157,7 @@
       "category": "면단위공약",
       "why": "교통 불편으로 전원부지 분양 어려움이 지속되고, 행복콜택시 2대로 수요 대비 부족하며, 65세 이상 고령인구 비율이 20.3%에 달하는 상황입니다.",
       "what": "농기계 임대사업 혁신(24시간 언제든지), 상가·편의시설 유치 및 생활편의 확충, 백운면 특화 관광상품 개발, 공공임대주택 추가 건설을 추진하겠습니다.",
-      "how": "주말 및 공휴일 운영을 확대하여 연중무휴로 운영하고, 온라인 예약 시스템을 구축하며, 농기계 종류를 35종에서 50종으로 확대하고 배송 서비스를 도입하겠습니다. 백운면 복합상가를 건립하고 상가 임대료를 3년간 50% 지원하며, 공공임대주택을 기존 12세대에서 30세대로 확대하겠습니다."
+      "how": "주말 및 공휴일 운영을 확대하여 연중무휴로 운영하고, 온라인 예약 시스템을 구축하며, 농기계 종류를 35종에서 50종으로 확대하고 배송 서비스를 도입하겠습니다. 백운면 공공임대주택을 기존 12세대에서 30세대로 확대하겠습니다."
     },
     "bugui": {
       "id": "bugui",
